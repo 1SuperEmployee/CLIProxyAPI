@@ -1,5 +1,9 @@
 # CLI Proxy API
 
+> Super Employee fork: the maintained branch is `se/main`. It adds opt-in durable
+> account affinity. Read [FORK.md](FORK.md) for our patch, release and upgrade
+> procedure before installing or updating. The upstream project documentation follows.
+
 English | [中文](README_CN.md) | [日本語](README_JA.md)
 
 If you want to use CLIProxyAPI on your desktop, we recommend our [EasyCLIProxyAPI](https://github.com/router-for-me/EasyCLIProxyAPI) desktop client. It provides a graphical configuration UI, automatic updates, system tray integration, and one-click start/stop for the CLIProxyAPI service.
