@@ -54,6 +54,7 @@ func acquirePersistentSessionCache(path string, ttl time.Duration) (*SessionCach
 		cache := NewSessionCache(ttl)
 		cache.mu.Lock()
 		cache.statePath = path
+		cache.persistDirty = true // Create or validate the initial checkpoint.
 		err = cache.restoreLocked()
 		if err == nil {
 			cache.persistLocked()
@@ -104,7 +105,14 @@ func (c *SessionCache) persistenceError() error {
 	return nil
 }
 
-func (c *SessionCache) restoreLocked() error {
+func (c *SessionCache) restoreLocked() (err error) {
+	// A queued cleanup tick can run after Stop. Never let it replace a damaged
+	// checkpoint with a partially restored cache after initialization fails.
+	defer func() {
+		if err != nil {
+			c.persistErr = err
+		}
+	}()
 	f, err := os.Open(c.statePath)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
@@ -151,7 +159,7 @@ func (c *SessionCache) restoreLocked() error {
 // Called under the cache mutex after complete mutations, before Pick can return.
 // Any failure latches the cache closed for routing until an operator repairs it.
 func (c *SessionCache) persistLocked() {
-	if c.statePath == "" || c.persistErr != nil {
+	if c.statePath == "" || c.persistErr != nil || !c.persistDirty {
 		return
 	}
 	state := sessionCheckpoint{Version: 1}
@@ -168,6 +176,8 @@ func (c *SessionCache) persistLocked() {
 	}
 	if err != nil {
 		c.persistErr = err
+	} else {
+		c.persistDirty = false
 	}
 }
 

@@ -32,6 +32,7 @@ type SessionCache struct {
 	stopOnce         sync.Once
 	statePath        string
 	persistErr       error
+	persistDirty     bool
 	pickLocks        [64]sync.Mutex
 }
 
@@ -189,6 +190,7 @@ func (c *SessionCache) replaceAliasGroupsLocked(authID string, expiresAt time.Ti
 	}
 	entry := sessionEntry{authID: authID, expiresAt: expiresAt, aliases: append([]string(nil), aliases...)}
 	c.groups[primaryKey] = entry
+	c.persistDirty = true
 	for _, alias := range aliases {
 		c.entries[alias] = entry
 	}
@@ -222,6 +224,7 @@ func (c *SessionCache) removeAliasGroupLocked(entry sessionEntry) {
 	primaryKey := entry.aliases[0]
 	if currentGroup, ok := c.groups[primaryKey]; ok && sameSessionEntryGroup(currentGroup, entry) {
 		delete(c.groups, primaryKey)
+		c.persistDirty = true
 		if elem, ok := c.evictionElements[primaryKey]; ok {
 			c.evictionOrder.Remove(elem)
 			delete(c.evictionElements, primaryKey)
@@ -234,6 +237,7 @@ func (c *SessionCache) removeAliasGroupLocked(entry sessionEntry) {
 			continue
 		}
 		delete(c.entries, alias)
+		c.persistDirty = true
 	}
 }
 

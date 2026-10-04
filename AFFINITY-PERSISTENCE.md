@@ -38,6 +38,27 @@ persistence, multi-host replication, or a reset-aware account scheduler.
 Snapshot writes scale with the number of live bindings. This is intended for the
 small personal fleet; benchmark before adopting it for a large shared gateway.
 
+The second patch saves only actual mutations and refreshes a healthy binding once
+during selection. It still checkpoints synchronously before returning the account.
+A failed restore latches persistence closed before a queued cleanup can run, so
+partially loaded state cannot overwrite the original damaged checkpoint.
+
+Windows amd64 measurements on 4 October 2026, four Go processors, three runs of
+100 selections per case. Values are medians of average serial selection time;
+they exclude model inference and completion-time TTL refresh:
+
+| Saved sessions | First patch | Second patch |
+| --- | --- | --- |
+| 2 | 6.267 ms | 3.172 ms |
+| 32 | 4.148 ms | 2.023 ms |
+| 256 | 5.916 ms | 2.296 ms |
+
+Concurrent selection benchmarks also passed without account drift. These small
+samples describe this Windows host, not a latency SLA or maximum throughput.
+Benchmark with `go test ./sdk/cliproxy/auth -run '^$' -bench
+'^BenchmarkDurableSelection$' -benchtime=100x -count=3 -cpu=4`. Temporary synthetic
+state is used; no network inference or provider credentials are needed.
+
 Validation commands:
 
 ```sh
