@@ -132,7 +132,7 @@ func TestDurableAffinityConcurrentColdRequestsAndReload(t *testing.T) {
 	}
 }
 
-func TestDurableAffinityCorruptionAndWriteFailureFailClosed(t *testing.T) {
+func TestDurableAffinityCorruptionFallsBackWithoutOverwriting(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "state.json")
 	if err := os.WriteFile(path, []byte("broken"), 0600); err != nil {
 		t.Fatal(err)
@@ -140,24 +140,15 @@ func TestDurableAffinityCorruptionAndWriteFailureFailClosed(t *testing.T) {
 	s := durableTestSelector(t, path)
 	a := &Auth{ID: "a", Provider: "codex", Status: StatusActive}
 	opts := cliproxyexecutor.Options{Headers: http.Header{"Session-Id": {"session"}}}
-	if got, err := s.Pick(context.Background(), "codex", "model", opts, []*Auth{a}); err == nil || got != nil {
-		t.Fatal("corrupt file accepted")
+	if got, err := s.Pick(context.Background(), "codex", "model", opts, []*Auth{a}); err != nil || got != a {
+		t.Fatal("corrupt checkpoint stopped memory routing", err)
+	}
+	if s.stateErr == nil || s.cache.statePath != "" {
+		t.Fatal("corrupt checkpoint did not fall back to an independent memory cache")
 	}
 	data, _ := os.ReadFile(path)
 	if string(data) != "broken" {
 		t.Fatal("overwrote corrupt state")
-	}
-	path = filepath.Join(t.TempDir(), "state.json")
-	s = durableTestSelector(t, path)
-	// Replacing a file with a directory simulates a write/replace failure on all hosts.
-	if err := os.Rename(path, path+".saved"); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Mkdir(path, 0700); err != nil {
-		t.Fatal(err)
-	}
-	if got, err := s.Pick(context.Background(), "codex", "model", opts, []*Auth{a}); err == nil || got != nil {
-		t.Fatal("unsaved binding routed upstream")
 	}
 }
 

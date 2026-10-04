@@ -954,6 +954,13 @@ func NewSessionAffinitySelectorWithConfig(cfg SessionAffinityConfig) *SessionAff
 	if cfg.StateFile != "" {
 		cache.Stop()
 		cache, release, stateErr = acquirePersistentSessionCache(cfg.StateFile, cfg.TTL)
+		if stateErr != nil {
+			// A routing-cache checkpoint is optional. Never turn its failure into
+			// an inference outage or reuse a partially restored cache.
+			log.Warnf("session-affinity: checkpoint unavailable; using memory-only affinity: %v", stateErr)
+			cache = NewSessionCache(cfg.TTL)
+			release = cache.Stop
+		}
 	}
 	return &SessionAffinitySelector{
 		stateErr:         stateErr,
@@ -985,17 +992,6 @@ func (s *SessionAffinitySelector) Trees() *cliproxysession.InMemorySessionTreeSt
 // a session uses multiple models (e.g., gemini-2.5-pro and gemini-3-flash-preview)
 // that may be supported by different auth credentials, and to avoid cross-provider conflicts.
 func (s *SessionAffinitySelector) Pick(ctx context.Context, provider, model string, opts cliproxyexecutor.Options, auths []*Auth) (selected *Auth, pickErr error) {
-	if s.stateErr != nil {
-		return nil, fmt.Errorf("session affinity state unavailable: %w", s.stateErr)
-	}
-	if err := s.cache.persistenceError(); err != nil {
-		return nil, err
-	}
-	defer func() {
-		if err := s.cache.persistenceError(); err != nil {
-			selected, pickErr = nil, err
-		}
-	}()
 	entry := selectorLogEntry(ctx)
 	if opts.Metadata == nil {
 		opts.Metadata = make(map[string]any)

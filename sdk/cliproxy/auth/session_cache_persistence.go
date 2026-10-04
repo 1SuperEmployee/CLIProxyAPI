@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // A host-local routing checkpoint. No tokens, request bodies, or message history.
@@ -60,6 +62,11 @@ func acquirePersistentSessionCache(path string, ttl time.Duration) (*SessionCach
 			cache.persistLocked()
 			err = cache.persistErr
 		}
+		if err != nil {
+			// Initialization is abandoning this writer and releasing its OS lock.
+			// A queued cleanup must not retry after ownership has been released.
+			cache.persistRetryAt = time.Time{}
+		}
 		cache.mu.Unlock()
 		if err != nil {
 			cache.Stop()
@@ -84,6 +91,7 @@ func acquirePersistentSessionCache(path string, ttl time.Duration) (*SessionCach
 				// Serialize with an in-flight cache mutation before releasing the OS lock.
 				shared.cache.mu.Lock()
 				shared.cache.persistErr = errors.New("affinity checkpoint closed")
+				shared.cache.persistRetryAt = time.Time{}
 				_ = shared.lock.Close()
 				shared.cache.mu.Unlock()
 				delete(persistentSessionCaches.byPath, path)
@@ -111,6 +119,7 @@ func (c *SessionCache) restoreLocked() (err error) {
 	defer func() {
 		if err != nil {
 			c.persistErr = err
+			c.persistRetryAt = time.Time{}
 		}
 	}()
 	f, err := os.Open(c.statePath)
@@ -157,13 +166,18 @@ func (c *SessionCache) restoreLocked() (err error) {
 }
 
 // Called under the cache mutex after complete mutations, before Pick can return.
-// Any failure latches the cache closed for routing until an operator repairs it.
+// Write failures degrade restart affinity, never routing availability. Retry on
+// a later mutation after a bounded backoff, without sleeping in the request path.
+// Restore failures and a closed writer remain blocked from overwriting the file.
 func (c *SessionCache) persistLocked() {
-	if c.statePath == "" || c.persistErr != nil || !c.persistDirty {
+	if c.statePath == "" || !c.persistDirty {
+		return
+	}
+	now := time.Now()
+	if c.persistErr != nil && (c.persistRetryAt.IsZero() || now.Before(c.persistRetryAt)) {
 		return
 	}
 	state := sessionCheckpoint{Version: 1}
-	now := time.Now()
 	for el := c.evictionOrder.Front(); el != nil; el = el.Next() {
 		group := c.groups[el.Value.(string)]
 		if now.Before(group.expiresAt) {
@@ -175,8 +189,17 @@ func (c *SessionCache) persistLocked() {
 		err = writeSessionCheckpoint(c.statePath, data)
 	}
 	if err != nil {
+		if c.persistErr == nil {
+			log.Warnf("session-affinity: checkpoint save failed; routing continues in memory, retry after 30s: %v", err)
+		}
 		c.persistErr = err
+		c.persistRetryAt = now.Add(30 * time.Second)
 	} else {
+		if c.persistErr != nil {
+			log.Info("session-affinity: checkpoint persistence recovered")
+		}
+		c.persistErr = nil
+		c.persistRetryAt = time.Time{}
 		c.persistDirty = false
 	}
 }

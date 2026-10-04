@@ -14,15 +14,23 @@ For our Windows service this directory inherits the protected runtime ACL.
 Each completed cache mutation is synchronously checkpointed through a temporary
 file, file sync and replacement. Windows uses MoveFileEx with replacement and
 write-through flags; Unix also syncs the parent directory. Replacement must stay
-on the same filesystem. A process exit does not require a graceful shutdown flush.
+on the same filesystem. When a checkpoint succeeds, a process exit does not require a graceful shutdown flush.
 This does not claim survival of every filesystem, disk or physical power failure.
 
 An OS lock prevents a second process from owning the same checkpoint. Selectors
 created by configuration reload share a reference-counted cache within the process.
-Corrupt/unsupported state and write failures fail subsequent selection rather
-than silently changing accounts. Repair the disk/path or restore a valid checkpoint
-with the service stopped, then restart. Do not delete the checkpoint as routine
-recovery; doing so deliberately discards bindings.
+Checkpoint failures never reject model requests. If startup cannot read, validate,
+lock or create the checkpoint, the selector warns and starts with a fresh in-memory
+cache. Invalid state is preserved for investigation. If an active writer fails,
+existing in-memory bindings remain usable. It logs one warning, retains dirty state,
+and retries on a later mutation or cleanup after a 30-second backoff. Successful
+recovery logs once. There is no sleep or immediate retry loop on the request path.
+
+While persistence is degraded, a restart may lose assignments or restore an older
+assignment. Native conversation history is separate. Repair the disk/path or restore
+a valid checkpoint with the service stopped. Do not delete state as routine recovery.
+The process lock still prevents competing writers; it does not block memory routing.
+A failed restore or closed writer cannot later overwrite the original checkpoint.
 
 The existing credential eligibility, priority, model namespaces, alias handling,
 expiry, invalidation and failover rules remain in effect. Concurrent cold selection
@@ -74,3 +82,17 @@ account across a gateway service restart. Keep the previous executable and wrapp
 custom releases share checkpoint version 1, so rollback between them retains
 durable bindings. Returning to the official executable discards this custom
 affinity persistence; neither rollback requires OAuth changes.
+
+## Availability repair candidate
+
+An independent review reproduced a Windows reader denying file replacement in
+releases .1 and .2. Their fail-closed behavior then blocked all selection. The live
+service has persistence disabled while this candidate is evaluated. This source
+changes failure handling, not the on-disk schema or normal account selection.
+
+Tests exercise a blocked path, an actual Windows open reader, healthy affinity
+during failures, automatic later save recovery, and invalid startup state retained
+without rejecting selection. Existing abrupt-exit, single-writer, alias and restart
+tests remain. Per-mutation snapshot cost is unchanged; reducing write frequency
+requires a separate decision about persisted TTL freshness. This is not deployed
+until the release/build and actual-worker checks are recorded.
