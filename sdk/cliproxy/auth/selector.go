@@ -914,10 +914,15 @@ type SessionAffinitySelector struct {
 	cache            *SessionCache
 	matcher          *cliproxysession.MerklePrefixMatcher
 	subagentAffinity bool
+	stateErr         error
+	releaseState     func()
+	stopOnce         sync.Once
 }
 
 // SessionAffinityConfig configures the session affinity selector.
 type SessionAffinityConfig struct {
+	// StateFile optionally persists explicit session bindings on a single host.
+	StateFile        string
 	Fallback         Selector
 	TTL              time.Duration
 	SubagentAffinity *bool
@@ -943,9 +948,18 @@ func NewSessionAffinitySelectorWithConfig(cfg SessionAffinityConfig) *SessionAff
 	if cfg.SubagentAffinity != nil {
 		subagentAffinity = *cfg.SubagentAffinity
 	}
+	cache := NewSessionCache(cfg.TTL)
+	var stateErr error
+	release := cache.Stop
+	if cfg.StateFile != "" {
+		cache.Stop()
+		cache, release, stateErr = acquirePersistentSessionCache(cfg.StateFile, cfg.TTL)
+	}
 	return &SessionAffinitySelector{
+		stateErr:         stateErr,
+		releaseState:     release,
 		fallback:         cfg.Fallback,
-		cache:            NewSessionCache(cfg.TTL),
+		cache:            cache,
 		matcher:          cliproxysession.NewMerklePrefixMatcher(cfg.TTL),
 		subagentAffinity: subagentAffinity,
 	}
@@ -970,7 +984,18 @@ func (s *SessionAffinitySelector) Trees() *cliproxysession.InMemorySessionTreeSt
 // Note: The cache key includes provider, session ID, and model to handle cases where
 // a session uses multiple models (e.g., gemini-2.5-pro and gemini-3-flash-preview)
 // that may be supported by different auth credentials, and to avoid cross-provider conflicts.
-func (s *SessionAffinitySelector) Pick(ctx context.Context, provider, model string, opts cliproxyexecutor.Options, auths []*Auth) (*Auth, error) {
+func (s *SessionAffinitySelector) Pick(ctx context.Context, provider, model string, opts cliproxyexecutor.Options, auths []*Auth) (selected *Auth, pickErr error) {
+	if s.stateErr != nil {
+		return nil, fmt.Errorf("session affinity state unavailable: %w", s.stateErr)
+	}
+	if err := s.cache.persistenceError(); err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := s.cache.persistenceError(); err != nil {
+			selected, pickErr = nil, err
+		}
+	}()
 	entry := selectorLogEntry(ctx)
 	if opts.Metadata == nil {
 		opts.Metadata = make(map[string]any)
@@ -1037,6 +1062,12 @@ func (s *SessionAffinitySelector) Pick(ctx context.Context, provider, model stri
 
 	modelKey := canonicalModelKey(model)
 	cacheKey := provider + "::" + primaryID + "::" + modelKey
+	// Selection and binding must be atomic for the same cold conversation.
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(cacheKey))
+	lock := &s.cache.pickLocks[h.Sum64()%uint64(len(s.cache.pickLocks))]
+	lock.Lock()
+	defer lock.Unlock()
 	isFork := false
 	if opts.Metadata != nil {
 		if forkFlag, ok := opts.Metadata[cliproxyexecutor.IsForkMetadataKey].(bool); ok && forkFlag {
@@ -1332,12 +1363,14 @@ func (s *SessionAffinitySelector) Stop() {
 	if s == nil {
 		return
 	}
-	if s.cache != nil {
-		s.cache.Stop()
-	}
-	if s.matcher != nil {
-		s.matcher.Clear()
-	}
+	s.stopOnce.Do(func() {
+		if s.releaseState != nil {
+			s.releaseState()
+		}
+		if s.matcher != nil {
+			s.matcher.Clear()
+		}
+	})
 }
 
 // InvalidateAuth removes all session bindings for a specific auth.

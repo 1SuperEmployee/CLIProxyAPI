@@ -2,6 +2,7 @@ package cliproxy
 
 import (
 	"context"
+	"os"
 	"strings"
 	"time"
 
@@ -28,6 +29,7 @@ type routingRuntimeState struct {
 	strategy                 string
 	sessionAffinity          bool
 	sessionAffinityTTL       time.Duration
+	sessionAffinityStateFile string
 	sessionAffinitySubagents bool
 }
 
@@ -48,6 +50,7 @@ func normalizedRoutingRuntimeState(cfg *config.Config) routingRuntimeState {
 		state.strategy = "fill-first"
 	}
 	state.sessionAffinity = cfg.Routing.SessionAffinity
+	state.sessionAffinityStateFile = strings.TrimSpace(os.Getenv("CLIPROXY_AFFINITY_STATE_FILE"))
 	if ttl := strings.TrimSpace(cfg.Routing.SessionAffinityTTL); ttl != "" {
 		if parsed, errParse := time.ParseDuration(ttl); errParse == nil && parsed > 0 {
 			if parsed < time.Second {
@@ -76,6 +79,7 @@ func newRoutingSelector(state routingRuntimeState) coreauth.Selector {
 		subagents := state.sessionAffinitySubagents
 		selector = coreauth.NewSessionAffinitySelectorWithConfig(coreauth.SessionAffinityConfig{
 			Fallback:         selector,
+			StateFile:        state.sessionAffinityStateFile,
 			TTL:              state.sessionAffinityTTL,
 			SubagentAffinity: &subagents,
 		})

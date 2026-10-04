@@ -30,6 +30,9 @@ type SessionCache struct {
 	ttl              time.Duration
 	stopCh           chan struct{}
 	stopOnce         sync.Once
+	statePath        string
+	persistErr       error
+	pickLocks        [64]sync.Mutex
 }
 
 // NewSessionCache creates a cache with the specified TTL.
@@ -94,6 +97,7 @@ func (c *SessionCache) Get(sessionID string) (string, bool) {
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	defer c.persistLocked()
 	c.ensureInitializedLocked()
 	entry, ok = c.entries[sessionID]
 	if !ok {
@@ -114,6 +118,7 @@ func (c *SessionCache) GetAndRefresh(sessionID string) (string, bool) {
 	}
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	defer c.persistLocked()
 	c.ensureInitializedLocked()
 	entry, ok := c.entries[sessionID]
 	if !ok {
@@ -146,6 +151,7 @@ func (c *SessionCache) SetAliases(authID string, sessionIDs ...string) {
 	}
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	defer c.persistLocked()
 	c.ensureInitializedLocked()
 	now := time.Now()
 
@@ -316,6 +322,7 @@ func (c *SessionCache) Touch(sessionID, expectedAuthID string) bool {
 	}
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	defer c.persistLocked()
 	c.ensureInitializedLocked()
 	now := time.Now()
 	entry, ok := c.entries[sessionID]
@@ -334,6 +341,7 @@ func (c *SessionCache) CompareAndDelete(sessionID, expectedAuthID string) bool {
 	}
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	defer c.persistLocked()
 	c.ensureInitializedLocked()
 	entry, ok := c.entries[sessionID]
 	if !ok || entry.authID != expectedAuthID {
@@ -361,6 +369,7 @@ func (c *SessionCache) Invalidate(sessionID string) {
 	}
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	defer c.persistLocked()
 	c.ensureInitializedLocked()
 	entry, ok := c.entries[sessionID]
 	if !ok {
@@ -387,6 +396,7 @@ func (c *SessionCache) InvalidateAuth(authID string) {
 	}
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	defer c.persistLocked()
 	c.ensureInitializedLocked()
 	for _, group := range c.groups {
 		if group.authID == authID {
@@ -408,7 +418,9 @@ func (c *SessionCache) Stop() {
 }
 
 func (c *SessionCache) cleanupLoop() {
+	c.mu.RLock()
 	interval := c.ttl / 2
+	c.mu.RUnlock()
 	if interval < time.Millisecond {
 		interval = time.Millisecond
 	}
@@ -438,6 +450,7 @@ func (c *SessionCache) cleanup() {
 	now := time.Now()
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	defer c.persistLocked()
 	c.ensureInitializedLocked()
 	for _, group := range c.groups {
 		if !now.Before(group.expiresAt) {
