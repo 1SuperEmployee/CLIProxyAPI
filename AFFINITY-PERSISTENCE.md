@@ -70,6 +70,7 @@ GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go test -c ./sdk/cliproxy/auth -o ../bui
 
 Run the Windows test executable on the gateway PC against temporary synthetic
 state. Then verify two real completed-turn conversations remain on a non-default
-account across a gateway service restart. Keep the official executable and
-wrapper XML for rollback. Rollback discards this custom affinity persistence but
-does not require OAuth changes.
+account across a gateway service restart. Keep the previous executable and wrapper XML for rollback. The first and second
+custom releases share checkpoint version 1, so rollback between them retains
+durable bindings. Returning to the official executable discards this custom
+affinity persistence; neither rollback requires OAuth changes.

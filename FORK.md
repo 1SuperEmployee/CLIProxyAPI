@@ -8,8 +8,9 @@ license and attribution. Keep provider integrations and ordinary fixes upstream.
 
 - `se/main` is our maintained branch. The inherited `main` is upstream history,
   not our deployment branch.
-- `v8.0.13-se-affinity.1` identifies the deployed source commit
-  `2e68ec992f0faee124c9d191c07e7ab34e982a50`.
+- `v8.0.13-se-affinity.2` identifies the deployed source commit
+  `051b65101bfbbc3df4a9c401599b5f5f971c7999`.
+- `v8.0.13-se-affinity.1` remains the previous durable release for rollback.
 - Later documentation commits do not imply a new deployed executable.
 - `origin` points to this fork; `upstream` points to router-for-me/CLIProxyAPI.
 - Our change is described in [AFFINITY-PERSISTENCE.md](AFFINITY-PERSISTENCE.md).
@@ -29,12 +30,14 @@ Use a clean checkout of the release tag, then:
 ```sh
 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc-posix GOOS=windows GOARCH=amd64 \
   go build -p 2 \
-  -ldflags '-s -w -X main.Version=8.0.13-se-affinity.1 -X main.Commit=2e68ec9' \
-  -o cli-proxy-affinity-durable-full.exe ./cmd/server
-sha256sum cli-proxy-affinity-durable-full.exe
+  -ldflags '-s -w -X main.Version=8.0.13-se-affinity.2 -X main.Commit=051b651' \
+  -o cli-proxy-affinity-v2.exe ./cmd/server
+sha256sum cli-proxy-affinity-v2.exe
 ```
 
-The first release's executable SHA256 is
+The second release's executable SHA256 is
+`833ad767269322d902206d654e709c5797120f96ef7d3f4f226a44a7d668c99f`.
+The previous release's hash is
 `62ffc6129e9c882c4e1cb1ae9490078a9efcf6bf338a1cd19b24c967736125cb`.
 This identifies the tested artifact; a different compiler or build environment
 may produce different bytes. A successful rebuild is not deployment validation.
@@ -66,6 +69,6 @@ container-publishing workflows are not our release procedure. Releases are
 manual, and no workflow deploys to the live gateway. Enable automation only
 after adapting it to this documented scope.
 
-The first release has unit/race tests, Windows filesystem/process tests and
+The releases have unit/race tests, Windows filesystem/process tests and
 real completed-turn restart evidence. It does not establish exactly-once
 in-flight tool execution, every power-loss outcome, or large-fleet performance.
