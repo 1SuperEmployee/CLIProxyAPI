@@ -1087,7 +1087,9 @@ func (s *SessionAffinitySelector) Pick(ctx context.Context, provider, model stri
 		}
 	}
 
-	if cachedAuthID, ok := s.cache.GetAndRefresh(cacheKey); ok {
+	// bind refreshes and checkpoints the final selection. A refreshing lookup
+	// here would write the whole checkpoint twice for every healthy cache hit.
+	if cachedAuthID, ok := s.cache.Get(cacheKey); ok {
 		for _, auth := range available {
 			if auth.ID == cachedAuthID {
 				bind(auth.ID)
