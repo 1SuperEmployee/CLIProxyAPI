@@ -8,8 +8,8 @@ license and attribution. Keep provider integrations and ordinary fixes upstream.
 
 - `se/main` is our maintained branch. The inherited `main` is upstream history,
   not our deployment branch.
-- `v8.0.13-se-affinity.2` identifies the deployed source commit
-  `051b65101bfbbc3df4a9c401599b5f5f971c7999`.
+- `v8.0.13-se-affinity.3` identifies the deployed source commit
+  `79919de730fff9571254c8a70aa91e7cc637ff22`.
 - Releases `.1` and `.2` have an unsafe persistence error path. Use them only
   with `CLIPROXY_AFFINITY_STATE_FILE` empty; never restore their old durable XML.
 - Later documentation commits do not imply a new deployed executable.
@@ -31,15 +31,15 @@ Use a clean checkout of the release tag, then:
 ```sh
 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc-posix GOOS=windows GOARCH=amd64 \
   go build -p 2 \
-  -ldflags '-s -w -X main.Version=8.0.13-se-affinity.2 -X main.Commit=051b651' \
-  -o cli-proxy-affinity-v2.exe ./cmd/server
-sha256sum cli-proxy-affinity-v2.exe
+  -ldflags '-s -w -X main.Version=8.0.13-se-affinity.3 -X main.Commit=79919de' \
+  -o cli-proxy-affinity-v3.exe ./cmd/server
+sha256sum cli-proxy-affinity-v3.exe
 ```
 
-The second release's executable SHA256 is
+The third release's executable SHA256 is
+`d20c7472528abe3664b3b715840778d48533f4f302ba310e9d2978c44b8dbf46`.
+The memory-only .2 fallback has SHA256
 `833ad767269322d902206d654e709c5797120f96ef7d3f4f226a44a7d668c99f`.
-The previous release's hash is
-`62ffc6129e9c882c4e1cb1ae9490078a9efcf6bf338a1cd19b24c967736125cb`.
 This identifies the tested artifact; a different compiler or build environment
 may produce different bytes. A successful rebuild is not deployment validation.
 
@@ -58,7 +58,8 @@ may produce different bytes. A successful rebuild is not deployment validation.
    work, follow-up tools, native conversation continuity, account attribution,
    and retention after a service restart with alternative accounts available.
 6. Promote only after those checks pass. If they fail, restore the previous
-   executable/configuration while preserving the current auth store. Back up
+   executable with persistence disabled while preserving the current auth store.
+   Never restore an old .1/.2 configuration that enables persistence. Back up
    routing state before any schema change and verify rollback compatibility.
 
 Review upstream weekly for relevant fixes, and sooner when a provider integration

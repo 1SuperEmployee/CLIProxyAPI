@@ -79,24 +79,24 @@ GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go test -c ./sdk/cliproxy/auth -o ../bui
 
 Run the Windows test executable on the gateway PC against temporary synthetic
 state. Then verify two real completed-turn conversations remain on a non-default
-account across a gateway service restart. Keep the previous executable and wrapper XML for rollback. The first and second
-custom releases share checkpoint version 1, so rollback between them retains
-durable bindings. Returning to the official executable discards this custom
-affinity persistence; neither rollback requires OAuth changes.
+account across a gateway service restart. Keep the previous executable and wrapper XML for rollback. Release .3 retains checkpoint version1. Rollback to .1/.2 must disable persistence
+because their failed-save path blocks routing. Returning to the official executable
+also discards this custom affinity persistence; neither rollback requires OAuth changes.
 
-## Availability repair candidate
+## Availability repair in release .3
 
 An independent review reproduced a Windows reader denying file replacement in
-releases .1 and .2. Their fail-closed behavior then blocked all selection. The live
-service has persistence disabled while this candidate is evaluated. This source
-changes failure handling, not the on-disk schema or normal account selection.
+releases .1 and .2. Their fail-closed behavior then blocked all selection. Release .3
+fixes that failure handling without changing the on-disk schema or normal account
+selection. When re-enabling persistence after a memory-only interval, archive the
+stale checkpoint first so it cannot replace newer in-memory assignments.
 
 Tests exercise a blocked path, an actual Windows open reader, healthy affinity
 during failures, automatic later save recovery, and invalid startup state retained
 without rejecting selection. Existing abrupt-exit, single-writer, alias and restart
 tests remain. Per-mutation snapshot cost is unchanged; reducing write frequency
-requires a separate decision about persisted TTL freshness. This is not deployed
-until the release/build and actual-worker checks are recorded.
+requires a separate decision about persisted TTL freshness. Record release/build
+and actual-worker checks for each deployment.
 
 The startup-reader regression holds a Windows reader across initialization and
 checks that restored bindings survive and saving recovers. Startup logs report
