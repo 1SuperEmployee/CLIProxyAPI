@@ -20,8 +20,9 @@ This does not claim survival of every filesystem, disk or physical power failure
 An OS lock prevents a second process from owning the same checkpoint. Selectors
 created by configuration reload share a reference-counted cache within the process.
 Checkpoint failures never reject model requests. If startup cannot read, validate,
-lock or create the checkpoint, the selector warns and starts with a fresh in-memory
-cache. Invalid state is preserved for investigation. If an active writer fails,
+or lock the checkpoint, the selector warns and starts with a fresh in-memory
+cache. If restore succeeds but the first save fails, the restored cache and writer
+remain active and use the normal save-retry path. Invalid state is preserved for investigation. If an active writer fails,
 existing in-memory bindings remain usable. It logs one warning, retains dirty state,
 and retries on a later mutation or cleanup after a 30-second backoff. Successful
 recovery logs once. There is no sleep or immediate retry loop on the request path.
@@ -96,3 +97,12 @@ without rejecting selection. Existing abrupt-exit, single-writer, alias and rest
 tests remain. Per-mutation snapshot cost is unchanged; reducing write frequency
 requires a separate decision about persisted TTL freshness. This is not deployed
 until the release/build and actual-worker checks are recorded.
+
+The startup-reader regression holds a Windows reader across initialization and
+checks that restored bindings survive and saving recovers. Startup logs report
+`mode=active` or `mode=retry-pending` with the group count. The selector's existing
+warning reports memory-only fallback after a restore or ownership failure.
+
+Releases .1 and .2 must not be used with persistence enabled. Roll back to the
+previous executable with the state-file environment variable empty, or to the
+official executable. Preserve current OAuth material in either case.

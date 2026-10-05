@@ -59,8 +59,14 @@ func acquirePersistentSessionCache(path string, ttl time.Duration) (*SessionCach
 		cache.persistDirty = true // Create or validate the initial checkpoint.
 		err = cache.restoreLocked()
 		if err == nil {
+			// A restored binding remains authoritative even if the initial save
+			// is temporarily blocked. Keep this writer and its normal retry path.
 			cache.persistLocked()
-			err = cache.persistErr
+			mode := "active"
+			if cache.persistErr != nil {
+				mode = "retry-pending"
+			}
+			log.Infof("session-affinity: persistence initialized | mode=%s groups=%d", mode, len(cache.groups))
 		}
 		if err != nil {
 			// Initialization is abandoning this writer and releasing its OS lock.
