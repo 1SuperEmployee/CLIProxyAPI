@@ -33,6 +33,7 @@ type SessionCache struct {
 	statePath        string
 	persistErr       error
 	persistDirty     bool
+	persistRetryAt   time.Time
 	pickLocks        [64]sync.Mutex
 }
 

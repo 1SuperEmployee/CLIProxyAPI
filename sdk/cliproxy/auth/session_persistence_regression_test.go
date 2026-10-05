@@ -56,7 +56,7 @@ func TestDurableAffinityNoMutationDoesNotWriteCheckpoint(t *testing.T) {
 	if err := s.cache.persistenceError(); err != nil {
 		t.Fatalf("no-op attempted a checkpoint write: %v", err)
 	}
-	// A real binding change must still persist synchronously and fail closed.
+	// A real binding change must still attempt persistence and report failure.
 	s.cache.Set("new", "b")
 	if s.cache.persistenceError() == nil {
 		t.Fatal("binding mutation ignored failed checkpoint write")

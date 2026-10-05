@@ -10,7 +10,8 @@ license and attribution. Keep provider integrations and ordinary fixes upstream.
   not our deployment branch.
 - `v8.0.13-se-affinity.2` identifies the deployed source commit
   `051b65101bfbbc3df4a9c401599b5f5f971c7999`.
-- `v8.0.13-se-affinity.1` remains the previous durable release for rollback.
+- Releases `.1` and `.2` have an unsafe persistence error path. Use them only
+  with `CLIPROXY_AFFINITY_STATE_FILE` empty; never restore their old durable XML.
 - Later documentation commits do not imply a new deployed executable.
 - `origin` points to this fork; `upstream` points to router-for-me/CLIProxyAPI.
 - Our change is described in [AFFINITY-PERSISTENCE.md](AFFINITY-PERSISTENCE.md).
@@ -60,7 +61,7 @@ may produce different bytes. A successful rebuild is not deployment validation.
    executable/configuration while preserving the current auth store. Back up
    routing state before any schema change and verify rollback compatibility.
 
-Review upstream for relevant fixes regularly and when a provider integration
+Review upstream weekly for relevant fixes, and sooner when a provider integration
 breaks. Existing healthy conversations keep their account ahead of any future
 reset-time preference. A provider cache hit is separate from an affinity hit.
 
