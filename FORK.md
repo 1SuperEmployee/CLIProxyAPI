@@ -1,6 +1,8 @@
 # Super Employee maintenance
 
-This fork carries a small, opt-in durability patch on CLIProxyAPI v8.0.13.
+The accepted personal-fleet release carries a small, opt-in durability patch on
+CLIProxyAPI v8.0.16. The exact validated artifact retains its
+`8.0.16-se-affinity.4-rc1` version; promotion does not rebuild or rename its bytes.
 Upstream remains https://github.com/router-for-me/CLIProxyAPI. Preserve its MIT
 license and attribution. Keep provider integrations and ordinary fixes upstream.
 
@@ -8,7 +10,9 @@ license and attribution. Keep provider integrations and ordinary fixes upstream.
 
 - `se/main` is our maintained branch. The inherited `main` is upstream history,
   not our deployment branch.
-- `v8.0.13-se-affinity.3` identifies the deployed source commit
+- `v8.0.16-se-affinity.4-rc1` is the accepted personal-fleet artifact, built from
+  `a4aa7fb5c56d48a5737fb7334d2b290080157146`. Later commits change tests/docs only.
+- `v8.0.13-se-affinity.3` identifies the retained rollback source commit
   `79919de730fff9571254c8a70aa91e7cc637ff22`.
 - Releases `.1` and `.2` have an unsafe persistence error path. Use them only
   with `CLIPROXY_AFFINITY_STATE_FILE` empty; never restore their old durable XML.
@@ -24,7 +28,7 @@ and operational logs stay outside the repository and release assets.
 
 ## Build the Windows gateway
 
-The deployed executable was built on Linux using Go 1.27.1 and Debian Bookworm's
+The accepted .3 rollback executable was built on Linux using Go 1.27.1 and Debian Bookworm's
 `gcc-mingw-w64-x86-64-posix`. CGO must stay enabled to retain plugin support.
 Use a clean checkout of the release tag, then:
 
@@ -106,11 +110,43 @@ compare with the accepted release under similar load. Then perform the bounded
 real-worker checks above. Tests use temporary synthetic state, never live auth or
 the live affinity checkpoint.
 
-The 6 October review found 8.0.16 changes to Claude continuation/tool aliases,
-prompt-cache options, credential persistence and stream error handling. It merges
-textually with our maintained branch, but has not passed our candidate validation
-or been deployed. Upstream has not replaced our durable affinity implementation.
-Keep the deployed release pinned until that evaluation is complete.
+The 6 October candidate passed the full Go suite, focused affinity/auth-persistence
+race tests, a Windows CGO server/test build and all ten Windows durability tests.
+An unmodified upstream checkout reproduces a catalog-test cleanup failure: it tries
+to restore the Devin catalog with Home mode enabled, which now disables that catalog.
+The candidate corrects that test-only flag. Three-repeat isolated and race checks
+and the full suite pass after the correction. No production behavior was changed
+to silence the test.
+
+The candidate Windows artifact is built from merge commit a4aa7fb5, with Go1.27.1,
+MinGW-posix GCC12 and CGO enabled. Its version is8.0.16-se-affinity.4-rc1; SHA256 is
+4209a2dbbaf59fd60050c814eb259a8d2ad66cc1e9d4ff21bfca65249b07aeef.
+The later test-cleanup commit changes no production source. This exact artifact
+passed live acceptance on 6 October; retain the rc1 version for traceability.
+The release remains labelled prerelease publicly because validation covers the
+operator's personal fleet, not all upstream clients.
+
+On the same Windows host, three runs of100 selections gave median serial durable
+selection times of3.463ms at2 bindings,2.149ms at32, and2.357ms at256. The accepted
+release measured3.253/2.274/2.410ms in the preceding check. Concurrent cases passed
+without account drift. These are short selector/checkpoint samples, not throughput
+or whole-request latency guarantees.
+
+Actual Claude Code/Sonnet and Codex/Luna workers passed useful tool work,
+follow-ups and a completed-turn gateway restart on 6 October. Native conversations
+and account assignments remained stable, cache reads were observed, and all
+nonexpired checkpoint groups survived both cutovers. Worker processes were briefly
+held between completed turns and then released without worker restarts.
+This is bounded personal-fleet acceptance, not an in-flight recovery guarantee.
+A separate concurrent Claude request returned client-cancel status 499; its cause
+was not established, and it was not the tested conversation. Upstream's tool-alias store for shortened Claude
+continuations is process-local and distinct from our durable account bindings.
+Its missing-state response requests full-history replay. The installed client
+continued successfully after restart, but we did not deliberately force this
+shortened-continuation error branch. That branch remains an explicit test limit;
+a saved account binding alone does not establish continuation compatibility. Credential persistence
+also changed upstream; rollback must preserve the newest auth files, not restore
+an old credential snapshot.
 
 An update record must name the deployed tag, candidate tag, reviewed relevant
 changes, test results, artifact checksum, rollback compatibility and decision.
@@ -125,3 +161,9 @@ after adapting it to this documented scope.
 The releases have unit/race tests, Windows filesystem/process tests and
 real completed-turn restart evidence. It does not establish exactly-once
 in-flight tool execution, every power-loss outcome, or large-fleet performance.
+
+The normal software rollback from this release selects the retained .3 executable
+and preserves current OAuth files and schema-1 affinity state. The durability
+implementation and schema are unchanged between .3 and this artifact. Do not
+restore old credentials as part of a software rollback. A live rollback drill to
+.3 has not been performed.
