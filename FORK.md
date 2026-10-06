@@ -57,14 +57,65 @@ may produce different bytes. A successful rebuild is not deployment validation.
 5. After active turns finish, test actual Claude Code and Codex workers: useful
    work, follow-up tools, native conversation continuity, account attribution,
    and retention after a service restart with alternative accounts available.
-6. Promote only after those checks pass. If they fail, restore the previous
-   executable with persistence disabled while preserving the current auth store.
-   Never restore an old .1/.2 configuration that enables persistence. Back up
-   routing state before any schema change and verify rollback compatibility.
+6. Promote only after those checks pass. If they fail, restore the last accepted
+   executable and its reviewed compatible service configuration, preserving current
+   auth and conversation state. A future candidate falling back to .3 may retain
+   persistence only when checkpoint compatibility is verified. A rollback to .1/.2
+   must disable persistence. Back up routing state before any schema change.
 
 Review upstream weekly for relevant fixes, and sooner when a provider integration
 breaks. Existing healthy conversations keep their account ahead of any future
 reset-time preference. A provider cache hit is separate from an affinity hit.
+
+## Maintenance check
+
+The operator maintaining the personal fleet owns this check. It is manual: this
+document does not create a scheduled job or imply that somebody is watching it.
+Run it weekly, before a gateway upgrade, and when provider behavior changes:
+
+```sh
+git status --short
+git fetch --quiet origin
+git fetch --quiet --no-tags upstream main
+gh release list -R router-for-me/CLIProxyAPI --limit 5
+git diff --stat v8.0.13 origin/se/main
+git diff --name-only v8.0.13-se-affinity.3 origin/se/main
+```
+
+Choose a published upstream tag after reviewing its release notes. Fetch that tag
+explicitly; inspect the endpoint-to-endpoint diff, then its ancestry-path log. This
+checkout began shallow, so an unrestricted history range can include unrelated old
+side-branch history. Do not interpret that as thousands of new changes.
+
+```sh
+git fetch --quiet --no-tags upstream tag v8.0.16
+git diff --stat v8.0.13 v8.0.16
+git log --ancestry-path --no-merges --oneline v8.0.13..v8.0.16
+git merge-tree --write-tree origin/se/main v8.0.16
+```
+
+These example tags identify the 6 October review; choose and record the tags for
+each later check. `merge-tree` checks textual integration without switching the
+checkout or live service. A clean result is not runtime or semantic validation.
+
+Before accepting a candidate, rerun the full Go suite, the focused race tests in
+AFFINITY-PERSISTENCE.md, and a server build. Run the Windows-specific durability
+tests with the release compiler/CGO settings, including startup under a blocked
+checkpoint replacement. Measure `BenchmarkDurableSelection` on the same PC and
+compare with the accepted release under similar load. Then perform the bounded
+real-worker checks above. Tests use temporary synthetic state, never live auth or
+the live affinity checkpoint.
+
+The 6 October review found 8.0.16 changes to Claude continuation/tool aliases,
+prompt-cache options, credential persistence and stream error handling. It merges
+textually with our maintained branch, but has not passed our candidate validation
+or been deployed. Upstream has not replaced our durable affinity implementation.
+Keep the deployed release pinned until that evaluation is complete.
+
+An update record must name the deployed tag, candidate tag, reviewed relevant
+changes, test results, artifact checksum, rollback compatibility and decision.
+Keep machine names, account labels, raw test logs and fleet task state in private
+operations records. This public repository is for source and generic procedures.
 
 GitHub Actions are disabled for this fork initially. Inherited release and
 container-publishing workflows are not our release procedure. Releases are
