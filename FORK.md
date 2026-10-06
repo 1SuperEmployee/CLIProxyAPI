@@ -1,6 +1,7 @@
 # Super Employee maintenance
 
-This fork carries a small, opt-in durability patch on CLIProxyAPI v8.0.13.
+The accepted release carries a small, opt-in durability patch on CLIProxyAPI v8.0.13.
+This candidate branch merges upstream v8.0.16; it is not yet a deployed release.
 Upstream remains https://github.com/router-for-me/CLIProxyAPI. Preserve its MIT
 license and attribution. Keep provider integrations and ordinary fixes upstream.
 
@@ -106,11 +107,34 @@ compare with the accepted release under similar load. Then perform the bounded
 real-worker checks above. Tests use temporary synthetic state, never live auth or
 the live affinity checkpoint.
 
-The 6 October review found 8.0.16 changes to Claude continuation/tool aliases,
-prompt-cache options, credential persistence and stream error handling. It merges
-textually with our maintained branch, but has not passed our candidate validation
-or been deployed. Upstream has not replaced our durable affinity implementation.
-Keep the deployed release pinned until that evaluation is complete.
+The 6 October candidate passed the full Go suite, focused affinity/auth-persistence
+race tests, a Windows CGO server/test build and all ten Windows durability tests.
+An unmodified upstream checkout reproduces a catalog-test cleanup failure: it tries
+to restore the Devin catalog with Home mode enabled, which now disables that catalog.
+The candidate corrects that test-only flag. Three-repeat isolated and race checks
+and the full suite pass after the correction. No production behavior was changed
+to silence the test.
+
+The candidate Windows artifact is built from merge commit a4aa7fb5, with Go1.27.1,
+MinGW-posix GCC12 and CGO enabled. Its version is8.0.16-se-affinity.4-rc1; SHA256 is
+4209a2dbbaf59fd60050c814eb259a8d2ad66cc1e9d4ff21bfca65249b07aeef.
+The later test-cleanup commit changes no production source. This is a candidate,
+not an accepted service release or a new deployed tag.
+
+On the same Windows host, three runs of100 selections gave median serial durable
+selection times of3.463ms at2 bindings,2.149ms at32, and2.357ms at256. The accepted
+release measured3.253/2.274/2.410ms in the preceding check. Concurrent cases passed
+without account drift. These are short selector/checkpoint samples, not throughput
+or whole-request latency guarantees.
+
+Actual Claude/Codex canaries and a completed-turn gateway restart are still required
+before release acceptance. Upstream's tool-alias store for shortened Claude
+continuations is process-local and distinct from our durable account bindings.
+Its missing-state response requests full-history replay; the real installed client
+must demonstrate its response to that condition where applicable. A saved account
+binding alone does not establish continuation compatibility. Credential persistence
+also changed upstream; rollback must preserve the newest auth files, not restore
+an old credential snapshot.
 
 An update record must name the deployed tag, candidate tag, reviewed relevant
 changes, test results, artifact checksum, rollback compatibility and decision.
