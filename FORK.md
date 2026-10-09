@@ -82,8 +82,8 @@ git status --short
 git fetch --quiet origin
 git fetch --quiet --no-tags upstream main
 gh release list -R router-for-me/CLIProxyAPI --limit 5
-git diff --stat v8.0.13 origin/se/main
-git diff --name-only v8.0.13-se-affinity.3 origin/se/main
+git diff --stat v8.0.16 origin/se/main
+git diff --name-only v8.0.16-se-affinity.4-rc1 origin/se/main
 ```
 
 Choose a published upstream tag after reviewing its release notes. Fetch that tag
@@ -92,13 +92,13 @@ checkout began shallow, so an unrestricted history range can include unrelated o
 side-branch history. Do not interpret that as thousands of new changes.
 
 ```sh
-git fetch --quiet --no-tags upstream tag v8.0.16
-git diff --stat v8.0.13 v8.0.16
-git log --ancestry-path --no-merges --oneline v8.0.13..v8.0.16
-git merge-tree --write-tree origin/se/main v8.0.16
+git fetch --quiet --no-tags upstream tag v8.0.23
+git diff --stat v8.0.16 v8.0.23
+git log --ancestry-path --no-merges --oneline v8.0.16..v8.0.23
+git merge-tree --write-tree origin/se/main v8.0.23
 ```
 
-These example tags identify the 6 October review; choose and record the tags for
+These example tags identify the 9 October review; choose and record the tags for
 each later check. `merge-tree` checks textual integration without switching the
 checkout or live service. A clean result is not runtime or semantic validation.
 
@@ -148,6 +148,11 @@ a saved account binding alone does not establish continuation compatibility. Cre
 also changed upstream; rollback must preserve the newest auth files, not restore
 an old credential snapshot.
 
+Put each completed upstream review under `maintenance/reviews/YYYY-MM-DD-target.md`.
+[The 9 October review](maintenance/reviews/2026-10-09-v8.0.23.md) records the
+8.0.23 candidate, source checks, an independently reproduced cache-mark defect and
+remaining release gates. Keep CURRENT.md as the entry point, not another task board.
+
 An update record must name the deployed tag, candidate tag, reviewed relevant
 changes, test results, artifact checksum, rollback compatibility and decision.
 Keep machine names, account labels, raw test logs and fleet task state in private
@@ -165,5 +170,6 @@ in-flight tool execution, every power-loss outcome, or large-fleet performance.
 The normal software rollback from this release selects the retained .3 executable
 and preserves current OAuth files and schema-1 affinity state. The durability
 implementation and schema are unchanged between .3 and this artifact. Do not
-restore old credentials as part of a software rollback. A live rollback drill to
-.3 has not been performed.
+restore old credentials as part of a software rollback. A completed-turn software rollback drill to
+.3 and return passed on 6 October, preserving the tested conversations/accounts.
+That bounded same-host drill does not prove in-flight or host-loss recovery.

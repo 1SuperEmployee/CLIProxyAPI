@@ -106,3 +106,9 @@ warning reports memory-only fallback after a restore or ownership failure.
 Releases .1 and .2 must not be used with persistence enabled. Roll back to the
 previous executable with the state-file environment variable empty, or to the
 official executable. Preserve current OAuth material in either case.
+
+## Maintained base
+
+The accepted artifact now carries this patch on upstream v8.0.16. The v8.0.23
+integration is a separate review candidate; see CURRENT.md and FORK.md for source
+and release status. Upstream has not replaced the durable checkpoint patch.

@@ -1,7 +1,7 @@
 # CLI Proxy API
 
 > Super Employee fork: the maintained branch is `se/main`. It adds opt-in durable
-> account affinity. Read [FORK.md](FORK.md) for our patch, release and upgrade
+> account affinity. Start with [CURRENT.md](CURRENT.md), then [FORK.md](FORK.md) for our patch, release and upgrade
 > procedure before installing or updating. The upstream project documentation follows.
 
 English | [中文](README_CN.md) | [日本語](README_JA.md)
