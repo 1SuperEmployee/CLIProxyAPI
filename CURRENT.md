@@ -7,9 +7,10 @@ change that executable. Read [FORK.md](FORK.md) before building or updating.
 
 The [9 October upstream review](maintenance/reviews/2026-10-09-v8.0.23.md)
 compares upstream `v8.0.16` with `v8.0.23`. `se/review-v8.0.23` is an isolated
-integration candidate, not a deployed release. Mac package/race checks and a
-server build passed. Follow [current qualification](maintenance/qualification.md)
-for broader test results, environment limits and remaining Windows/client checks.
+integration candidate. Its verified `8.0.23-se-affinity.5-rc1` artifact is now
+running in the personal fleet at the operator's request; actual-client acceptance
+is deferred. The last fully accepted rollback remains the v8.0.16 artifact above. Follow [current qualification](maintenance/qualification.md)
+for broader test results, environment limits and remaining actual-client checks.
 An upstream cache-mark defect was reproduced offline.
 
 No automatic updater or scheduled reviewer is installed. No live configuration,
