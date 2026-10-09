@@ -13,9 +13,10 @@ All seven stable release notes after the accepted v8.0.16 base were included.
 Issue 6491 remains open. Its null-cache-mark defect was independently reproduced;
 actual native-client impact remains unknown. See the finished source review.
 
-The accepted executable remains `8.0.16-se-affinity.4-rc1`. No live restart,
-configuration change, credential enrollment or worker migration is part of these
-offline checks. No automatic updater is installed.
+The last fully accepted rollback remains `8.0.16-se-affinity.4-rc1`. The
+`8.0.23-se-affinity.5-rc1` candidate was subsequently deployed at the operator's
+request, with actual-client acceptance deferred. Offline checks did not change
+the live service. No automatic updater is installed.
 
 ## Checks and limits
 
@@ -61,8 +62,8 @@ SHA256:
 - Server: `cd72dc10db89d58338daa1c3b6e2bf9774bcb30f9c65257909b228caefad89f7`.
 - Auth tests: `157507f354d8efbd6ea00d94a4e8bfd23ef92a850a3daf726ddafb3ef15acb8e`.
 
-These are candidate bytes, not a deployed or accepted release. Both PC copies
-passed SHA256 verification. The candidate server was not started. The full Windows
+These are candidate bytes, deployed with native-client acceptance pending. Both PC
+copies passed SHA256 verification. The full Windows
 auth package passed all 954 top-level tests, including all ten durability tests.
 It used temporary synthetic state, never live auth or checkpoint.
 The Windows full auth package requires two tracked public JSON fixtures under
@@ -99,6 +100,22 @@ The custom affinity checkpoint remains schema 1; its implementation is unchanged
 The usage subscriber's serialization is unchanged, including latency/first-token
 millisecond fields. This supports recorder compatibility; improved upstream
 first-token semantics still need observation on actual client traffic.
+
+## Deployment checkpoint
+
+The bounded cutover restored all 26 nonexpired schema-1 bindings. Previously idle
+workers were held and released with their native processes unchanged. The service
+selected the checksum-verified candidate; the earlier executable and service XML
+remain available. No provider enrollment, credential restoration or worker migration
+was performed. Private HTTPS access returned the expected unauthenticated 401 from
+the Mac and a Linux host. This proves transport/startup, not a completed model turn.
+
+The operator check caught Windows stopping the dependent usage recorder along with
+the gateway. It was restored. The private restart operator now restores services
+that were running before stopping their gateway dependency. This is an operator
+repair; gateway source and candidate bytes remain unchanged. A subsequent bounded
+restart verified automatic recorder return and retained all 26 bindings again.
+The usage feed reconnected with a fresh heartbeat. Specialist tests remain deferred.
 
 ## Remaining acceptance
 
