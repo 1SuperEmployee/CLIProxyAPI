@@ -15,7 +15,8 @@ actual native-client impact remains unknown. See the finished source review.
 
 The last fully accepted rollback remains `8.0.16-se-affinity.4-rc1`. The
 `8.0.23-se-affinity.5-rc1` candidate was subsequently deployed at the operator's
-request, with actual-client acceptance deferred. Offline checks did not change
+request. Actual-client useful work and same-thread follow-ups subsequently passed
+on 9 October, within the scope recorded below. Offline checks did not change
 the live service. No automatic updater is installed.
 
 ## Checks and limits
@@ -62,7 +63,8 @@ SHA256:
 - Server: `cd72dc10db89d58338daa1c3b6e2bf9774bcb30f9c65257909b228caefad89f7`.
 - Auth tests: `157507f354d8efbd6ea00d94a4e8bfd23ef92a850a3daf726ddafb3ef15acb8e`.
 
-These are candidate bytes, deployed with native-client acceptance pending. Both PC
+These are candidate bytes, deployed and checked with real native useful work and
+follow-ups as recorded below. Broader fault-path acceptance remains separate. Both PC
 copies passed SHA256 verification. The full Windows
 auth package passed all 954 top-level tests, including all ten durability tests.
 It used temporary synthetic state, never live auth or checkpoint.
@@ -115,13 +117,34 @@ the gateway. It was restored. The private restart operator now restores services
 that were running before stopping their gateway dependency. This is an operator
 repair; gateway source and candidate bytes remain unchanged. A subsequent bounded
 restart verified automatic recorder return and retained all 26 bindings again.
-The usage feed reconnected with a fresh heartbeat. Specialist tests remain deferred.
+The usage feed reconnected with a fresh heartbeat. Real specialist useful-work
+checks subsequently passed as recorded below.
+
+## Native useful-work checkpoint, 9 October
+
+The actual Claude Code and Codex specialists resumed their existing native
+conversations after the earlier gateway deployment/restart, completed useful
+file/research work, and amended/read back their artifacts in a same-thread
+follow-up. Native transcript IDs matched relay associations and usage metadata.
+Sonnet 5.5 and Luna/high were retained. All 26 model requests succeeded, with one
+account per conversation across model/tool requests and follow-ups. Both follow-ups
+had positive provider cache reads. Both conversations ended cleanly without pending
+tools or relay messages. Gateway/recorder processes and the recorder connection
+remained unchanged. No credentials, permissions, services or routing were changed.
+
+The test conversations were old and idle, without a matching binding at baseline.
+This proves stable renewed bindings during work, not multi-day account retention.
+Turn timing was observed but tasks differed, so it is not a controlled latency
+comparison. Private native histories, prompts, IDs, account labels and receipts
+remain outside this public repository.
 
 ## Remaining acceptance
 
-The source, Linux suite/race, Windows build/auth/durability and selector comparison
-checks above are complete. Arrange a quiet checkpoint for actual Claude Code and
-Codex useful work,
-follow-up tools, account attribution, effort/model retention and native continuity.
-Include a completed-turn restart and shortened-continuation recovery. Treat opaque
-cross-account failover separately. Synthetic passes do not accept a live deployment.
+Useful work, ordinary follow-up tools, account attribution, model/effort retention,
+provider cache reads and native-history resumption after deployment passed. The
+source/synthetic/Windows checks above remain separate evidence. No further restart
+was induced with the test's newly warm bindings. Deliberately forced shortened
+Claude continuation/missing-alias recovery and opaque cross-account failover are
+still unproved. Do not interrupt active inference to turn those unknowns into
+passing claims. The integration remains a draft; no source promotion or rebuild
+was performed for this evidence-only pass.
