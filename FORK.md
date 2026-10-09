@@ -67,15 +67,15 @@ may produce different bytes. A successful rebuild is not deployment validation.
    persistence only when checkpoint compatibility is verified. A rollback to .1/.2
    must disable persistence. Back up routing state before any schema change.
 
-Review upstream weekly for relevant fixes, and sooner when a provider integration
-breaks. Existing healthy conversations keep their account ahead of any future
+Check official releases daily and when a provider integration breaks. Review new
+changes before selecting an update. Existing healthy conversations keep their account ahead of any future
 reset-time preference. A provider cache hit is separate from an affinity hit.
 
 ## Maintenance check
 
 The operator maintaining the personal fleet owns this check. It is manual: this
 document does not create a scheduled job or imply that somebody is watching it.
-Run it weekly, before a gateway upgrade, and when provider behavior changes:
+Check metadata daily, before a gateway upgrade, and when provider behavior changes:
 
 ```sh
 git status --short
@@ -152,6 +152,8 @@ Put each completed upstream review under `maintenance/reviews/YYYY-MM-DD-target.
 [The 9 October review](maintenance/reviews/2026-10-09-v8.0.23.md) records the
 8.0.23 candidate, source checks, an independently reproduced cache-mark defect and
 remaining release gates. Keep CURRENT.md as the entry point, not another task board.
+Keep ongoing test/build qualification in [maintenance/qualification.md](maintenance/qualification.md),
+without rewriting a completed review or duplicating the fleet task board.
 
 An update record must name the deployed tag, candidate tag, reviewed relevant
 changes, test results, artifact checksum, rollback compatibility and decision.
