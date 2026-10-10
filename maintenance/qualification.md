@@ -3,23 +3,52 @@
 This is the live qualification record, not a task queue. Completed source reviews
 remain under `reviews/`. Read CURRENT.md for the accepted artifact.
 
-## Latest source candidate, 10 October
+## Current personal-fleet release, 10 October
 
-`se/review-main-2026-10-10` integrates upstream main3de4e248 at merge afeb3f50.
-Latest stable remains v8.0.23. Issue6491 is now closed and its fix is in this
-candidate. See reviews/2026-10-10-main.md. This source candidate is not deployed;
-all live/rollback artifact statements below refer to the earlier qualification.
+Source04248f92 integrates upstream main3de4e248 and adds an opt-in authenticated
+GET-only loopback ledger bridge. Latest stable remains v8.0.23. See the finished
+main review; this release includes unreleased upstream fixes.
 
-- macOS Go1.26.1 relevant provider, auth, service, usage, queue, plugin and protocol
-  suites passed; focused affinity/cache/manager/canceled-cooldown race checks passed.
-- Full suite passed100 packages, with29 packages having no tests. Only
-  internal/discovery failed its multicast advertiser/browser integration test.
-  No test was skipped or weakened. An uncached check on pristine upstream3de4e248 reproduced the identical
-  undiscovered-instance failure. Its precise cause remains unestablished.
-- macOS server build passed. Recorder compatibility check verified that new raw
-  key/provider fields are ignored by its existing allowlist.
-- No Windows artifact or durability/timing run, native-client acceptance, deployment,
-  restart or performance improvement is claimed for this new candidate.
+- macOS relevant suites and focused races passed. Full Mac suite passed100 packages,
+  with29 no-test packages; discovery multicast failed identically on pristine upstream.
+- Networking-enabled Linux full suite passed, including discovery; focused bridge,
+  affinity and cancellation/cooldown races passed. No upstream test was weakened.
+- Windows CGO server and auth-test binaries built using Go1.27.1 / MinGW-posix GCC12.
+  The full auth executable passed958 top-level tests including10 durability tests,
+  with tracked public fixtures and temporary synthetic state.
+- Three 100-selection Windows benchmark runs per case, four Go processors: serial
+  medians at2/32/256 bindings were3.271/2.147/2.402ms; prior v5 measured
+  3.159/2.138/2.430ms. This short sample shows comparable selector behavior;
+  it does not establish whole-request throughput or improved provider latency.
+- Bridge rejection/authentication, method/path restriction, loopback-only destinations,
+  redirects, query forwarding, timeout, malformed/oversized JSON and reader failure
+  were tested synthetically. The reader owns response schemas; the bridge owns
+  bounded authenticated transport, rather than duplicating the reader schema.
+- Approved completed-turn cutover restored27 nonexpired bindings, retained OAuth,
+  restored the running recorder and released all16 workers without worker restarts.
+- Actual Claude Code/Sonnet and Codex/Luna conversations did useful tool/file work
+  before and after restart in the same native sessions and same provider accounts,
+  with cache reads, completed native turns and delivered follow-ups. Final maintenance
+  inventory had16 running/unheld seats,287 histories and no blockers.
+- The production static console rendered real quota and ledger data through the
+  authenticated same-origin bridge. Its original layout is privately maintained;
+  panel auto updates were already disabled. The development server is not required.
+
+Artifact identity `8.0.23-se-affinity.6-rc1`, source04248f92:
+
+```sh
+CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc-posix GOOS=windows GOARCH=amd64 \
+  go build -p 2 \
+  -ldflags '-s -w -X main.Version=8.0.23-se-affinity.6-rc1 -X main.Commit=04248f92' \
+  -o cli-proxy-affinity-v6-rc1.exe ./cmd/server
+```
+
+Server SHA256 `a51b27274cead678ff5ae95cfe358bec812ba9d071261c35a6af509a3e8ed27d`.
+Auth-test SHA256 `096db80a03bcf9234490262156bdb1296b5e4109ba3c948fa5d851924a6300cb`.
+Immediate software rollback retains v5 and the prior panel; v8.0.16 remains the older
+fully accepted baseline. This check does not prove forced continuation/failover,
+recovery during an active provider turn, full host takeover or broad load behavior.
+No provider credentials or private records were supplied to the builder or this repo.
 
 ## Previous v8.0.23 qualification
 

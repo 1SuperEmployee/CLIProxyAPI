@@ -1,12 +1,21 @@
 # Super Employee maintenance
 
-The accepted personal-fleet release carries a small, opt-in durability patch on
-CLIProxyAPI v8.0.16. The exact validated artifact retains its
-`8.0.16-se-affinity.4-rc1` version; promotion does not rebuild or rename its bytes.
+The current personal-fleet release is `8.0.23-se-affinity.6-rc1`, source04248f92,
+with upstream main3de4e248 and the opt-in durability and ledger transport patches.
+Read CURRENT.md and maintenance/qualification.md for exact evidence and limits.
+The earlier v8.0.16 artifact remains the broader accepted baseline; v5 plus its
+previous panel is immediate software recovery. Never rename or rebuild accepted bytes.
 Upstream remains https://github.com/router-for-me/CLIProxyAPI. Preserve its MIT
 license and attribution. Keep provider integrations and ordinary fixes upstream.
 
 ## Source and releases
+
+- `v8.0.23-se-affinity.6-rc1` identifies source04248f92. The Windows artifact passed
+  bounded personal-fleet normal-work and completed-turn restart acceptance.
+- Optional `CLIPROXY_LEDGER_READER_URL` enables only three authenticated read-only
+  `/v8/management/observability/ledger/` paths to a literal loopback HTTP reader.
+  No new listener or public management access is added. Reader failures do not
+  gate inference. Its data schema belongs to the separately maintained reader.
 
 - `se/main` is our maintained branch. The inherited `main` is upstream history,
   not our deployment branch.

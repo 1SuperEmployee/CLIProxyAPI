@@ -1,26 +1,20 @@
 # Maintained fork
 
 `se/main` is the maintained branch; inherited `main` is upstream history.
-The accepted personal-fleet artifact is `v8.0.16-se-affinity.4-rc1`, built from
-`a4aa7fb5c56d48a5737fb7334d2b290080157146`. Later documentation commits do not
-change that executable. Read [FORK.md](FORK.md) before building or updating.
+The current personal-fleet artifact is `8.0.23-se-affinity.6-rc1`, built from
+`04248f92` with upstream main pinned at `3de4e248`. Latest published stable remains
+v8.0.23. This includes reviewed unreleased fixes; do not call it a newer stable.
+Read [FORK.md](FORK.md) and [current qualification](maintenance/qualification.md).
 
-The [9 October upstream review](maintenance/reviews/2026-10-09-v8.0.23.md)
-compares upstream `v8.0.16` with `v8.0.23`. `se/review-v8.0.23` is an isolated
-integration candidate. Its verified `8.0.23-se-affinity.5-rc1` artifact is now
-running in the personal fleet at the operator's request. Actual Claude Code and
-Codex useful work and same-native-session follow-ups passed on 9 October. This
-was a bounded normal-work check; deliberate continuation/failover branches and
-a further warm-binding restart were not exercised. The last fully accepted
-rollback remains the v8.0.16 artifact above. Follow
-[current qualification](maintenance/qualification.md)
-for broader test results, environment limits and remaining actual-client checks.
-An upstream cache-mark defect was reproduced offline.
+The Windows cutover on 10 October retained 27 nonexpired bindings without changing
+OAuth. Actual Claude Code/Sonnet and Codex/Luna useful work and post-restart
+same-native-session/account follow-ups passed with cache reads. All16 workers were
+released without restarting them. The optional authenticated loopback ledger bridge
+supports the privately maintained static console. Neither the reader nor the console
+is on the inference path.
 
-No automatic updater or scheduled reviewer is installed. No live configuration,
-provider credentials or private fleet records belong in this repository.
-
-The [10 October main review](maintenance/reviews/2026-10-10-main.md) integrates
-unreleased upstream head3de4e248 on `se/review-main-2026-10-10`. It includes the
-upstream fix for issue6491 and preserves the existing durability patch. This is
-an undeployed source candidate; it does not change the live or rollback artifacts.
+Immediate software recovery retains the prior v5 executable and panel. The older
+v8.0.16 artifact remains the earlier fully accepted baseline. Forced continuation,
+failover and broad load/outage paths remain unproved by this bounded release check.
+No automatic provider updater or scheduled reviewer is installed. Live configuration,
+provider credentials, checkpoints and private fleet records never belong here.
