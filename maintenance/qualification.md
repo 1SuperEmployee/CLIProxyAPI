@@ -3,6 +3,26 @@
 This is the live qualification record, not a task queue. Completed source reviews
 remain under `reviews/`. Read CURRENT.md for the accepted artifact.
 
+## Latest source candidate, 10 October
+
+`se/review-main-2026-10-10` integrates upstream main3de4e248 at merge afeb3f50.
+Latest stable remains v8.0.23. Issue6491 is now closed and its fix is in this
+candidate. See reviews/2026-10-10-main.md. This source candidate is not deployed;
+all live/rollback artifact statements below refer to the earlier qualification.
+
+- macOS Go1.26.1 relevant provider, auth, service, usage, queue, plugin and protocol
+  suites passed; focused affinity/cache/manager/canceled-cooldown race checks passed.
+- Full suite passed100 packages, with29 packages having no tests. Only
+  internal/discovery failed its multicast advertiser/browser integration test.
+  No test was skipped or weakened. An uncached check on pristine upstream3de4e248 reproduced the identical
+  undiscovered-instance failure. Its precise cause remains unestablished.
+- macOS server build passed. Recorder compatibility check verified that new raw
+  key/provider fields are ignored by its existing allowlist.
+- No Windows artifact or durability/timing run, native-client acceptance, deployment,
+  restart or performance improvement is claimed for this new candidate.
+
+## Previous v8.0.23 qualification
+
 ## Candidate and official state
 
 The candidate is `se/review-v8.0.23`, source

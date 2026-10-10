@@ -19,3 +19,8 @@ An upstream cache-mark defect was reproduced offline.
 
 No automatic updater or scheduled reviewer is installed. No live configuration,
 provider credentials or private fleet records belong in this repository.
+
+The [10 October main review](maintenance/reviews/2026-10-10-main.md) integrates
+unreleased upstream head3de4e248 on `se/review-main-2026-10-10`. It includes the
+upstream fix for issue6491 and preserves the existing durability patch. This is
+an undeployed source candidate; it does not change the live or rollback artifacts.
