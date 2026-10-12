@@ -18,3 +18,8 @@ v8.0.16 artifact remains the earlier fully accepted baseline. Forced continuatio
 failover and broad load/outage paths remain unproved by this bounded release check.
 No automatic provider updater or scheduled reviewer is installed. Live configuration,
 provider credentials, checkpoints and private fleet records never belong here.
+
+`se/quota-selection-policy` is an unaccepted development branch for a pure
+nearest-weekly-reset decision prototype and synthetic tests. It is not registered
+as a selector and has no live call sites, provider parser, collector or routing
+configuration. Scope qualification and runtime integration remain separate work.
