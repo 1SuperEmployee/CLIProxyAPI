@@ -1723,6 +1723,9 @@ func (m *Manager) routeAwareSelectionRequired(auth *Auth, routeModel string) boo
 }
 
 func (m *Manager) pickNextLegacy(ctx context.Context, provider, model string, opts cliproxyexecutor.Options, tried map[string]struct{}) (*Auth, ProviderExecutor, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	if m.HomeEnabled() {
 		auth, exec, _, err := m.pickNextViaHome(ctx, model, opts, tried)
 		return auth, exec, err
@@ -1790,6 +1793,12 @@ func (m *Manager) pickNextLegacy(ctx context.Context, provider, model string, op
 		return nil, nil, errPick
 	}
 	if !handled {
+		if m.prepareSelectionQuotas(ctx, selector, provider, model, opts, selectorAuths) {
+			if err := ctx.Err(); err != nil {
+				return nil, nil, err
+			}
+			return m.pickNextLegacy(context.WithValue(ctx, quotaSelectionPreparedKey{}, true), provider, model, opts, tried)
+		}
 		selectorCtx := selectorContextForAvailableAuths(ctx, selector, model)
 		selected, errPick = selector.Pick(selectorCtx, provider, selectionArgForSelector(selector, model), opts, selectorAuths)
 		if errPick != nil {
@@ -2042,6 +2051,9 @@ func (m *Manager) pickNext(ctx context.Context, provider, model string, opts cli
 }
 
 func (m *Manager) pickNextMixedLegacy(ctx context.Context, providers []string, model string, opts cliproxyexecutor.Options, tried map[string]struct{}) (*Auth, ProviderExecutor, string, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	if m.HomeEnabled() {
 		return m.pickNextViaHome(ctx, model, opts, tried)
 	}
@@ -2124,6 +2136,12 @@ func (m *Manager) pickNextMixedLegacy(ctx context.Context, providers []string, m
 		return nil, nil, "", errPick
 	}
 	if !handled {
+		if m.prepareSelectionQuotas(ctx, selector, "mixed", model, opts, selectorAuths) {
+			if err := ctx.Err(); err != nil {
+				return nil, nil, "", err
+			}
+			return m.pickNextMixedLegacy(context.WithValue(ctx, quotaSelectionPreparedKey{}, true), providers, model, opts, tried)
+		}
 		selectorCtx := selectorContextForAvailableAuths(ctx, selector, model)
 		selected, errPick = selector.Pick(selectorCtx, "mixed", selectionArgForSelector(selector, model), opts, selectorAuths)
 		if errPick != nil {

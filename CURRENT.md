@@ -19,9 +19,14 @@ failover and broad load/outage paths remain unproved by this bounded release che
 No automatic provider updater or scheduled reviewer is installed. Live configuration,
 provider credentials, checkpoints and private fleet records never belong here.
 
-`se/quota-selection-policy` is an unaccepted development branch for a pure
-nearest-weekly-reset decision prototype and synthetic tests. It is not registered
-as a selector and has no live call sites, provider parser, collector or routing
-configuration. Ranking uses only shared weekly quota, with shared short-window
-headroom when present. Supplemental model limits stay with existing rejection and
-cooldown handling. Shared-quota normalization and runtime integration remain open.
+`se/quota-selection-policy` is an unaccepted development branch with an opt-in
+shared-quota preference integrated into Manager/session affinity. `routing.nearest-reset`
+defaults off and requires session affinity. Shared Claude/Codex observations are
+normalized in memory; stale cold-selection candidates share bounded usage GETs.
+There is no poller, separate credential refresh or durable quota store. Healthy
+bindings remain authoritative and network waits occur before affinity pick locks.
+After waiting, eligibility is gathered again and the atomic binding check remains.
+Supplemental model limits retain existing rejection/cooldown handling. Synthetic
+source qualification passed apart from the unchanged local discovery failure;
+see [qualification](maintenance/qualification.md). This branch is not merged or
+deployed; observation and controlled host/runtime qualification remain open.

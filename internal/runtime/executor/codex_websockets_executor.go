@@ -52,6 +52,13 @@ func NewCodexAutoExecutor(cfg *config.Config) *CodexAutoExecutor {
 
 func (e *CodexAutoExecutor) Identifier() string { return "codex" }
 
+func (e *CodexAutoExecutor) FetchSelectionQuota(ctx context.Context, auth *cliproxyauth.Auth) ([]byte, error) {
+	if e == nil || e.httpExec == nil {
+		return nil, fmt.Errorf("codex auto executor: http executor is nil")
+	}
+	return e.httpExec.FetchSelectionQuota(ctx, auth)
+}
+
 func (e *CodexAutoExecutor) PrepareRequest(req *http.Request, auth *cliproxyauth.Auth) error {
 	if e == nil || e.httpExec == nil {
 		return nil

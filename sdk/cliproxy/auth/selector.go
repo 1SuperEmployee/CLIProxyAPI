@@ -917,6 +917,7 @@ type SessionAffinitySelector struct {
 	stateErr         error
 	releaseState     func()
 	stopOnce         sync.Once
+	quota            *selectionQuotaCache
 }
 
 // SessionAffinityConfig configures the session affinity selector.
@@ -926,6 +927,7 @@ type SessionAffinityConfig struct {
 	Fallback         Selector
 	TTL              time.Duration
 	SubagentAffinity *bool
+	QuotaSelection   *QuotaSelectionConfig
 }
 
 // NewSessionAffinitySelector creates a new session-aware selector.
@@ -969,6 +971,7 @@ func NewSessionAffinitySelectorWithConfig(cfg SessionAffinityConfig) *SessionAff
 		cache:            cache,
 		matcher:          cliproxysession.NewMerklePrefixMatcher(cfg.TTL),
 		subagentAffinity: subagentAffinity,
+		quota:            newSelectionQuotaCache(cfg.QuotaSelection),
 	}
 }
 
@@ -1045,7 +1048,7 @@ func (s *SessionAffinitySelector) Pick(ctx context.Context, provider, model stri
 			return nil, errAvailable
 		}
 		entry.Debugf("session-affinity: no session ID extracted, falling back to default selector | provider=%s model=%s", provider, model)
-		return s.fallback.Pick(ctx, provider, model, opts, fallbackAuths)
+		return s.pickFallback(ctx, provider, model, opts, fallbackAuths)
 	}
 
 	// A single availability pass serves both lookups: the bound credential is validated against
@@ -1094,7 +1097,7 @@ func (s *SessionAffinitySelector) Pick(ctx context.Context, provider, model stri
 			}
 		}
 		// Cached auth not available, reselect via fallback selector for even distribution
-		auth, err := s.fallback.Pick(ctx, provider, model, opts, fallbackAuths)
+		auth, err := s.pickFallback(ctx, provider, model, opts, fallbackAuths)
 		if err != nil {
 			return nil, err
 		}
@@ -1124,7 +1127,7 @@ func (s *SessionAffinitySelector) Pick(ctx context.Context, provider, model stri
 		}
 	}
 
-	auth, err := s.fallback.Pick(ctx, provider, model, opts, fallbackAuths)
+	auth, err := s.pickFallback(ctx, provider, model, opts, fallbackAuths)
 	if err != nil {
 		return nil, err
 	}
@@ -1216,7 +1219,7 @@ func (s *SessionAffinitySelector) pickLCP(ctx context.Context, provider, model s
 	}
 
 	fallbackAuths := highestPriorityAuths(available)
-	auth, errPick := s.fallback.Pick(ctx, provider, model, opts, fallbackAuths)
+	auth, errPick := s.pickFallback(ctx, provider, model, opts, fallbackAuths)
 	if errPick != nil {
 		return nil, true, errPick
 	}

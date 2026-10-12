@@ -361,6 +361,12 @@ type RoutingConfig struct {
 	// Automatic failover is always enabled when bound auth becomes unavailable.
 	SessionAffinity bool `yaml:"session-affinity,omitempty" json:"session-affinity,omitempty"`
 
+	// NearestReset opts into shared-quota preference for new account assignments.
+	// Requires session affinity. Healthy bindings always win; unknown usage keeps
+	// the configured Strategy. Disabled by default; does not override Home or
+	// handled plugin scheduling.
+	NearestReset bool `yaml:"nearest-reset,omitempty" json:"nearest-reset,omitempty"`
+
 	// SessionAffinityTTL specifies how long session-to-auth bindings are retained.
 	// Default: 1h. Accepts duration strings like "30m", "1h", "2h30m".
 	SessionAffinityTTL string `yaml:"session-affinity-ttl,omitempty" json:"session-affinity-ttl,omitempty"`

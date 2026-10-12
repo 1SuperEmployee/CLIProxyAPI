@@ -32,6 +32,7 @@ type routingRuntimeState struct {
 	sessionAffinityTTL       time.Duration
 	sessionAffinityStateFile string
 	sessionAffinitySubagents bool
+	nearestReset             bool
 }
 
 func normalizedRoutingRuntimeState(cfg *config.Config) routingRuntimeState {
@@ -51,6 +52,7 @@ func normalizedRoutingRuntimeState(cfg *config.Config) routingRuntimeState {
 		state.strategy = "fill-first"
 	}
 	state.sessionAffinity = cfg.Routing.SessionAffinity
+	state.nearestReset = state.sessionAffinity && cfg.Routing.NearestReset
 	state.sessionAffinityStateFile = strings.TrimSpace(os.Getenv("CLIPROXY_AFFINITY_STATE_FILE"))
 	if ttl := strings.TrimSpace(cfg.Routing.SessionAffinityTTL); ttl != "" {
 		if parsed, errParse := time.ParseDuration(ttl); errParse == nil && parsed > 0 {
@@ -78,11 +80,17 @@ func newRoutingSelector(state routingRuntimeState) coreauth.Selector {
 	}
 	if state.sessionAffinity {
 		subagents := state.sessionAffinitySubagents
+		var quota *coreauth.QuotaSelectionConfig
+		if state.nearestReset {
+			cfg := coreauth.DefaultQuotaSelectionConfig()
+			quota = &cfg
+		}
 		selector = coreauth.NewSessionAffinitySelectorWithConfig(coreauth.SessionAffinityConfig{
 			Fallback:         selector,
 			StateFile:        state.sessionAffinityStateFile,
 			TTL:              state.sessionAffinityTTL,
 			SubagentAffinity: &subagents,
+			QuotaSelection:   quota,
 		})
 	}
 	return selector

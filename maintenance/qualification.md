@@ -197,3 +197,82 @@ Claude continuation/missing-alias recovery and opaque cross-account failover are
 still unproved. Do not interrupt active inference to turn those unknowns into
 passing claims. The integration remains a draft; no source promotion or rebuild
 was performed for this evidence-only pass.
+## Shared-quota selection candidate
+
+11 October, `se/quota-selection-policy`. This is source qualification only; the
+maintained release and live gateway have not changed. The earlier pure helper is
+now connected to Manager and the existing session-affinity fallback through the
+disabled-by-default `routing.nearest-reset` option. Session affinity is required.
+Home and handled plugin scheduling remain authoritative. Mixed-provider or
+non-OAuth pools retain baseline selection. A single comparable candidate needs no
+quota lookup. Quota ranking follows priority, weight eligibility and the existing
+cold Codex transport preference; healthy bindings still outrank all preferences.
+
+### Implemented behavior
+
+- Parse default shared weekly/short windows from Claude and Codex observations and
+  read-only usage bodies. Validate units, dates, finite values and required fields.
+  Identify Codex windows by duration, not primary/secondary names. Do not rank
+  model, overage, credit or additional-limit namespaces. Shared denial constrains
+  headroom without creating a new scheduler cooldown path.
+- Ordinary responses continue updating the existing Auth quota observation.
+  Normalize newer observations lazily when an assignment needs comparison. Cache
+  reads do not extend timestamps; crossing a reset invalidates a reading.
+- One bounded in-memory entry per account, capped at 256. Capacity overflow retains
+  baseline selection. Credential version/registration changes invalidate prior
+  reads, pending results and failure backoff. Carried old passive observations are
+  not adopted after replacement. Future timestamps cannot poison successful reads.
+- Only stale/missing comparative candidates trigger usage GETs, in parallel and
+  coalesced per account. One waiter leaving does not cancel another's lookup.
+  Failures briefly back off. No poller or independent OAuth refresh/persistence.
+- GET targets are fixed to Claude `/api/oauth/usage` and Codex `/backend-api/wham/usage`.
+  Existing executors prepare credentials and transports, including CodexAutoExecutor.
+  Redirects, error bodies and bodies above 1 MiB are rejected. No quota body,
+  credential, account email or prompt is logged by this feature.
+- No Manager or explicit affinity pick lock is held across the quota network wait.
+  After waiting, Manager gathers candidates again; selection still atomically
+  rechecks the explicit binding before narrowing the fallback pool. A late reading
+  cannot replace a newer passive reading or a replacement credential's entry.
+- Candidate defaults are 15m freshness, 5% preferred reserve, a 2s total wait and
+  30s failure backoff. SDK configuration exposes these values. They are candidate
+  settings to observe before live acceptance, not measured provider tail guarantees.
+  Equal resets and incomplete data retain baseline selection; all-low reserve is a
+  preference fallback, not an invented hard provider rejection.
+
+### Source checks
+
+Passed: full auth, service, executor and executor-helper packages; focused race
+checks covering quota normalization/cache/Manager routing, existing affinity and
+Fable-only rejection; server compile. Synthetic checks cover fresh passive/no GET,
+weekly-only and short windows, overlapping cold starts with one lookup per account
+and one explicit binding, cancellation, parallel deadline, failure backoff,
+reset boundary, replacement, old lookup/new passive ordering, binding/disabled
+changes during a lookup, transport preference and baseline rotation.
+
+The real ClaudeExecutor and CodexAutoExecutor were exercised through Manager with
+synthetic HTTP transports. Each fetched once per account and used zero GETs on a
+same-session follow-up. This is runtime code-path proof with fake credentials and
+responses, not actual provider or Windows deployment proof. Lookup deadlines do
+not propagate into inference contexts. The service constructor test proves the
+feature changes selection only when configured and preserves the default.
+
+`go test ./...` still fails only `internal/discovery.TestAdvertiserAndBrowser_Integration`
+waiting for a local multicast advertisement. Discovery code is unchanged and the
+earlier qualification reproduced that failure on pristine upstream. All other
+packages passed. The affected packages and focused race checks were rerun after
+the final source guards; do not call the whole suite clean.
+
+Codex field interpretation was checked against the current primary source:
+https://github.com/openai/codex/blob/main/codex-rs/codex-api/src/rate_limits.rs
+The default shared header family and optional windows are distinct from additional
+named families. The existing upstream quota-observation snapshot remains the
+passive source; this candidate does not introduce a provider-wide scope catalog.
+
+### Remaining acceptance
+
+Compare proposed cold choices with current actual choices without changing live
+routing. Then qualify Windows/runtime compatibility, useful work/follow-up affinity,
+observed lookup latency and failure recovery before controlled enablement. No live
+cap test, forced continuation, failover/load/outage acceptance or performance claim
+is implied by these synthetic checks. The explicit-binding concurrency proof does
+not establish stronger concurrent semantics for the existing LCP-only matcher.

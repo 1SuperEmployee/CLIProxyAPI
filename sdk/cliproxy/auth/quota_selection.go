@@ -5,8 +5,7 @@ import (
 	"time"
 )
 
-// These types and the decision helper are a qualification prototype, not a
-// registered Selector. No live routing, quota reads or binding writes use them.
+// These types support the opt-in shared-quota preference inside session affinity.
 // Only shared account windows participate in ranking. Supplemental model limits
 // remain enforced by existing provider rejection/model cooldown handling.
 type selectionQuotaWindow struct {

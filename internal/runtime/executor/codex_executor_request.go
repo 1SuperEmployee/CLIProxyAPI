@@ -76,6 +76,11 @@ func (e *CodexExecutor) PrepareRequest(req *http.Request, auth *cliproxyauth.Aut
 	return nil
 }
 
+// FetchSelectionQuota reads shared subscription usage without inference.
+func (e *CodexExecutor) FetchSelectionQuota(ctx context.Context, auth *cliproxyauth.Auth) ([]byte, error) {
+	return helps.FetchSharedSelectionQuota(ctx, e.cfg, auth, e.PrepareRequest)
+}
+
 // HttpRequest injects Codex credentials into the request and executes it.
 func (e *CodexExecutor) HttpRequest(ctx context.Context, auth *cliproxyauth.Auth, req *http.Request) (*http.Response, error) {
 	if req == nil {
