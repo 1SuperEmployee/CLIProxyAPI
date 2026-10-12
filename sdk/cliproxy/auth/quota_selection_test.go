@@ -9,12 +9,10 @@ import (
 
 func selectionTestSnapshot(now time.Time, resetAfter time.Duration, remaining float64) selectionQuotaSnapshot {
 	return selectionQuotaSnapshot{
-		scopesComplete: true,
-		rankingWindow:  "shared-weekly",
-		windows: []selectionQuotaWindow{{
-			id: "shared-weekly", duration: 7 * 24 * time.Hour,
+		weekly: selectionQuotaWindow{
+			duration:          7 * 24 * time.Hour,
 			remainingFraction: remaining, resetAt: now.Add(resetAfter), observedAt: now,
-		}},
+		},
 	}
 }
 
@@ -52,7 +50,7 @@ func TestQuotaSelectionPreservesBindingAndPriority(t *testing.T) {
 	}
 }
 
-func TestQuotaSelectionApplicableWindows(t *testing.T) {
+func TestQuotaSelectionSharedWindows(t *testing.T) {
 	now := time.Unix(1_800_000_000, 0)
 	policy := quotaSelectionPolicy{15 * time.Minute, 0.05}
 	pool := []*Auth{{ID: "a"}, {ID: "b"}}
@@ -68,10 +66,10 @@ func TestQuotaSelectionApplicableWindows(t *testing.T) {
 	})
 	t.Run("short window constrains headroom but not ranking", func(t *testing.T) {
 		a := selectionTestSnapshot(now, time.Hour, 0.5)
-		a.windows = append(a.windows, selectionQuotaWindow{
-			id: "shared-five-hour", duration: 5 * time.Hour,
+		a.shortWindow = &selectionQuotaWindow{
+			duration:          5 * time.Hour,
 			remainingFraction: 0.01, resetAt: now.Add(time.Minute), observedAt: now,
-		})
+		}
 		b := selectionTestSnapshot(now, 2*time.Hour, 0.5)
 		snapshots := map[string]selectionQuotaSnapshot{"a": a, "b": b}
 		decision := nearestResetCandidates(pool, "", snapshots, now, policy)
@@ -79,36 +77,20 @@ func TestQuotaSelectionApplicableWindows(t *testing.T) {
 			t.Fatalf("nearer reset cannot bypass short-window reserve: %v (%s)", got, decision.reason)
 		}
 	})
-	t.Run("shared quota still constrains a resolved model-specific allowance", func(t *testing.T) {
-		a := selectionTestSnapshot(now, 4*time.Hour, 0.01)
-		a.rankingWindow = "applicable-model-weekly"
-		a.windows = append(a.windows, selectionQuotaWindow{
-			id: a.rankingWindow, duration: 7 * 24 * time.Hour,
-			remainingFraction: 0.8, resetAt: now.Add(time.Hour), observedAt: now,
-		})
-		snapshots := map[string]selectionQuotaSnapshot{
-			"a": a, "b": selectionTestSnapshot(now, 2*time.Hour, 0.5),
-		}
-		decision := nearestResetCandidates(pool, "", snapshots, now, policy)
-		if got := selectionTestIDs(decision); !reflect.DeepEqual(got, []string{"b"}) {
-			t.Fatalf("model allowance cannot bypass shared reserve: %v (%s)", got, decision.reason)
-		}
-	})
-	t.Run("explicit applicable weekly window determines ranking", func(t *testing.T) {
+	t.Run("short-window reset cannot displace shared-weekly ranking", func(t *testing.T) {
 		a := selectionTestSnapshot(now, time.Hour, 0.5)
 		b := selectionTestSnapshot(now, 2*time.Hour, 0.5)
-		a.rankingWindow, b.rankingWindow = "applicable-model-weekly", "applicable-model-weekly"
-		a.windows = append(a.windows, selectionQuotaWindow{
-			id: a.rankingWindow, duration: 7 * 24 * time.Hour,
+		a.shortWindow = &selectionQuotaWindow{
+			duration:          5 * time.Hour,
 			remainingFraction: 0.5, resetAt: now.Add(3 * time.Hour), observedAt: now,
-		})
-		b.windows = append(b.windows, selectionQuotaWindow{
-			id: b.rankingWindow, duration: 7 * 24 * time.Hour,
-			remainingFraction: 0.5, resetAt: now.Add(time.Hour), observedAt: now,
-		})
+		}
+		b.shortWindow = &selectionQuotaWindow{
+			duration:          5 * time.Hour,
+			remainingFraction: 0.5, resetAt: now.Add(time.Minute), observedAt: now,
+		}
 		decision := nearestResetCandidates(pool, "", map[string]selectionQuotaSnapshot{"a": a, "b": b}, now, policy)
-		if got := selectionTestIDs(decision); !reflect.DeepEqual(got, []string{"b"}) || decision.reason != "nearest-reset" {
-			t.Fatalf("must not rank by an unrelated earlier shared reset: %v (%s)", got, decision.reason)
+		if got := selectionTestIDs(decision); !reflect.DeepEqual(got, []string{"a"}) || decision.reason != "nearest-reset" {
+			t.Fatalf("weekly reset remains the ranking criterion: %v (%s)", got, decision.reason)
 		}
 	})
 }
@@ -122,27 +104,26 @@ func TestQuotaSelectionFallsBackForUnknownCandidate(t *testing.T) {
 		edit   func(*selectionQuotaSnapshot)
 		reason string
 	}{
-		{"unmapped model scope", func(s *selectionQuotaSnapshot) { s.scopesComplete = false }, "unresolved-quota-scope"},
-		{"no windows", func(s *selectionQuotaSnapshot) { s.windows = nil }, "incomplete-quota"},
-		{"missing rank", func(s *selectionQuotaSnapshot) { s.rankingWindow = "unknown" }, "incomplete-quota"},
-		{"age boundary", func(s *selectionQuotaSnapshot) { s.windows[0].observedAt = now.Add(-policy.maxAge) }, "stale-quota"},
-		{"passed reset", func(s *selectionQuotaSnapshot) { s.windows[0].resetAt = now.Add(-time.Second) }, "stale-quota"},
-		{"reset boundary", func(s *selectionQuotaSnapshot) { s.windows[0].resetAt = now }, "stale-quota"},
-		{"absent observation", func(s *selectionQuotaSnapshot) { s.windows[0].observedAt = time.Time{} }, "invalid-quota-time"},
-		{"future observation", func(s *selectionQuotaSnapshot) { s.windows[0].observedAt = now.Add(time.Second) }, "invalid-quota-time"},
-		{"epoch milliseconds mistaken for seconds", func(s *selectionQuotaSnapshot) { s.windows[0].resetAt = time.Unix(now.Unix()*1000, 0) }, "invalid-quota-time"},
-		{"percentage points mistaken for fractions", func(s *selectionQuotaSnapshot) { s.windows[0].remainingFraction = 80 }, "invalid-quota"},
-		{"negative fraction", func(s *selectionQuotaSnapshot) { s.windows[0].remainingFraction = -0.1 }, "invalid-quota"},
-		{"nonfinite fraction", func(s *selectionQuotaSnapshot) { s.windows[0].remainingFraction = math.NaN() }, "invalid-quota"},
-		{"infinite fraction", func(s *selectionQuotaSnapshot) { s.windows[0].remainingFraction = math.Inf(1) }, "invalid-quota"},
-		{"absent duration", func(s *selectionQuotaSnapshot) { s.windows[0].duration = 0 }, "invalid-quota"},
-		{"short primary assumed weekly", func(s *selectionQuotaSnapshot) { s.windows[0].duration = 5 * time.Hour }, "invalid-ranking-window"},
-		{"duplicate window", func(s *selectionQuotaSnapshot) { s.windows = append(s.windows, s.windows[0]) }, "invalid-quota"},
+		{"missing weekly window", func(s *selectionQuotaSnapshot) { s.weekly = selectionQuotaWindow{} }, "incomplete-quota"},
+		{"age boundary", func(s *selectionQuotaSnapshot) { s.weekly.observedAt = now.Add(-policy.maxAge) }, "stale-quota"},
+		{"passed reset", func(s *selectionQuotaSnapshot) { s.weekly.resetAt = now.Add(-time.Second) }, "stale-quota"},
+		{"reset boundary", func(s *selectionQuotaSnapshot) { s.weekly.resetAt = now }, "stale-quota"},
+		{"absent observation", func(s *selectionQuotaSnapshot) { s.weekly.observedAt = time.Time{} }, "invalid-quota-time"},
+		{"future observation", func(s *selectionQuotaSnapshot) { s.weekly.observedAt = now.Add(time.Second) }, "invalid-quota-time"},
+		{"epoch milliseconds mistaken for seconds", func(s *selectionQuotaSnapshot) { s.weekly.resetAt = time.Unix(now.Unix()*1000, 0) }, "invalid-quota-time"},
+		{"percentage points mistaken for fractions", func(s *selectionQuotaSnapshot) { s.weekly.remainingFraction = 80 }, "invalid-quota"},
+		{"negative fraction", func(s *selectionQuotaSnapshot) { s.weekly.remainingFraction = -0.1 }, "invalid-quota"},
+		{"nonfinite fraction", func(s *selectionQuotaSnapshot) { s.weekly.remainingFraction = math.NaN() }, "invalid-quota"},
+		{"infinite fraction", func(s *selectionQuotaSnapshot) { s.weekly.remainingFraction = math.Inf(1) }, "invalid-quota"},
+		{"absent weekly duration", func(s *selectionQuotaSnapshot) { s.weekly.duration = 0 }, "incomplete-quota"},
+		{"short primary assumed weekly", func(s *selectionQuotaSnapshot) { s.weekly.duration = 5 * time.Hour }, "invalid-ranking-window"},
+		{"invalid short duration", func(s *selectionQuotaSnapshot) { s.shortWindow = &selectionQuotaWindow{} }, "invalid-quota"},
+		{"weekly window supplied as short", func(s *selectionQuotaSnapshot) { s.shortWindow = &s.weekly }, "invalid-short-window"},
 		{"one stale window in otherwise fresh snapshot", func(s *selectionQuotaSnapshot) {
-			s.windows = append(s.windows, selectionQuotaWindow{
-				id: "shared-five-hour", duration: 5 * time.Hour,
+			s.shortWindow = &selectionQuotaWindow{
+				duration:          5 * time.Hour,
 				remainingFraction: 0.5, resetAt: now.Add(time.Hour), observedAt: now.Add(-policy.maxAge),
-			})
+			}
 		}, "stale-quota"},
 	}
 	for _, tc := range tests {
@@ -190,11 +171,11 @@ func TestQuotaSelectionTiesReservesAndInputs(t *testing.T) {
 	// A later decision uses the original observation time; an earlier read
 	// cannot refresh the cache implicitly, nor can selection reorder inputs.
 	expired := nearestResetCandidates(pool, "", snapshots, now.Add(policy.maxAge), policy)
-	if expired.reason != "stale-quota" || !snapshots["a"].windows[0].observedAt.Equal(now) || pool[0].ID != "a" {
+	if expired.reason != "stale-quota" || !snapshots["a"].weekly.observedAt.Equal(now) || pool[0].ID != "a" {
 		t.Fatal("reading quota changed its age or candidate ordering")
 	}
 	for id, snapshot := range snapshots {
-		snapshot.windows[0].remainingFraction = 0.01
+		snapshot.weekly.remainingFraction = 0.01
 		snapshots[id] = snapshot
 	}
 	low := nearestResetCandidates(pool, "", snapshots, now, policy)

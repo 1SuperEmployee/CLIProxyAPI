@@ -7,10 +7,9 @@ import (
 
 // These types and the decision helper are a qualification prototype, not a
 // registered Selector. No live routing, quota reads or binding writes use them.
-// Provider normalization must establish every applicable scope before setting
-// scopesComplete. Primary/secondary names alone do not identify window duration.
+// Only shared account windows participate in ranking. Supplemental model limits
+// remain enforced by existing provider rejection/model cooldown handling.
 type selectionQuotaWindow struct {
-	id                string
 	duration          time.Duration
 	remainingFraction float64
 	resetAt           time.Time
@@ -18,11 +17,11 @@ type selectionQuotaWindow struct {
 }
 
 type selectionQuotaSnapshot struct {
-	scopesComplete bool
-	// rankingWindow identifies the relevant weekly allowance explicitly. Other
-	// applicable windows also constrain headroom but do not redefine the ranking.
-	rankingWindow string
-	windows       []selectionQuotaWindow
+	weekly selectionQuotaWindow
+	// nil means the provider reports no active shared short window, not that a
+	// required measurement is missing. Normalization must distinguish the two.
+	// Primary/secondary names alone do not identify window duration.
+	shortWindow *selectionQuotaWindow
 }
 
 type quotaSelectionPolicy struct {
@@ -98,45 +97,44 @@ func nearestResetCandidates(eligible []*Auth, healthyBoundID string, snapshots m
 }
 
 func assessSelectionQuota(snapshot selectionQuotaSnapshot, now time.Time, policy quotaSelectionPolicy) (time.Time, bool, string) {
-	if !snapshot.scopesComplete {
-		return time.Time{}, false, "unresolved-quota-scope"
-	}
-	if snapshot.rankingWindow == "" || len(snapshot.windows) == 0 {
+	if snapshot.weekly.duration == 0 {
 		return time.Time{}, false, "incomplete-quota"
 	}
-	seen := make(map[string]struct{}, len(snapshot.windows))
-	var rankReset time.Time
-	hasHeadroom := true
-	for _, window := range snapshot.windows {
-		if _, duplicate := seen[window.id]; duplicate || window.id == "" || window.duration <= 0 || !validFraction(window.remainingFraction) {
-			return time.Time{}, false, "invalid-quota"
-		}
-		seen[window.id] = struct{}{}
-		if window.observedAt.IsZero() || window.observedAt.After(now) {
-			return time.Time{}, false, "invalid-quota-time"
-		}
-		// Exact boundaries expire. Reading a cached value never extends its age,
-		// and a passed reset never implies a fresh, fully available allowance.
-		if now.Sub(window.observedAt) >= policy.maxAge || !window.resetAt.After(now) {
-			return time.Time{}, false, "stale-quota"
-		}
-		if window.resetAt.After(window.observedAt.Add(window.duration)) {
-			return time.Time{}, false, "invalid-quota-time"
-		}
-		if window.remainingFraction < policy.minRemainingFraction {
-			hasHeadroom = false
-		}
-		if window.id == snapshot.rankingWindow {
-			if window.duration != 7*24*time.Hour {
-				return time.Time{}, false, "invalid-ranking-window"
-			}
-			rankReset = window.resetAt
-		}
+	if snapshot.weekly.duration != 7*24*time.Hour {
+		return time.Time{}, false, "invalid-ranking-window"
 	}
-	if rankReset.IsZero() {
-		return time.Time{}, false, "incomplete-quota"
+	if reason := validateSelectionQuotaWindow(snapshot.weekly, now, policy); reason != "" {
+		return time.Time{}, false, reason
 	}
-	return rankReset, hasHeadroom, ""
+	hasHeadroom := snapshot.weekly.remainingFraction >= policy.minRemainingFraction
+	if window := snapshot.shortWindow; window != nil {
+		if window.duration >= snapshot.weekly.duration {
+			return time.Time{}, false, "invalid-short-window"
+		}
+		if reason := validateSelectionQuotaWindow(*window, now, policy); reason != "" {
+			return time.Time{}, false, reason
+		}
+		hasHeadroom = hasHeadroom && window.remainingFraction >= policy.minRemainingFraction
+	}
+	return snapshot.weekly.resetAt, hasHeadroom, ""
+}
+
+func validateSelectionQuotaWindow(window selectionQuotaWindow, now time.Time, policy quotaSelectionPolicy) string {
+	if window.duration <= 0 || !validFraction(window.remainingFraction) {
+		return "invalid-quota"
+	}
+	if window.observedAt.IsZero() || window.observedAt.After(now) {
+		return "invalid-quota-time"
+	}
+	// Exact boundaries expire. Reading a cached value never extends its age,
+	// and a passed reset never implies a fresh, fully available allowance.
+	if now.Sub(window.observedAt) >= policy.maxAge || !window.resetAt.After(now) {
+		return "stale-quota"
+	}
+	if window.resetAt.After(window.observedAt.Add(window.duration)) {
+		return "invalid-quota-time"
+	}
+	return ""
 }
 
 func validFraction(value float64) bool {

@@ -22,4 +22,6 @@ provider credentials, checkpoints and private fleet records never belong here.
 `se/quota-selection-policy` is an unaccepted development branch for a pure
 nearest-weekly-reset decision prototype and synthetic tests. It is not registered
 as a selector and has no live call sites, provider parser, collector or routing
-configuration. Scope qualification and runtime integration remain separate work.
+configuration. Ranking uses only shared weekly quota, with shared short-window
+headroom when present. Supplemental model limits stay with existing rejection and
+cooldown handling. Shared-quota normalization and runtime integration remain open.
