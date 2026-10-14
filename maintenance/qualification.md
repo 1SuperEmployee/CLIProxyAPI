@@ -237,6 +237,24 @@ real twenty-account provider traffic or live first-response timing.
 
 Reference: https://github.com/router-for-me/CLIProxyAPI/pull/6562
 
+The eea3ba35 Windows CGO auth executable passed focused quota, session-affinity,
+manager-affinity and durability tests on the actual Windows host without stopping
+inference. Server/auth builds used Go1.27.1 and MinGW-posix GCC12. Linux auth quota
+races passed. The Linux full suite exposed the existing intermittent late-interrupt
+test; it is retained as a qualification limit rather than skipped.
+
+Independent source review identified a relative Codex reset edge. Shared
+Reset-After-Seconds now becomes Reset-At using that field's own capture timestamp,
+unless an equally/newer absolute reset is present. Conservative snapshot age is
+preserved. Deterministic tests cover older unrelated fields, older absolute resets
+and equally recent provider absolute values. Focused auth races passed after the
+fix; the earlier Windows executable predates this follow-up.
+
+The usage reporter starts after account selection. Its elapsed/TTFT fields do not
+include the new quota wait. Actual first-response qualification must time from the
+client's request, with cold/warm choices distinguished; unchanged ledger TTFT alone
+cannot prove no regression.
+
 11 October, `se/quota-selection-policy`. This is source qualification only; the
 maintained release and live gateway have not changed. The earlier pure helper is
 now connected to Manager and the existing session-affinity fallback through the

@@ -801,6 +801,9 @@ func (m *Manager) MarkResult(ctx context.Context, result Result) {
 		}
 		now = time.Now()
 		responseHeaders, captureTimes := internallogging.GetResponseHeadersWithCaptureTimes(ctx)
+		if strings.EqualFold(strings.TrimSpace(result.Provider), "codex") {
+			anchorSharedCodexRelativeResets(responseHeaders, captureTimes)
+		}
 		quotaObservedAt := quotaObservationTime(result.Provider, responseHeaders, captureTimes, now)
 		modelState := existingModelState(auth, modelKey)
 		var cooldownRecordsBefore []CooldownStateRecord
