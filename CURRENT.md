@@ -30,3 +30,10 @@ Supplemental model limits retain existing rejection/cooldown handling. Synthetic
 source qualification passed apart from the unchanged local discovery failure;
 see [qualification](maintenance/qualification.md). This branch is not merged or
 deployed; observation and controlled host/runtime qualification remain open.
+
+13 October source qualification adds twenty-account/six-conversation tests for
+both providers, one failed quota endpoint with passive recovery, and a reset during
+lookup. Arrival timestamps now age passive quota readings instead of stream
+completion; older completed streams cannot replace newer observations. The
+capture-time guard follows the reviewed idea in upstream PR6562, without adopting
+its different most-remaining policy. No live routing change is implied.

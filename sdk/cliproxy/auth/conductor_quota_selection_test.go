@@ -28,6 +28,10 @@ func quotaTestOptions(id string) cliproxyexecutor.Options {
 }
 
 func quotaTestManager(t *testing.T, provider string, fetch func(context.Context, *Auth) ([]byte, error)) (*Manager, *SessionAffinitySelector, []*Auth) {
+	return quotaTestManagerAccounts(t, provider, 2, fetch)
+}
+
+func quotaTestManagerAccounts(t *testing.T, provider string, count int, fetch func(context.Context, *Auth) ([]byte, error)) (*Manager, *SessionAffinitySelector, []*Auth) {
 	t.Helper()
 	cfg := DefaultQuotaSelectionConfig()
 	s := NewSessionAffinitySelectorWithConfig(SessionAffinityConfig{QuotaSelection: &cfg})
@@ -35,8 +39,8 @@ func quotaTestManager(t *testing.T, provider string, fetch func(context.Context,
 	m := NewManager(nil, s, nil)
 	m.RegisterExecutor(quotaManagerTestExecutor{schedulerProviderTestExecutor{provider}, fetch})
 	var auths []*Auth
-	for _, label := range []string{"a", "b"} {
-		a, err := m.Register(t.Context(), quotaTestAuth(provider, t.Name()+"-"+label))
+	for i := range count {
+		a, err := m.Register(t.Context(), quotaTestAuth(provider, fmt.Sprintf("%s-%02d", t.Name(), i)))
 		if err != nil {
 			t.Fatal(err)
 		}

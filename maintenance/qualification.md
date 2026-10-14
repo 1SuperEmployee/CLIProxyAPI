@@ -199,6 +199,24 @@ passing claims. The integration remains a draft; no source promotion or rebuild
 was performed for this evidence-only pass.
 ## Shared-quota selection candidate
 
+13 October extension: twenty accounts and six simultaneous distinct conversations
+share one usage GET per account for both Claude and Codex. After passive reset
+preference changes, all healthy follow-ups retain their account and a new
+conversation uses the newer reading with no new GET. One unavailable usage endpoint
+keeps the entire twenty-account baseline pool eligible, backs off, and returns to
+quota ranking when ordinary inference supplies fresh data. Crossing a reset while
+waiting cannot fabricate available quota. Focused race checks passed.
+
+Upstream PR6562 was reviewed for edge cases. Its most-remaining policy and bounded
+unknown exploration differ from this nearest-weekly-reset policy, so the selector
+was not imported. Its header-arrival timestamp approach was adapted: per-field
+capture times prevent long streams and partial events from freshening old quota,
+and older completed streams cannot overwrite newer observations. Logging/auth
+capture tests and focused races passed. This remains source qualification, not
+real twenty-account provider traffic or live first-response timing.
+
+Reference: https://github.com/router-for-me/CLIProxyAPI/pull/6562
+
 11 October, `se/quota-selection-policy`. This is source qualification only; the
 maintained release and live gateway have not changed. The earlier pure helper is
 now connected to Manager and the existing session-affinity fallback through the
