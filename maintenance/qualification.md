@@ -3,6 +3,26 @@
 This is the live qualification record, not a task queue. Completed source reviews
 remain under `reviews/`. Read CURRENT.md for the accepted artifact.
 
+## v8.0.28 plus nearest-reset candidate, 13 October
+
+Source integration follows eea3ba35 and pins official stable 0d18d3b3.
+The latest official release does not replace the currently deployed v6 artifact.
+See reviews/2026-10-13-v8.0.28.md for source changes and merge resolution.
+
+macOS build passed. Auth/service/executor/logging focused race checks passed,
+including twenty-account quota cases and existing durability/affinity. The final
+full Mac suite passes all packages except the unchanged multicast discovery test.
+Two catalog-dependent executor fixtures failed identically on pristine v8.0.28;
+temporary explicit model definitions preserve their original assertions and pass
+three repeats. Initial full-suite runs also exposed intermittent late-interrupt
+test behavior; twenty isolated repeats and untouched upstream's full handler
+package passed. Do not call that interruption path repaired or fully accepted.
+
+No live auth, config, model requests, bindings or services were changed. Windows
+runtime qualification, real choice/timing observation and independent review are
+pending. The current management browser could not be controlled; do not open
+secret files or reset credentials to work around it.
+
 ## Current personal-fleet release, 10 October
 
 Source04248f92 integrates upstream main3de4e248 and adds an opt-in authenticated

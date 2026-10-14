@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/config"
+	"github.com/router-for-me/CLIProxyAPI/v8/internal/registry"
 	_ "github.com/router-for-me/CLIProxyAPI/v8/internal/translator"
 	cliproxyauth "github.com/router-for-me/CLIProxyAPI/v8/sdk/cliproxy/auth"
 	cliproxyexecutor "github.com/router-for-me/CLIProxyAPI/v8/sdk/cliproxy/executor"
@@ -17,6 +18,11 @@ import (
 )
 
 func TestAntigravityExecutorExecuteStreamTranslatesInteractionsRequest(t *testing.T) {
+	// The interactions contract needs an explicit level-capable model fixture,
+	// not a model that may be retired from the current public catalog.
+	reg := registry.GetGlobalRegistry()
+	reg.RegisterClient(t.Name(), "antigravity", []*registry.ModelInfo{{ID: "gemini-3.1-pro-low", Type: "antigravity", Thinking: &registry.ThinkingSupport{Min: 1, Max: 65535, DynamicAllowed: true, Levels: []string{"low", "medium", "high"}}}})
+	t.Cleanup(func() { reg.UnregisterClient(t.Name()) })
 	var upstreamBody []byte
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v1internal:streamGenerateContent" {

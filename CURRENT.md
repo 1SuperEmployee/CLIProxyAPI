@@ -3,7 +3,8 @@
 `se/main` is the maintained branch; inherited `main` is upstream history.
 The current personal-fleet artifact is `8.0.23-se-affinity.6-rc1`, built from
 `04248f92` with upstream main pinned at `3de4e248`. Latest published stable remains
-v8.0.23. This includes reviewed unreleased fixes; do not call it a newer stable.
+v8.0.28 as of 13 October; the running artifact remains on the reviewed v8.0.23
+base and main fixes. Do not call a fetched release a deployment.
 Read [FORK.md](FORK.md) and [current qualification](maintenance/qualification.md).
 
 The Windows cutover on 10 October retained 27 nonexpired bindings without changing
@@ -37,3 +38,9 @@ lookup. Arrival timestamps now age passive quota readings instead of stream
 completion; older completed streams cannot replace newer observations. The
 capture-time guard follows the reviewed idea in upstream PR6562, without adopting
 its different most-remaining policy. No live routing change is implied.
+
+`se/review-v8.0.28` integrates official stable 0d18d3b3 after that quota candidate.
+The durable checkpoint schema remains unchanged; optional upstream rebinding and
+new tool-search/body-limit/heartbeat options retain their default behavior.
+Read maintenance/reviews/2026-10-13-v8.0.28.md for source review, fixture corrections
+and unresolved interruption-test timing. This candidate is not a deployed release.
