@@ -27,8 +27,9 @@ service, watcher and config passed three repeats; server build passed. Full Mac
 qualification still has the unchanged discovery failure. No failing test was
 removed or weakened. See the finished upstream review for the excluded PR scope.
 
-No live auth, config, model requests, bindings or services were changed. Final
-Windows/Linux qualification and real choice/timing observation remain pending.
+No live auth, config, model requests, bindings or services were changed. Source and
+Windows/Linux synthetic qualification passed within the scope below. Actual provider
+choice/timing observation, the matching release operator and activation remain open.
 The current management browser could not be controlled; do not open
 secret files or reset credentials to work around it.
 
@@ -40,12 +41,49 @@ tests. Config passed 131 after restoring its original working-directory layout,
 config.example.yaml and tracked public contract fixture. No assertion was changed.
 The full service run found the positive snapshot fixture clock ambiguity described
 in the review. The test-only correction and explicit equal-time stale regression
-passed ten Mac race repeats; final Windows requalification follows that correction.
+are in ae48adb1, with no production source change after bff9dc70. Ten Mac and Linux
+race repeats passed. Final Windows runs pass all 1002 auth and 212 service top-level
+tests. Together with the other four packages this is 1485 top-level Windows tests,
+zero failures and zero skips. Standalone tests use tracked public fixtures and
+temporary synthetic state, never live auth or the live checkpoint.
+The concurrent-save Issue6559 integration also passed ten actual Windows repeats.
+An initial extra command targeted the API package instead of the service package
+and ran zero tests; it was not counted as validation. The corrected command checks
+the expected ten-pass count in addition to exit status.
 
 A separate Windows candidate process with empty synthetic auth and its own
 loopback port started successfully. Its v8 routing setting round-tripped false,
 true, false through normal management GET/PUT. The live gateway PID was unchanged;
 no provider traffic or production configuration was involved.
+
+Artifact `8.0.28-se-affinity.8-rc2`, production source bff9dc70:
+
+```sh
+CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc-posix GOOS=windows GOARCH=amd64 \
+  go build -p 2 \
+  -ldflags '-s -w -X main.Version=8.0.28-se-affinity.8-rc2 -X main.Commit=bff9dc70' \
+  -o cli-proxy-affinity-v8-rc2.exe ./cmd/server
+```
+
+Server SHA256 `86e399ce7665148981232174adad6a0471f3eac0d4730f9fe4cc80bafd05cc6a`.
+Final auth-test SHA256, fixture source ae48adb1:
+`68a060335e3672daf5decdb79c7020f41fd1b60513006081007b375af96c845e`.
+Final service-test SHA256:
+`ecfbd6ea69e4d87e28fdb067a97d1e1721ee28e752ad4c334333ca864319a2e7`.
+PC copies match. Server is staged separately; it is not the running service binary.
+
+Same Windows host, four Go processors, three 100-selection runs per case:
+default serial durable-selection medians at 2/32/256 bindings were
+3.157/2.187/2.510ms versus current v6's 3.229/2.601/2.703ms. All serial/concurrent
+cases passed without account drift. One v6 256-binding sample was unusually short,
+0.003ms; retain that variance rather than claim a controlled speed improvement.
+These samples use the default affinity policy. They do not measure enabled quota
+lookup, provider latency or complete client first-response time.
+
+Independent review found no source blocker after the relative-reset guard,
+bounded reload/auth-snapshot repair and explicit Windows fixture ordering. It
+does not prove live useful work, account attribution, lookup overhead or outage
+recovery. Maintained se/main and the live v6 artifact have not been promoted.
 
 ## Current personal-fleet release, 10 October
 

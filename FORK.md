@@ -10,6 +10,11 @@ license and attribution. Keep provider integrations and ordinary fixes upstream.
 
 ## Source and releases
 
+- `se/review-v8.0.28` contains the source-qualified nearest-reset policy, official
+  stable v8.0.28 and the bounded independently checked PR6603 repair. Candidate
+  Windows artifact `8.0.28-se-affinity.8-rc2` uses production source bff9dc70;
+  ae48adb1 only corrects synthetic test ordering. It is not deployed or promoted
+  to se/main. Read the current qualification before selecting an artifact.
 - `v8.0.23-se-affinity.6-rc1` identifies source04248f92. The Windows artifact passed
   bounded personal-fleet normal-work and completed-turn restart acceptance.
 - Optional `CLIPROXY_LEDGER_READER_URL` enables only three authenticated read-only
@@ -79,6 +84,15 @@ may produce different bytes. A successful rebuild is not deployment validation.
 Check official releases daily and when a provider integration breaks. Review new
 changes before selecting an update. Existing healthy conversations keep their account ahead of any future
 reset-time preference. A provider cache hit is separate from an affinity hit.
+
+The candidate's optional `routing.nearest-reset` boolean requires session affinity.
+Use the authenticated v8 config path `/v8/management/config/routing/nearest-reset`
+for a targeted GET or PUT with a JSON boolean. It defaults off. The Windows
+synthetic process verified false/true/false reads and writes through that path.
+Leave other routing settings unchanged. Turning it off returns new assignments
+to the configured baseline selector; it does not request logout or credential
+replacement. Actual provider choice and client-timed lookup qualification are
+required before enabling it on a maintained release.
 
 ## Maintenance check
 

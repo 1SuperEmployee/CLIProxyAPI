@@ -45,5 +45,10 @@ new tool-search/body-limit/heartbeat options retain their default behavior.
 Read maintenance/reviews/2026-10-13-v8.0.28.md for source review, fixture corrections,
 the independently checked bounded PR6603 reload/auth-snapshot repair, and unresolved
 interruption-test timing. Root and independent fifty-repeat Issue6559 checks pass.
-Final Windows/Linux qualification and live timing/enablement are separate gates.
+Linux full suite passed 102 packages. Windows passed 1485 top-level tests across
+six packages without skips; the isolated Windows server's v8 setting round-trip
+passed. Candidate artifact is `8.0.28-se-affinity.8-rc2`, production source bff9dc70;
+ae48adb1 changes tests/docs only. Exact checksums and timing limits are in the
+qualification record. Live choice/timing, a matching bounded release operator,
+real useful-work follow-ups and enablement remain open. se/main is unchanged.
 This candidate is not a deployed release.
