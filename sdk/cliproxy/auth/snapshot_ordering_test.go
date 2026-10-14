@@ -104,6 +104,34 @@ func TestUpdateFromSnapshotWithoutMarkUsesSaveEnd(t *testing.T) {
 	}
 }
 
+func TestUpdateFromSnapshotAtSaveTimeIsStale(t *testing.T) {
+	manager := NewManager(&unmarkedStore{}, nil, nil)
+	registered, err := manager.Register(t.Context(), &Auth{
+		ID: "snapshot-equal.json", Provider: "codex", Prefix: "saved",
+		Metadata: map[string]any{"type": "codex", "prefix": "saved"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	value, ok := manager.persistLocks.Load(registered.ID)
+	if !ok {
+		t.Fatal("missing save marker")
+	}
+	savedAt := value.(*authPersistLock).lastSavedAt.Load()
+	if savedAt == nil {
+		t.Fatal("missing save time")
+	}
+	snapshot := registered.Clone()
+	snapshot.Generation = 0
+	snapshot.UpdatedAt = *savedAt
+	snapshot.Prefix = "ambiguous"
+	snapshot.Metadata = map[string]any{"type": "codex", "prefix": "ambiguous"}
+	current, applied, err := manager.UpdateFromSnapshot(t.Context(), snapshot)
+	if err != nil || applied || current == nil || current.Prefix != "saved" {
+		t.Fatalf("equal-time snapshot replaced a save: applied=%v err=%v", applied, err)
+	}
+}
+
 // instantAfter spins until the clock reads later than t and returns that reading.
 func instantAfter(t time.Time) time.Time {
 	for {

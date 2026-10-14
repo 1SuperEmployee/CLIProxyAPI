@@ -112,12 +112,14 @@ func TestPrepareCoreAuthForModelRegistration_SnapshotReadAfterSaveApplies(t *tes
 	edited.Generation = 0
 	edited.Prefix = "pfx-edited"
 	edited.Metadata = map[string]any{"type": "codex", "access_token": "token", "prefix": "pfx-edited"}
-	edited.UpdatedAt = time.Now()
+	// This synthetic observation is strictly later than the completed save,
+	// including when the host clock returns equal consecutive readings.
+	edited.UpdatedAt = time.Now().Add(time.Nanosecond)
 
 	svc.prepareCoreAuthForModelRegistration(ctx, edited)
 
 	current, ok := manager.GetByID(authID)
 	if !ok || current == nil || current.Prefix != "pfx-edited" {
-		t.Fatalf("core auth = %+v, want the newer file snapshot applied", current)
+		t.Fatal("newer file snapshot was not applied")
 	}
 }

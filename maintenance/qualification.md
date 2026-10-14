@@ -32,6 +32,21 @@ Windows/Linux qualification and real choice/timing observation remain pending.
 The current management browser could not be controlled; do not open
 secret files or reset credentials to work around it.
 
+Production candidate source is bff9dc70. Networking-enabled Linux full suite passed
+102 packages; focused auth/service/watcher/config/logging races passed. Windows CGO
+server and six test packages built with Go1.27.1 and MinGW-posix GCC12. The actual
+Windows host passed 1001 auth, 19 Codex auth, 49 token-store and 72 watcher top-level
+tests. Config passed 131 after restoring its original working-directory layout,
+config.example.yaml and tracked public contract fixture. No assertion was changed.
+The full service run found the positive snapshot fixture clock ambiguity described
+in the review. The test-only correction and explicit equal-time stale regression
+passed ten Mac race repeats; final Windows requalification follows that correction.
+
+A separate Windows candidate process with empty synthetic auth and its own
+loopback port started successfully. Its v8 routing setting round-tripped false,
+true, false through normal management GET/PUT. The live gateway PID was unchanged;
+no provider traffic or production configuration was involved.
+
 ## Current personal-fleet release, 10 October
 
 Source04248f92 integrates upstream main3de4e248 and adds an opt-in authenticated
