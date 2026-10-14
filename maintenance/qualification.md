@@ -18,9 +18,18 @@ three repeats. Initial full-suite runs also exposed intermittent late-interrupt
 test behavior; twenty isolated repeats and untouched upstream's full handler
 package passed. Do not call that interruption path repaired or fully accepted.
 
-No live auth, config, model requests, bindings or services were changed. Windows
-runtime qualification, real choice/timing observation and independent review are
-pending. The current management browser could not be controlled; do not open
+Independent review found and verified the relative-reset timestamp correction.
+It then independently reproduced and reviewed the bounded reload/auth-snapshot
+repairs adapted from PR6603. Root and independent runs each passed fifty repeats
+of Issue6559 after both repairs, with zero alias/prefix failures. Independent ten
+race repeats of the new snapshot regressions passed. Final Mac races across auth,
+service, watcher and config passed three repeats; server build passed. Full Mac
+qualification still has the unchanged discovery failure. No failing test was
+removed or weakened. See the finished upstream review for the excluded PR scope.
+
+No live auth, config, model requests, bindings or services were changed. Final
+Windows/Linux qualification and real choice/timing observation remain pending.
+The current management browser could not be controlled; do not open
 secret files or reset credentials to work around it.
 
 ## Current personal-fleet release, 10 October

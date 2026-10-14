@@ -42,5 +42,8 @@ its different most-remaining policy. No live routing change is implied.
 `se/review-v8.0.28` integrates official stable 0d18d3b3 after that quota candidate.
 The durable checkpoint schema remains unchanged; optional upstream rebinding and
 new tool-search/body-limit/heartbeat options retain their default behavior.
-Read maintenance/reviews/2026-10-13-v8.0.28.md for source review, fixture corrections
-and unresolved interruption-test timing. This candidate is not a deployed release.
+Read maintenance/reviews/2026-10-13-v8.0.28.md for source review, fixture corrections,
+the independently checked bounded PR6603 reload/auth-snapshot repair, and unresolved
+interruption-test timing. Root and independent fifty-repeat Issue6559 checks pass.
+Final Windows/Linux qualification and live timing/enablement are separate gates.
+This candidate is not a deployed release.

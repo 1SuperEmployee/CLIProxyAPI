@@ -289,6 +289,8 @@ func (s *PostgresStore) Save(ctx context.Context, auth *cliproxyauth.Auth) (stri
 	}
 	auth.Attributes[cliproxyauth.AttributePath] = path
 	auth.Attributes[cliproxyauth.AttributeSourceBackend] = cliproxyauth.AuthSourcePostgres
+	// Mark the local write before slower remote persistence completes.
+	cliproxyauth.MarkAuthFileWritten(ctx)
 
 	if strings.TrimSpace(auth.FileName) == "" {
 		auth.FileName = auth.ID

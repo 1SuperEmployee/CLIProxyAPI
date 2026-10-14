@@ -740,6 +740,28 @@ func TestV8SecretHashUsesNewPath(t *testing.T) {
 	}
 }
 
+// Hot reloads parse bytes that a concurrent save may already have replaced, and a
+// compare-then-write against the file can still race a save. LoadConfigData must
+// therefore never write: the secret is hashed in memory only.
+func TestLoadConfigDataDoesNotWriteTheFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	content := []byte("management: {secret-key: plain-secret}\n")
+	if err := os.WriteFile(path, content, 0600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := LoadConfigData(path, content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !looksLikeBcrypt(cfg.RemoteManagement.SecretKey) {
+		t.Fatal("parsed secret was not hashed in memory")
+	}
+	saved, _ := os.ReadFile(path)
+	if !bytes.Equal(saved, content) {
+		t.Fatalf("LoadConfigData rewrote the file: %q", saved)
+	}
+}
+
 func TestV8LegacyClientKeysDoNotOverwriteUpstreamGroups(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "config.yaml")
 	if err := os.WriteFile(path, []byte("api-keys: {codex: [{name: upstream, base-url: 'https://example.invalid', keys: [{api-key: upstream-key}]}]}\n"), 0600); err != nil {
