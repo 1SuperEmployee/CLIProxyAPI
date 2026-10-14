@@ -2,6 +2,7 @@ package auth
 
 import (
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 
@@ -42,5 +43,47 @@ func TestQuotaManagerRecordsArrivalBeforeCompletion(t *testing.T) {
 	current, _ := m.GetByID(a.ID)
 	if !current.Quota.ObservedAt.Equal(captured) {
 		t.Fatalf("observation timestamp was completion rather than arrival: got=%v want=%v", current.Quota.ObservedAt, captured)
+	}
+}
+
+func TestQuotaRelativeResetUsesOwnArrivalWithoutFresheningSnapshot(t *testing.T) {
+	old := time.Unix(1800000000, 0)
+	arrival := old.Add(5 * time.Minute)
+	for _, oldAbsolute := range []bool{false, true} {
+		t.Run(strconv.FormatBool(oldAbsolute), func(t *testing.T) {
+			headers := http.Header{
+				"X-Codex-Plan-Type": {"synthetic-plan"}, "X-Codex-Primary-Window-Minutes": {"10080"},
+				"X-Codex-Primary-Used-Percent": {"20"}, "X-Codex-Primary-Reset-After-Seconds": {"3600"},
+			}
+			times := map[string]time.Time{}
+			for name := range headers {
+				times[name] = arrival
+			}
+			times["X-Codex-Plan-Type"] = old
+			if oldAbsolute {
+				headers.Set("X-Codex-Primary-Reset-At", strconv.FormatInt(old.Add(time.Hour).Unix(), 10))
+				times["X-Codex-Primary-Reset-At"] = old
+			}
+			anchorSharedCodexRelativeResets(headers, times)
+			observedAt := quotaObservationTime("codex", headers, times, arrival)
+			if !observedAt.Equal(old) {
+				t.Fatal("anchoring relative reset freshened an older retained field")
+			}
+			q := QuotaState{}
+			q.ObserveResponseHeadersForProvider("codex", headers, observedAt)
+			snapshot, valid := selectionQuotaFromSignals("codex", q)
+			if !valid || !snapshot.weekly.resetAt.Equal(arrival.Add(time.Hour)) {
+				t.Fatalf("relative reset moved to older snapshot time: valid=%v reset=%v", valid, snapshot.weekly.resetAt)
+			}
+			// An absolute reset arriving with the same event wins even if the
+			// relative field disagrees; do not rewrite provider data.
+			absolute := arrival.Add(2 * time.Hour).Unix()
+			headers.Set("X-Codex-Primary-Reset-At", strconv.FormatInt(absolute, 10))
+			times["X-Codex-Primary-Reset-At"] = arrival
+			anchorSharedCodexRelativeResets(headers, times)
+			if headers.Get("X-Codex-Primary-Reset-At") != strconv.FormatInt(absolute, 10) {
+				t.Fatal("relative reset overrode an equally recent absolute reset")
+			}
+		})
 	}
 }

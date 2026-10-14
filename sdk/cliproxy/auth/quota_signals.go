@@ -3,6 +3,7 @@ package auth
 import (
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -74,6 +75,30 @@ func quotaObservationTime(provider string, headers http.Header, captureTimes map
 		return fallback
 	}
 	return observedAt
+}
+
+// anchorSharedCodexRelativeResets derives absolute shared-window resets from
+// each relative field's own arrival. Snapshot age stays conservative, but an
+// older plan/additional field must not move a fresh relative reset backwards.
+// Headers and captureTimes must be private snapshots, not transport-owned maps.
+func anchorSharedCodexRelativeResets(headers http.Header, captureTimes map[string]time.Time) {
+	for _, window := range []string{"Primary", "Secondary"} {
+		prefix := "X-Codex-" + window + "-"
+		relativeName, absoluteName := prefix+"Reset-After-Seconds", prefix+"Reset-At"
+		arrival := captureTimes[relativeName]
+		if arrival.IsZero() {
+			continue
+		}
+		if headers.Get(absoluteName) != "" && !captureTimes[absoluteName].Before(arrival) {
+			continue // An equally/newer provider absolute value is authoritative.
+		}
+		seconds, err := strconv.ParseInt(headers.Get(relativeName), 10, 64)
+		if err != nil || seconds < 0 || seconds > 604800 {
+			continue
+		}
+		headers.Set(absoluteName, strconv.FormatInt(arrival.Add(time.Duration(seconds)*time.Second).Unix(), 10))
+		captureTimes[absoluteName] = arrival
+	}
 }
 
 // ClearObservationSignals removes only passive observation data. It leaves
