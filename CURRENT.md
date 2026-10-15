@@ -1,54 +1,38 @@
 # Maintained fork
 
 `se/main` is the maintained branch; inherited `main` is upstream history.
-The current personal-fleet artifact is `8.0.23-se-affinity.6-rc1`, built from
-`04248f92` with upstream main pinned at `3de4e248`. Latest published stable remains
-v8.0.28 as of 13 October; the running artifact remains on the reviewed v8.0.23
-base and main fixes. Do not call a fetched release a deployment.
-Read [FORK.md](FORK.md) and [current qualification](maintenance/qualification.md).
+The personal-fleet artifact deployed14October is `8.0.28-se-affinity.8-rc2`,
+production source bff9dc70, official stable v8.0.28 at0d18d3b3 plus reviewed fork
+patches. ae48adb1 changes tests/docs only. The exact Windows SHA256 is
+`86e399ce7665148981232174adad6a0471f3eac0d4730f9fe4cc80bafd05cc6a`.
+Read FORK.md, AFFINITY-PERSISTENCE.md and maintenance/qualification.md.
 
-The Windows cutover on 10 October retained 27 nonexpired bindings without changing
-OAuth. Actual Claude Code/Sonnet and Codex/Luna useful work and post-restart
-same-native-session/account follow-ups passed with cache reads. All16 workers were
-released without restarting them. The optional authenticated loopback ledger bridge
-supports the privately maintained static console. Neither the reader nor the console
-is on the inference path.
+Bounded completed-turn cutover restored23 nonexpired schema-1 bindings, preserved
+OAuth and the static console, restored the running recorder and released the six
+current active workers without changing their process identities. Durable storage
+initialized active. Real Claude Code/Sonnet and Codex/Luna continuations completed
+useful tools in their previous native conversations, with one account per thread
+and later provider cache reads. This is not mid-turn failure, load or host takeover
+acceptance. Private fleet identities, credentials and receipts stay outside this repo.
 
-Immediate software recovery retains the prior v5 executable and panel. The older
-v8.0.16 artifact remains the earlier fully accepted baseline. Forced continuation,
-failover and broad load/outage paths remain unproved by this bounded release check.
-No automatic provider updater or scheduled reviewer is installed. Live configuration,
-provider credentials, checkpoints and private fleet records never belong here.
+Immediate software rollback is the exact retained `8.0.23-se-affinity.6-rc1`
+artifact, source04248f92, SHA256
+`a51b27274cead678ff5ae95cfe358bec812ba9d071261c35a6af509a3e8ed27d`.
+The matched bounded v8/v6 operator changes only the executable; preserve current
+OAuth, checkpoint, environment and console. Do not run the old v6/v5 panel/XML
+procedure against this pair. There is no automatic rollback or scheduled updater.
 
-`se/quota-selection-policy` is an unaccepted development branch with an opt-in
-shared-quota preference integrated into Manager/session affinity. `routing.nearest-reset`
-defaults off and requires session affinity. Shared Claude/Codex observations are
-normalized in memory; stale cold-selection candidates share bounded usage GETs.
-There is no poller, separate credential refresh or durable quota store. Healthy
-bindings remain authoritative and network waits occur before affinity pick locks.
-After waiting, eligibility is gathered again and the atomic binding check remains.
-Supplemental model limits retain existing rejection/cooldown handling. Synthetic
-source qualification passed apart from the unchanged local discovery failure;
-see [qualification](maintenance/qualification.md). This branch is not merged or
-deployed; observation and controlled host/runtime qualification remain open.
+`routing.nearest-reset` code is present and defaults off. It requires session
+affinity; healthy bindings win. Shared quota observations are cached in memory.
+Missing/stale new assignments coalesce parallel fixed-endpoint usage GETs within
+a two-second total wait, then safely fall back on incomplete data. No poller,
+credential owner or model-limit ranking subsystem was added. Actual enabled
+provider choice and client-timed lookup overhead remain unaccepted, so this
+release does not claim enabled quota-policy acceptance.
 
-13 October source qualification adds twenty-account/six-conversation tests for
-both providers, one failed quota endpoint with passive recovery, and a reset during
-lookup. Arrival timestamps now age passive quota readings instead of stream
-completion; older completed streams cannot replace newer observations. The
-capture-time guard follows the reviewed idea in upstream PR6562, without adopting
-its different most-remaining policy. No live routing change is implied.
-
-`se/review-v8.0.28` integrates official stable 0d18d3b3 after that quota candidate.
-The durable checkpoint schema remains unchanged; optional upstream rebinding and
-new tool-search/body-limit/heartbeat options retain their default behavior.
-Read maintenance/reviews/2026-10-13-v8.0.28.md for source review, fixture corrections,
-the independently checked bounded PR6603 reload/auth-snapshot repair, and unresolved
-interruption-test timing. Root and independent fifty-repeat Issue6559 checks pass.
-Linux full suite passed 102 packages. Windows passed 1485 top-level tests across
-six packages without skips; the isolated Windows server's v8 setting round-trip
-passed. Candidate artifact is `8.0.28-se-affinity.8-rc2`, production source bff9dc70;
-ae48adb1 changes tests/docs only. Exact checksums and timing limits are in the
-qualification record. Live choice/timing, a matching bounded release operator,
-real useful-work follow-ups and enablement remain open. se/main is unchanged.
-This candidate is not a deployed release.
+Latest official stable checked14October is v8.0.29. It is reviewed, not integrated
+or qualified. Its registration-publication and queued delete/recreate fixes cover
+races outside our bounded PR6603 repair. Independently applied upstream regressions
+reproduce three publication failures here. Qualify that update before account
+prefix changes, deletion/re-enrollment or plugin registration work. Its optional
+TLS handshake protection defaults off. See qualification for remaining scope.

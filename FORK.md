@@ -1,22 +1,20 @@
 # Super Employee maintenance
 
-The current personal-fleet release is `8.0.23-se-affinity.6-rc1`, source04248f92,
-with upstream main3de4e248 and the opt-in durability and ledger transport patches.
-Read CURRENT.md and maintenance/qualification.md for exact evidence and limits.
-The earlier v8.0.16 artifact remains the broader accepted baseline; v5 plus its
-previous panel is immediate software recovery. Never rename or rebuild accepted bytes.
+The current personal-fleet release is `8.0.28-se-affinity.8-rc2`, production
+bff9dc70, on official v8.0.28 at0d18d3b3 with durability, quota-policy and ledger
+patches. Read CURRENT.md and maintenance/qualification.md for exact evidence and
+limits. Immediate software rollback is retained v6; use the matched v8/v6 operator,
+current console/environment and fresh OAuth/checkpoint. Older release procedures
+below are history, not a deployment template. Never rebuild accepted bytes in place.
 Upstream remains https://github.com/router-for-me/CLIProxyAPI. Preserve its MIT
 license and attribution. Keep provider integrations and ordinary fixes upstream.
 
 ## Source and releases
 
-- `se/review-v8.0.28` contains the source-qualified nearest-reset policy, official
-  stable v8.0.28 and the bounded independently checked PR6603 repair. Candidate
-  Windows artifact `8.0.28-se-affinity.8-rc2` uses production source bff9dc70;
-  ae48adb1 only corrects synthetic test ordering. It is not deployed or promoted
-  to se/main. Read the current qualification before selecting an artifact.
-- `v8.0.23-se-affinity.6-rc1` identifies source04248f92. The Windows artifact passed
-  bounded personal-fleet normal-work and completed-turn restart acceptance.
+- `v8.0.28-se-affinity.8-rc2` identifies production bff9dc70. Later commits
+  change qualification/tests/docs, not the deployed executable. Optional quota
+  selection remains off pending separate enabled live acceptance.
+- `v8.0.23-se-affinity.6-rc1` identifies source04248f92, the retained v6 recovery.
 - Optional `CLIPROXY_LEDGER_READER_URL` enables only three authenticated read-only
   `/v8/management/observability/ledger/` paths to a literal loopback HTTP reader.
   No new listener or public management access is added. Reader failures do not
@@ -24,7 +22,7 @@ license and attribution. Keep provider integrations and ordinary fixes upstream.
 
 - `se/main` is our maintained branch. The inherited `main` is upstream history,
   not our deployment branch.
-- `v8.0.16-se-affinity.4-rc1` is the accepted personal-fleet artifact, built from
+- Historical `v8.0.16-se-affinity.4-rc1` was the earlier accepted artifact, built from
   `a4aa7fb5c56d48a5737fb7334d2b290080157146`. Later commits change tests/docs only.
 - `v8.0.13-se-affinity.3` identifies the retained rollback source commit
   `79919de730fff9571254c8a70aa91e7cc637ff22`.
@@ -42,24 +40,19 @@ and operational logs stay outside the repository and release assets.
 
 ## Build the Windows gateway
 
-The accepted .3 rollback executable was built on Linux using Go 1.27.1 and Debian Bookworm's
-`gcc-mingw-w64-x86-64-posix`. CGO must stay enabled to retain plugin support.
-Use a clean checkout of the release tag, then:
+The current artifact was built on Linux using Go1.27.1 and MinGW-posix GCC12.
+CGO stays enabled for plugin support. Use a clean checkout of production bff9dc70:
 
 ```sh
 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc-posix GOOS=windows GOARCH=amd64 \
   go build -p 2 \
-  -ldflags '-s -w -X main.Version=8.0.13-se-affinity.3 -X main.Commit=79919de' \
-  -o cli-proxy-affinity-v3.exe ./cmd/server
-sha256sum cli-proxy-affinity-v3.exe
+  -ldflags '-s -w -X main.Version=8.0.28-se-affinity.8-rc2 -X main.Commit=bff9dc70' \
+  -o cli-proxy-affinity-v8-rc2.exe ./cmd/server
+sha256sum cli-proxy-affinity-v8-rc2.exe
 ```
 
-The third release's executable SHA256 is
-`d20c7472528abe3664b3b715840778d48533f4f302ba310e9d2978c44b8dbf46`.
-The memory-only .2 fallback has SHA256
-`833ad767269322d902206d654e709c5797120f96ef7d3f4f226a44a7d668c99f`.
-This identifies the tested artifact; a different compiler or build environment
-may produce different bytes. A successful rebuild is not deployment validation.
+Expected tested artifact SHA256 is in CURRENT.md. Different compiler/toolchain
+bytes require qualification; a successful rebuild alone is not deployment proof.
 
 ## Upgrade and rollback
 
@@ -77,9 +70,9 @@ may produce different bytes. A successful rebuild is not deployment validation.
    and retention after a service restart with alternative accounts available.
 6. Promote only after those checks pass. If they fail, restore the last accepted
    executable and its reviewed compatible service configuration, preserving current
-   auth and conversation state. A future candidate falling back to .3 may retain
-   persistence only when checkpoint compatibility is verified. A rollback to .1/.2
-   must disable persistence. Back up routing state before any schema change.
+   auth and conversation state. The current v8/v6 pair uses the same schema1; preserve live OAuth and state.
+   Older incompatible releases require their own reviewed recovery procedure.
+   Back up routing state before any schema change.
 
 Check official releases daily and when a provider integration breaks. Review new
 changes before selecting an update. Existing healthy conversations keep their account ahead of any future
@@ -105,8 +98,8 @@ git status --short
 git fetch --quiet origin
 git fetch --quiet --no-tags upstream main
 gh release list -R router-for-me/CLIProxyAPI --limit 5
-git diff --stat v8.0.16 origin/se/main
-git diff --name-only v8.0.16-se-affinity.4-rc1 origin/se/main
+git diff --stat v8.0.28 origin/se/main
+git diff --name-only v8.0.28 origin/se/main
 ```
 
 Choose a published upstream tag after reviewing its release notes. Fetch that tag

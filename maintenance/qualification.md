@@ -3,10 +3,10 @@
 This is the live qualification record, not a task queue. Completed source reviews
 remain under `reviews/`. Read CURRENT.md for the accepted artifact.
 
-## v8.0.28 plus nearest-reset candidate, 13 October
+## v8.0.28 source and live cutover, 13-14 October
 
 Source integration follows eea3ba35 and pins official stable 0d18d3b3.
-The latest official release does not replace the currently deployed v6 artifact.
+The qualified v8 artifact was deployed14October; nearest-reset is not yet enabled.
 See reviews/2026-10-13-v8.0.28.md for source changes and merge resolution.
 
 macOS build passed. Auth/service/executor/logging focused race checks passed,
@@ -27,11 +27,9 @@ service, watcher and config passed three repeats; server build passed. Full Mac
 qualification still has the unchanged discovery failure. No failing test was
 removed or weakened. See the finished upstream review for the excluded PR scope.
 
-No live auth, config, model requests, bindings or services were changed. Source and
-Windows/Linux synthetic qualification passed within the scope below. Actual provider
-choice/timing observation, the matching release operator and activation remain open.
-The current management browser could not be controlled; do not open
-secret files or reset credentials to work around it.
+The13October checks below were synthetic. The14October bounded cutover and
+actual-worker acceptance are recorded separately below. Enabled quota choice/timing
+remain open; do not infer them from source or default-policy benchmarks.
 
 Production candidate source is bff9dc70. Networking-enabled Linux full suite passed
 102 packages; focused auth/service/watcher/config/logging races passed. Windows CGO
@@ -70,7 +68,7 @@ Final auth-test SHA256, fixture source ae48adb1:
 `68a060335e3672daf5decdb79c7020f41fd1b60513006081007b375af96c845e`.
 Final service-test SHA256:
 `ecfbd6ea69e4d87e28fdb067a97d1e1721ee28e752ad4c334333ca864319a2e7`.
-PC copies match. Server is staged separately; it is not the running service binary.
+PC copies match. The exact server artifact became the running executable14October.
 
 Same Windows host, four Go processors, three 100-selection runs per case:
 default serial durable-selection medians at 2/32/256 bindings were
@@ -82,10 +80,32 @@ lookup, provider latency or complete client first-response time.
 
 Independent review found no source blocker after the relative-reset guard,
 bounded reload/auth-snapshot repair and explicit Windows fixture ordering. It
-does not prove live useful work, account attribution, lookup overhead or outage
-recovery. Maintained se/main and the live v6 artifact have not been promoted.
+does not by itself prove live useful work, account attribution, lookup overhead or
+outage recovery. The following live acceptance has narrower, explicit scope.
 
-## Current personal-fleet release, 10 October
+## Live acceptance and remaining scope, 14 October
+
+Independent Astra source/operator review found no remaining source blocker after
+two release-operator fixes: hash exactly the XML snapshot being replaced and detect
+all numbered worker containers. The matching private operator passed94 tests and
+actual Windows parse/expired-deadline/wrong-PID/bounded ValidateOnly guards.
+Fresh active/parked roster, native-history and complete runtime lifecycle checks
+passed before and during holds. Cutover retained all23 nonexpired bindings,
+unchanged OAuth/console and six worker identities. Persistence initialized active.
+Actual Claude Code/Sonnet and Codex/Luna useful tool work continued previous native
+sessions; requests stayed on one account per conversation and later read cache.
+Provider timing varies; these observations are not a controlled latency comparison.
+Forced outages, cache retention guarantees and enabled quota overhead remain open.
+
+Official v8.0.29 was released14October. Its optional TLS handshake bound defaults0.
+Independent review reproduced three model-publication regressions on this candidate
+using upstream tests. The queued delete/recreate race is a separate repair from
+our PR6603 slices too. No evidence makes these a new regression in our artifact;
+unchanged-account cutover is accepted. Qualify v8.0.29 next before account prefix
+changes, deletion/re-enrollment or plugin registration. Do not claim all auth races
+are repaired here. See the [official release](https://github.com/router-for-me/CLIProxyAPI/releases/tag/v8.0.29).
+
+## Previous personal-fleet release, 10 October
 
 Source04248f92 integrates upstream main3de4e248 and adds an opt-in authenticated
 GET-only loopback ledger bridge. Latest stable remains v8.0.23. See the finished
