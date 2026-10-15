@@ -6,7 +6,8 @@ remain under `reviews/`. Read CURRENT.md for the accepted artifact.
 ## v8.0.28 source and live cutover, 13-14 October
 
 Source integration follows eea3ba35 and pins official stable 0d18d3b3.
-The qualified v8 artifact was deployed14October; nearest-reset is not yet enabled.
+The qualified v8 artifact was deployed14October; the personal fleet subsequently
+opted in to nearest-reset with the bounded live checks below. The default remains off.
 See reviews/2026-10-13-v8.0.28.md for source changes and merge resolution.
 
 macOS build passed. Auth/service/executor/logging focused race checks passed,
@@ -28,8 +29,9 @@ qualification still has the unchanged discovery failure. No failing test was
 removed or weakened. See the finished upstream review for the excluded PR scope.
 
 The13October checks below were synthetic. The14October bounded cutover and
-actual-worker acceptance are recorded separately below. Enabled quota choice/timing
-remain open; do not infer them from source or default-policy benchmarks.
+actual-worker acceptance are recorded separately below. Enabled quota choice is
+accepted there within explicit scope; incremental lookup timing remains open.
+Do not infer either from source or default-policy benchmarks.
 
 Production candidate source is bff9dc70. Networking-enabled Linux full suite passed
 102 packages; focused auth/service/watcher/config/logging races passed. Windows CGO
@@ -97,6 +99,33 @@ sessions; requests stayed on one account per conversation and later read cache.
 Provider timing varies; these observations are not a controlled latency comparison.
 Forced outages, cache retention guarantees and enabled quota overhead remain open.
 
+The subsequent targeted v8 management PUT used raw JSON `true`. A GET confirmed
+nearest-reset enabled, with session/subagent affinity, TTL and baseline selector
+unchanged. Activation restarted no gateway or worker, retained all27 existing
+nonexpired alias mappings immediately and left the recorder connected.
+Fresh shared quota observations covered all four active accounts. New real
+Claude Code/Sonnet and Codex/Luna conversations chose the expected eligible weekly
+reset preference, then retained those accounts through tools/follow-ups:15 gateway
+attempts, zero failures, with cache reads. Existing Claude continued on its account.
+All four tested new/existing conversations completed without pending tools/delivery.
+
+The existing Codex conversation's first attempt failed after155.210seconds in an
+upstream TLS handshake/Windows socket read. Correlated trace logs classify the
+failure; the gateway's500 is not evidence that the provider returned500. The same
+request retried on another account8.892ms after that attempt ended and completed
+the same native conversation. This is normal error-driven failover under unchanged
+default `session-affinity-rebind-on:any`, not healthy-binding eviction or a155-second
+quota lookup. Independent review accepted that explanation and found no activation
+blocker. Exact low-level cause and transport remain unestablished; `wsarecv` alone
+does not establish WebSocket use. No policy tightening or unrelated worker change
+was introduced to hide the failure.
+
+These are bounded account-choice/continuation checks. Usage GET round trips were
+288–777ms, not isolated selection overhead. Relay-based reply timings mix dispatch,
+model/tools and cross-machine clocks. Client-timed cold/warm incremental overhead,
+load and controlled outage acceptance remain open. Concurrent personal-fleet work
+outside these tested conversations was not restarted or declared idle.
+
 Official v8.0.29 was released14October. Its optional TLS handshake bound defaults0.
 Independent review reproduced three model-publication regressions on this candidate
 using upstream tests. The queued delete/recreate race is a separate repair from
@@ -104,6 +133,8 @@ our PR6603 slices too. No evidence makes these a new regression in our artifact;
 unchanged-account cutover is accepted. Qualify v8.0.29 next before account prefix
 changes, deletion/re-enrollment or plugin registration. Do not claim all auth races
 are repaired here. See the [official release](https://github.com/router-for-me/CLIProxyAPI/releases/tag/v8.0.29).
+Prioritize qualifying the observed Codex connection path and a bounded handshake;
+the new shared uTLS option is not yet demonstrated to fix this incident.
 
 ## Previous personal-fleet release, 10 October
 
@@ -408,9 +439,10 @@ passive source; this candidate does not introduce a provider-wide scope catalog.
 
 ### Remaining acceptance
 
-Compare proposed cold choices with current actual choices without changing live
-routing. Then qualify Windows/runtime compatibility, useful work/follow-up affinity,
-observed lookup latency and failure recovery before controlled enablement. No live
-cap test, forced continuation, failover/load/outage acceptance or performance claim
-is implied by these synthetic checks. The explicit-binding concurrency proof does
-not establish stronger concurrent semantics for the existing LCP-only matcher.
+Windows/runtime compatibility, live quota comparison, useful work/follow-up affinity
+and bounded personal-fleet enablement are recorded above. Controlled client-timed
+lookup overhead, live cap/load tests and forced-outage acceptance remain open.
+The recovered TLS incident is evidence of one error-driven retry, not exhaustive
+failure-recovery acceptance. These synthetic checks do not imply performance or
+capacity guarantees. The explicit-binding concurrency proof does not establish
+stronger concurrent semantics for the existing LCP-only matcher.

@@ -26,13 +26,19 @@ procedure against this pair. There is no automatic rollback or scheduled updater
 affinity; healthy bindings win. Shared quota observations are cached in memory.
 Missing/stale new assignments coalesce parallel fixed-endpoint usage GETs within
 a two-second total wait, then safely fall back on incomplete data. No poller,
-credential owner or model-limit ranking subsystem was added. Actual enabled
-provider choice and client-timed lookup overhead remain unaccepted, so this
-release does not claim enabled quota-policy acceptance.
+credential owner or model-limit ranking subsystem was added. The personal fleet
+opted in14October: new Claude Code/Sonnet and Codex/Luna conversations chose the
+expected accounts from live quotas and retained them through useful tools and
+follow-ups, with cache reads. Activation retained existing bindings without a
+restart. One older Codex conversation recovered a TLS failure through normal
+account failover while preserving its native conversation. This is bounded live
+choice/continuation acceptance, not a controlled lookup-overhead or load benchmark.
 
 Latest official stable checked14October is v8.0.29. It is reviewed, not integrated
 or qualified. Its registration-publication and queued delete/recreate fixes cover
 races outside our bounded PR6603 repair. Independently applied upstream regressions
 reproduce three publication failures here. Qualify that update before account
 prefix changes, deletion/re-enrollment or plugin registration work. Its optional
-TLS handshake protection defaults off. See qualification for remaining scope.
+TLS handshake protection defaults off. Prioritize qualification against the
+observed Codex TLS failure; transport and a fix are not yet established.
+See qualification for remaining scope.

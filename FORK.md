@@ -13,7 +13,9 @@ license and attribution. Keep provider integrations and ordinary fixes upstream.
 
 - `v8.0.28-se-affinity.8-rc2` identifies production bff9dc70. Later commits
   change qualification/tests/docs, not the deployed executable. Optional quota
-  selection remains off pending separate enabled live acceptance.
+  selection defaults off; the personal fleet opted in14October after live quota
+  comparison and passed bounded new-conversation and healthy follow-up checks.
+  Controlled incremental lookup timing remains open; see qualification.
 - `v8.0.23-se-affinity.6-rc1` identifies source04248f92, the retained v6 recovery.
 - Optional `CLIPROXY_LEDGER_READER_URL` enables only three authenticated read-only
   `/v8/management/observability/ledger/` paths to a literal loopback HTTP reader.
@@ -84,8 +86,11 @@ for a targeted GET or PUT with a JSON boolean. It defaults off. The Windows
 synthetic process verified false/true/false reads and writes through that path.
 Leave other routing settings unchanged. Turning it off returns new assignments
 to the configured baseline selector; it does not request logout or credential
-replacement. Actual provider choice and client-timed lookup qualification are
-required before enabling it on a maintained release.
+replacement. Compare actual provider choices and prove useful work/follow-up
+continuity when opting in. Measure cold/warm responses from the client separately:
+usage-reporter timing starts after selection and cannot establish lookup overhead.
+The14October personal-fleet activation is accepted within that bounded scope;
+it is not a load, outage or controlled incremental-latency guarantee.
 
 ## Maintenance check
 
