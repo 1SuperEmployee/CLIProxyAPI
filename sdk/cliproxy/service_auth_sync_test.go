@@ -1044,22 +1044,28 @@ func TestHandleAuthUpdates_SameRevisionWaitDoesNotWaitForOtherAuthInBatch(t *tes
 
 	service := &Service{cfg: &config.Config{}, coreManager: manager}
 
-	bStarted := make(chan struct{})
-	bBlock := make(chan struct{})
+	finishedBatch := make(chan struct{})
+	var completedRevisionDone chan struct{}
+	secondStarted := make(chan struct{})
+	blockedWorker := make(chan struct{})
 	var started atomic.Int32
 	modelRegistrationTaskHook = func() {
 		if started.Add(1) == 2 {
-			close(bStarted)
-			<-bBlock
+			close(secondStarted)
+			<-blockedWorker
 		}
 	}
 	t.Cleanup(func() {
-		modelRegistrationTaskHook = nil
 		select {
-		case <-bBlock:
+		case <-blockedWorker:
 		default:
-			close(bBlock)
+			close(blockedWorker)
 		}
+		<-finishedBatch
+		if completedRevisionDone != nil {
+			<-completedRevisionDone
+		}
+		modelRegistrationTaskHook = nil
 	})
 
 	updateA := watcher.AuthUpdate{Action: watcher.AuthUpdateActionModify, ID: authAID, Auth: authA}
@@ -1067,30 +1073,48 @@ func TestHandleAuthUpdates_SameRevisionWaitDoesNotWaitForOtherAuthInBatch(t *tes
 	updateB := watcher.AuthUpdate{Action: watcher.AuthUpdateActionModify, ID: authBID, Auth: authB}
 	updateB.SetRevision(1)
 
-	finishedBatch := make(chan struct{})
 	go func() {
 		defer close(finishedBatch)
 		service.handleAuthUpdates(context.Background(), []watcher.AuthUpdate{updateA, updateB})
 	}()
 
 	select {
-	case <-bStarted:
+	case <-secondStarted:
 	case <-time.After(2 * time.Second):
 		t.Fatal("second auth registration in batch did not start")
 	}
 
-	doneA := make(chan struct{})
+	// Worker scheduling does not identify which auth reaches the hook second.
+	// Retry the already-completed auth while the other registration is blocked.
+	waitA, waitB := service.authRegistrationWaitCh(authAID), service.authRegistrationWaitCh(authBID)
+	closed := make(chan struct{})
+	close(closed)
+	if waitA == nil {
+		waitA = closed
+	}
+	if waitB == nil {
+		waitB = closed
+	}
+	completedUpdate := updateA
+	select {
+	case <-waitA:
+	case <-waitB:
+		completedUpdate = updateB
+	case <-time.After(2 * time.Second):
+		t.Fatal("neither auth registration completed while the second worker was gated")
+	}
+	completedRevisionDone = make(chan struct{})
 	go func() {
-		service.handleAuthUpdate(context.Background(), updateA)
-		close(doneA)
+		service.handleAuthUpdate(context.Background(), completedUpdate)
+		close(completedRevisionDone)
 	}()
 	select {
-	case <-doneA:
+	case <-completedRevisionDone:
 	case <-time.After(2 * time.Second):
-		t.Fatal("auth A hook wait blocked on unrelated auth B registration")
+		t.Fatal("completed auth revision wait blocked on unrelated registration")
 	}
 
-	close(bBlock)
+	close(blockedWorker)
 	select {
 	case <-finishedBatch:
 	case <-time.After(2 * time.Second):
