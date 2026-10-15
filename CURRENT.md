@@ -34,11 +34,25 @@ restart. One older Codex conversation recovered a TLS failure through normal
 account failover while preserving its native conversation. This is bounded live
 choice/continuation acceptance, not a controlled lookup-overhead or load benchmark.
 
-Latest official stable checked14October is v8.0.29. It is reviewed, not integrated
-or qualified. Its registration-publication and queued delete/recreate fixes cover
-races outside our bounded PR6603 repair. Independently applied upstream regressions
-reproduce three publication failures here. Qualify that update before account
-prefix changes, deletion/re-enrollment or plugin registration work. Its optional
-TLS handshake protection defaults off. Prioritize qualification against the
-observed Codex TLS failure; transport and a fix are not yet established.
-See qualification for remaining scope.
+Latest official stable checked 14 October is v8.0.29, source 5fc580b1. Candidate
+0405a543 integrates it and adds a narrow Claude metadata race repair using the
+existing lock. It is qualified and staged, not deployed. Candidate artifact
+`8.0.29-se-affinity.9-rc1` SHA256 is
+`029c96652ceabef9c1c43127af9709132a1cebf5d03ab2a348d19f354087dc33`.
+Linux full suite passes 102 packages; seven relevant Linux and eight Mac focused
+race packages pass. The Mac full suite retains its unchanged discovery failure.
+Actual Windows passes 1511 tests across six full packages and two targeted TLS
+groups, with zero failures/skips. The private operator passes 101 offline tests and
+actual Windows read-only pre-stop guards. The owner deferred restart during active
+use; production, worker identities, credentials and settings remain unchanged.
+
+The candidate's matched operator is v9/v8: upgrade v8 to v9, restart v9, rollback
+v9 to v8 and return-current v8 to v9. It is separate from the currently accepted
+v8/v6 operator above. Do not use either against the wrong artifact pair. The new
+opt-in root TLS handshake setting is not active. Proposed value 10 bounds each
+fresh handshake only; successful streams remain unbounded. The observed Codex
+failure was HTTP POST, which confirms applicability but not its exact socket cause.
+Live v9 worker continuations and a real silent-provider cutoff are not yet proven.
+An inherited downstream-WebSocket late-interrupt boundary remains open; current
+HTTP/SSE acceptance does not authorize general WebSocket adoption. Read
+maintenance/qualification.md for exact scope and the preserved failure.

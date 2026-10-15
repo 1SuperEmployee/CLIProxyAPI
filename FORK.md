@@ -9,6 +9,14 @@ below are history, not a deployment template. Never rebuild accepted bytes in pl
 Upstream remains https://github.com/router-for-me/CLIProxyAPI. Preserve its MIT
 license and attribution. Keep provider integrations and ordinary fixes upstream.
 
+Candidate `8.0.29-se-affinity.9-rc1`, production source 0405a543, is qualified and
+staged but not deployed. Read CURRENT.md and maintenance/qualification.md for the
+Windows checksum, tests and retained limitations. The candidate uses a separately
+matched v9/v8 operator, keeping the accepted v8 executable as its software rollback.
+The owner deferred the restart; source promotion or a staged artifact is not
+evidence that the live version or optional TLS setting changed. Preserve the v8/v6
+operator for the still-running v8 release until the approved transition.
+
 ## Source and releases
 
 - `v8.0.28-se-affinity.8-rc2` identifies production bff9dc70. Later commits

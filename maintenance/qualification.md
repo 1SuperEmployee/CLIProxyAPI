@@ -3,6 +3,71 @@
 This is the live qualification record, not a task queue. Completed source reviews
 remain under `reviews/`. Read CURRENT.md for the accepted artifact.
 
+## v8.0.29 qualified and staged, deployment deferred, 14 October
+
+Candidate0405a543 integrates official5fc580b1 and preserves the fork snapshot guard
+inside the refactored locked update path. It adds one production correction:
+Claude setup-token boolean reads now use the existing metadata lock. The same
+read/write race reproduces on official v8.0.29 and the maintained v8.0.28 build;
+the new focused regression fails on pristine upstream and passes100 race repeats
+after repair. No new lock or executor-wide serialization was added.
+
+The final Mac full suite passes except the unchanged multicast discovery test.
+All eight focused Mac race packages pass. Linux full suite passes102 packages;
+seven relevant auth/service/watcher/config/transport race packages pass. An extra
+full downstream-WebSocket handler race run exposes the retained late-interrupt
+boundary described below; it is not a clean eight-package Linux race pass.
+Windows artifact `8.0.29-se-affinity.9-rc1` was built from0405a543 using
+Go1.27.1 and MinGW-posix GCC12. Server SHA256 is
+`029c96652ceabef9c1c43127af9709132a1cebf5d03ab2a348d19f354087dc33`.
+Nine server/test executable hashes were verified after transfer to both the Mac
+and the actual Windows host. Windows passed 1511 top-level tests with no failures
+or skips: 1004 auth, 221 service, 76 watcher, 136 config, 49 token-store, 19 Codex
+auth, four targeted TLS helper tests and two targeted executor TLS tests. The first
+six packages ran in full; the last two ran only the new TLS cases. Tests used
+tracked public fixtures and temporary synthetic state, never live credentials.
+An initial PowerShell launcher split unquoted dotted test flags and executed zero
+tests; that run is not counted. Quoting the flags fixed the launcher without
+changing tests or executables.
+
+A separate actual Windows candidate process with an empty synthetic auth directory
+started on its own loopback port. The v8 management root TLS setting round-tripped
+0, 10, 0 using a process-local synthetic management credential. No provider request
+or live configuration was involved. The test process was stopped afterward; the
+live gateway PID was unchanged throughout.
+
+The exact server executable is staged unreferenced beside the running artifact.
+The matched private v9/v8 operator passes 101 offline tests. Actual Windows script
+parse, expired-deadline, wrong-PID and bounded pre-stop ValidateOnly guards passed
+without changing the gateway PID. The retained v8 artifact is the candidate's
+software rollback; this validates that transition, not a live rollback drill.
+The owner deferred restart during active use. No workers were held, no service
+configuration changed and the optional TLS bound remains inactive. Production is
+still v8.0.28; live v9 specialist/continuation acceptance remains pending the
+owner's restart window.
+
+Independent review recommends this candidate for current HTTP/SSE clients within
+the limitations below. The proposed root requests.tls-handshake-timeout-seconds
+value is 10, to be enabled and read back only after an approved cutover. This bounds
+each fresh TLS handshake after TCP/proxy CONNECT, not total retries, TCP setup,
+response waiting or an established stream. Synthetic Codex HTTP tests prove its
+scope; a real silent-provider ten-second cutoff has not been observed live.
+
+Two test-only ordering repairs retain their assertions: the batch-registration
+fixture no longer assumes worker order and joins cleanup; the HTTP cancellation
+fixture observes its executor's cancellation before checking the flag. Independent
+race stress passes100 repetitions of each. Real Codex HTTP silent-handshake and
+successful Chrome-uTLS SSE tests cover bounded setup, retry/socket cleanup and
+streaming beyond the handshake deadline. No provider credentials are used.
+
+The retained downstream-WebSocket issue can emit a synthetic incomplete event for
+an unknown interrupt during the terminal-frame/stream-close gap. Relevant production
+files are unchanged from the accepted v8.0.28 fork; official v28..v29 changes do not
+touch them. Pristine Mac repetitions did not reproduce it, which does not invalidate
+the observed Linux failure. Current HTTP/SSE client acceptance does not establish
+general WebSocket interruption correctness. Keep that path gated before adoption;
+do not weaken its test or claim it repaired by this update.
+
 ## v8.0.28 source and live cutover, 13-14 October
 
 Source integration follows eea3ba35 and pins official stable 0d18d3b3.
