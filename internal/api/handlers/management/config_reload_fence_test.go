@@ -147,3 +147,26 @@ func TestManagementWritesSurviveConcurrentReloadPublications_Issue6631(t *testin
 		t.Fatalf("config.yaml = request-retry %d, max-retry-credentials %d; want %d, %d", disk.RequestRetry, disk.MaxRetryCredentials, writes, writes)
 	}
 }
+
+// Watcher reloads parse an already-read snapshot, rather than loading the file again.
+func TestSetConfigRejectsStaleLoadConfigDataSnapshot(t *testing.T) {
+	h, path, router := newIssue6631Handler(t, "request-retry: 3\nmax-retry-credentials: 0\n")
+	snapshot, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	putIssue6631Value(t, router, "/v0/management/request-retry", `{"value":5}`)
+	stale, err := config.LoadConfigData(path, snapshot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stale.SourceHash != config.ComputeSourceHash(snapshot) {
+		t.Fatal("snapshot source hash missing or changed")
+	}
+	h.SetConfig(stale)
+	putIssue6631Value(t, router, "/v0/management/max-retry-credentials", `{"value":7}`)
+	got := readIssue6631Disk(t, path)
+	if got.RequestRetry != 5 || got.MaxRetryCredentials != 7 {
+		t.Fatalf("stale snapshot overwrote saved settings: retry=%d max=%d", got.RequestRetry, got.MaxRetryCredentials)
+	}
+}

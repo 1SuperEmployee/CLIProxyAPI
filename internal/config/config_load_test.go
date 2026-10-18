@@ -280,3 +280,18 @@ func TestPrepareConfigFileForUploadRefusesPlaintextKeptByReferences(t *testing.T
 		})
 	}
 }
+
+func TestLoadConfigDataHashesOnlyTheParsedSnapshot(t *testing.T) {
+	snapshot := []byte("request-retry: 3\n")
+	path := writeUploadTestConfig(t, "request-retry: 9\n")
+	cfg, err := LoadConfigData(path, snapshot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.RequestRetry != 3 || cfg.SourceHash != ComputeSourceHash(snapshot) {
+		t.Fatal("snapshot values or source hash lost")
+	}
+	if readUploadTestConfig(t, path) != "request-retry: 9\n" {
+		t.Fatal("snapshot parsing wrote back to disk")
+	}
+}

@@ -349,6 +349,10 @@ func loadConfigData(configFile string, data []byte, optional, persist bool) (*Co
 	// Validate raw payload rules and drop invalid entries.
 	cfg.SanitizePayloadRules()
 
+	// Record the exact bytes this config was parsed from, so a consumer can tell
+	// it apart from a newer version of the file.
+	cfg.SourceHash = ComputeSourceHash(data)
+
 	if !persist {
 		return &cfg, nil
 	}
@@ -368,10 +372,6 @@ func loadConfigData(configFile string, data []byte, optional, persist bool) (*Co
 			return nil, fmt.Errorf("clean conflicting config fields: %w", errWrite)
 		}
 	}
-
-	// Record the exact bytes this config was parsed from, so a consumer can tell
-	// it apart from a newer version of the file.
-	cfg.SourceHash = ComputeSourceHash(data)
 
 	// Return the populated configuration struct.
 	return &cfg, nil
