@@ -1,3 +1,25 @@
+## v32 qualification, 18 October 2026
+
+Candidate production source 0611ffeb merges official v8.0.32 at911f49cb into the
+qualified v29 branch. Config reloads keep one snapshot and one apply lock; its
+SourceHash also survives LoadConfigData, preserving the management stale-save
+fence. Independent review found and corrected the missing snapshot hash and a
+false terminal detector that could accept nested tool JSON.
+
+Scoped corrections from upstream PR6708 cover native Claude stream truncation,
+failed usage and single terminal SSE errors. Nonstream SSE conversion also requires
+message_stop. PR6716 supplies the narrow Claude compaction-injection and Codex
+compaction-rule compatibility repairs. Other-provider PR6708 changes are excluded.
+The previously qualified setup-token metadata lock remains. No client, model,
+permission, account policy, WebSocket setting or timeout is changed by this source.
+
+Mac server build and full executor package pass. Config/watcher/management/Claude
+handler/Codex translator suites pass; independent overlay regressions and selected
+race tests pass. Linux full suite and race tests, actual Windows qualification,
+artifact hash, independent operator review and real worker acceptance are pending.
+Do not treat source qualification as live deployment. Private receipts stay outside
+this repository. The live personal fleet still runs v28 until the guarded cutover.
+
 # Current update qualification
 
 This is the live qualification record, not a task queue. Completed source reviews
