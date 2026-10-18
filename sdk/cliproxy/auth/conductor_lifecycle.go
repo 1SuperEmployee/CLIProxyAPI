@@ -140,6 +140,7 @@ func (m *Manager) Register(ctx context.Context, auth *Auth) (*Auth, error) {
 		m.mu.Unlock()
 		return nil, fmt.Errorf("auth %s changed registration during persistence", auth.ID)
 	}
+	auth.ClearFileSnapshot()
 	authClone := auth.Clone()
 	m.auths[auth.ID] = authClone
 	m.notifyAuthChangeLocked(auth.ID)
@@ -258,6 +259,25 @@ func (m *Manager) updateInternalLocked(ctx context.Context, base, auth *Auth, mo
 	NormalizeCredentialMetadata(auth.Metadata)
 	if errWeight := ValidateAuthWeight(auth); errWeight != nil {
 		return nil, false, false, fmt.Errorf("update auth: %w", errWeight)
+	}
+	if (mode == updateModeReplace || mode == updateModeSnapshot) && auth.HasFileSnapshot() {
+		m.mu.RLock()
+		existing, ok := m.auths[auth.ID]
+		m.mu.RUnlock()
+		if !ok || existing == nil {
+			return nil, false, false, nil
+		}
+		// Validate file snapshot freshness under the per-auth mutation gate
+		// without holding m.mu across filesystem I/O.
+		if !auth.FileSnapshotMatchesDisk() {
+			m.mu.RLock()
+			current := m.auths[auth.ID].Clone()
+			m.mu.RUnlock()
+			if mode == updateModeSnapshot {
+				return current, false, false, errStaleAuthSnapshot
+			}
+			return current, false, false, nil
+		}
 	}
 	m.mu.Lock()
 	existing, ok := m.auths[auth.ID]
@@ -411,6 +431,7 @@ func (m *Manager) updateInternalLocked(ctx context.Context, base, auth *Auth, mo
 	if existing.Generation >= auth.Generation {
 		auth.Generation = existing.Generation + 1
 	}
+	auth.ClearFileSnapshot()
 	authClone := auth.Clone()
 	m.auths[auth.ID] = authClone
 	m.notifyAuthChangeLocked(auth.ID)

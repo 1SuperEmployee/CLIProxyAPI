@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -155,3 +157,27 @@ func (s *unmarkedStore) Save(_ context.Context, auth *Auth) (string, error) {
 }
 
 func (*unmarkedStore) Delete(context.Context, string) error { return nil }
+
+// A fresh observation time must not bypass a stale bound-file digest or report
+// that a rejected snapshot was applied.
+func TestUpdateFromSnapshotRejectsStaleFileDigestWithFreshObservation(t *testing.T) {
+	manager := NewManager(nil, nil, nil)
+	registered, err := manager.Register(t.Context(), &Auth{ID: "snapshot-digest", Provider: "codex", Prefix: "current"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "auth.json")
+	if err := os.WriteFile(path, []byte(`{"prefix":"current"}`), 0600); err != nil {
+		t.Fatal(err)
+	}
+	snapshot := &Auth{ID: registered.ID, Provider: "codex", Prefix: "stale", UpdatedAt: time.Now().Add(time.Hour)}
+	snapshot.BindFileSnapshot(path, []byte(`{"prefix":"stale"}`))
+	current, applied, err := manager.UpdateFromSnapshot(t.Context(), snapshot)
+	if err != nil || applied || current == nil || current.Prefix != "current" || current.Generation != registered.Generation {
+		t.Fatalf("stale bound snapshot result: current=%+v applied=%v err=%v", current, applied, err)
+	}
+	stored, ok := manager.GetByID(registered.ID)
+	if !ok || stored.Prefix != "current" || stored.Generation != registered.Generation {
+		t.Fatal("stale bound snapshot changed runtime state")
+	}
+}
