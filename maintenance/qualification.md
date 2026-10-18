@@ -14,9 +14,21 @@ The previously qualified setup-token metadata lock remains. No client, model,
 permission, account policy, WebSocket setting or timeout is changed by this source.
 
 Mac server build and full executor package pass. Config/watcher/management/Claude
-handler/Codex translator suites pass; independent overlay regressions and selected
-race tests pass. Linux full suite and race tests, actual Windows qualification,
-artifact hash, independent operator review and real worker acceptance are pending.
+handler/Codex translator suites pass; independent overlay regressions pass under
+race detection. Linux full suite passes102packages and relevant race checks pass10.
+Actual Windows passes2,000top-level tests across11groups, zero failures/skips. All12
+server/test hashes match the build. Empty-auth Windows startup and TLS setting
+0/10/0 round trip pass without provider traffic or a live-service change. The
+matched v10/v8 operator passes101offline tests and Windows deadline/PID/pre-stop
+ValidateOnly guards; independent Astra review clears the source/artifact/operator.
+
+Exact server8.0.32-se-affinity.10-rc1 SHA256:
+`e9b3bfcac078ab9cbb258b1cc018995ae466fc4b8c59f5596eba0a20621ce5d5`.
+Same-PC serial durable-selection medians at2/32/256sessions were3.091/2.037/2.273ms,
+versus3.157/2.082/2.280ms on v28. One v32 sample at256sessions took4.644ms.
+This small synthetic check finds no median regression; it is not an end-to-end
+latency or load guarantee. Fresh cutover gates and real worker acceptance remain
+pending.
 Do not treat source qualification as live deployment. Private receipts stay outside
 this repository. The live personal fleet still runs v28 until the guarded cutover.
 
