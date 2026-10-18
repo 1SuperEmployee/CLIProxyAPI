@@ -1,4 +1,51 @@
-## v32 qualification, 18 October 2026
+## Accepted v33 qualification, 18 October 2026
+
+Production source 1289d6bd integrates official v8.0.33 at 2422c6b0, published during
+v32 closure. Relevant upstream changes cover Claude preserved/adaptive thinking,
+short per-minute cooldowns, auth file snapshots, model registration/exclusions and
+complete SSE parsing. Default mDNS still rejects the production loopback listener;
+no discovery configuration change was needed.
+
+Independent review caught a digest-rejected snapshot returning applied=true; the
+existing stale-snapshot sentinel now preserves the public contract. Both digest
+and observation-time fences are retained under the auth mutation gate, since their
+coverage differs. A retained regression caught upstream's missing message_stop
+requirement in buffered SSE validation; it remains required. Top-level completion,
+SourceHash, compaction and payload-final-barrier regressions pass.
+
+Linux full suite 102 packages and relevant race suite 10 packages pass. Mac server
+build and focused/full relevant suites pass. Actual Windows 2,237 top-level tests in
+14 groups pass with no failures/skips; all 15 server/test hashes match. The initial
+launcher referenced provider/claude, a package with no standalone tests, and aborted.
+It was corrected to use the real parent thinking tests and precheck all executables;
+only the complete rerun is accepted. Empty-auth startup and TLS 0/10/0 pass without
+provider requests or live settings changes. Matched v11/v10 operator passes 101 offline
+tests and actual Windows six guard and nine bounded-child checks.
+
+Exact 8.0.33-se-affinity.11-rc1 Windows CGO SHA256:
+`b7c5b100dcb849dfadd081c5820afa0a71335b3cb15c3edc2af594baa615df36`.
+Go 1.27.1, MinGW-posix GCC 12. Immediate rollback is exact accepted v32, production
+0611ffeb, SHA256
+`e9b3bfcac078ab9cbb258b1cc018995ae466fc4b8c59f5596eba0a20621ce5d5`.
+
+Independent source and exact artifact/operator clearance preceded the 13:45 UTC
+bounded switch. Before/held gates passed, all 25 complete nonexpired checkpoint
+objects were restored exactly, console/environment retained and recorder restored.
+All six worker identities/harness/settings and 174 pre-existing saved records were
+unchanged. Four already-bound native Claude/Codex sessions retained their accounts
+through tools and follow-ups:31 attempts, zero failures and 2,412,230 cache-read tokens.
+Both Chiefs' WhatsApp status calls passed; an actual reply afterward has completed
+request, real ID and sent-log evidence. Final native idle check passes. A read while
+the delivery turn was active correctly refused readiness; it was not a persistent
+mismatch. No Chief/helper restart or live setting change was made for v33.
+
+Private receipts/identities stay outside the public repo. This establishes bounded
+completed-turn maintenance and native continuation, not natural compaction, child
+attribution, in-flight recovery, downstream-WebSocket acceptance or a latency gain.
+Front-door pre-execution rejections and partial token detail on rejected buffered
+SSE remain observability follow-ups. No automatic updater or rollback is installed.
+
+## Historical v32 qualification, 18 October 2026
 
 Candidate production source 0611ffeb merges official v8.0.32 at911f49cb into the
 qualified v29 branch. Config reloads keep one snapshot and one apply lock; its
@@ -15,11 +62,11 @@ permission, account policy, WebSocket setting or timeout is changed by this sour
 
 Mac server build and full executor package pass. Config/watcher/management/Claude
 handler/Codex translator suites pass; independent overlay regressions pass under
-race detection. Linux full suite passes102packages and relevant race checks pass10.
+race detection. Linux full suite passes 102 packages and relevant race checks pass10.
 Actual Windows passes2,000top-level tests across11groups, zero failures/skips. All12
 server/test hashes match the build. Empty-auth Windows startup and TLS setting
 0/10/0 round trip pass without provider traffic or a live-service change. The
-matched v10/v8 operator passes101offline tests and Windows deadline/PID/pre-stop
+matched v10/v8 operator passes 101 offline tests and Windows deadline/PID/pre-stop
 ValidateOnly guards; independent Astra review clears the source/artifact/operator.
 
 Exact server8.0.32-se-affinity.10-rc1 SHA256:
