@@ -1,23 +1,21 @@
 # Super Employee maintenance
 
-The current personal-fleet release is `8.0.28-se-affinity.8-rc2`, production
-bff9dc70, on official v8.0.28 at0d18d3b3 with durability, quota-policy and ledger
-patches. Read CURRENT.md and maintenance/qualification.md for exact evidence and
-limits. Immediate software rollback is retained v6; use the matched v8/v6 operator,
-current console/environment and fresh OAuth/checkpoint. Older release procedures
-below are history, not a deployment template. Never rebuild accepted bytes in place.
-Upstream remains https://github.com/router-for-me/CLIProxyAPI. Preserve its MIT
-license and attribution. Keep provider integrations and ordinary fixes upstream.
-
-Candidate `8.0.29-se-affinity.9-rc1`, production source 0405a543, is qualified and
-staged but not deployed. Read CURRENT.md and maintenance/qualification.md for the
-Windows checksum, tests and retained limitations. The candidate uses a separately
-matched v9/v8 operator, keeping the accepted v8 executable as its software rollback.
-The owner deferred the restart; source promotion or a staged artifact is not
-evidence that the live version or optional TLS setting changed. Preserve the v8/v6
-operator for the still-running v8 release until the approved transition.
+The accepted personal-fleet release is `8.0.32-se-affinity.10-rc1`, production
+`0611ffeb`, on official v8.0.32 at `911f49cb`. CURRENT.md and
+maintenance/qualification.md state exact tests and limits. Immediate software
+rollback is retained v28, through the matched v10/v8 operator. Preserve current
+OAuth, checkpoint, environment and console. Older procedures below are historical;
+never rebuild or replace accepted bytes in place. Keep provider fixes narrow and
+retain the upstream MIT license and attribution.
 
 ## Source and releases
+
+- `v8.0.32-se-affinity.10-rc1` identifies production `0611ffeb`. The actual Windows
+  artifact and its v28 rollback are pinned in CURRENT.md. Independent review and
+  native HTTP/SSE acceptance are complete within the recorded proof boundaries.
+  The release carries scoped corrections derived from PR6708 and PR6716, plus the
+  previously qualified setup-token metadata lock. Watch those upstream paths so
+  equivalent official changes can replace these patches after validation.
 
 - `v8.0.28-se-affinity.8-rc2` identifies production bff9dc70. Later commits
   change qualification/tests/docs, not the deployed executable. Optional quota
@@ -51,14 +49,14 @@ and operational logs stay outside the repository and release assets.
 ## Build the Windows gateway
 
 The current artifact was built on Linux using Go1.27.1 and MinGW-posix GCC12.
-CGO stays enabled for plugin support. Use a clean checkout of production bff9dc70:
+CGO stays enabled for plugin support. Use a clean checkout of production 0611ffeb:
 
 ```sh
 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc-posix GOOS=windows GOARCH=amd64 \
   go build -p 2 \
-  -ldflags '-s -w -X main.Version=8.0.28-se-affinity.8-rc2 -X main.Commit=bff9dc70' \
-  -o cli-proxy-affinity-v8-rc2.exe ./cmd/server
-sha256sum cli-proxy-affinity-v8-rc2.exe
+  -ldflags '-s -w -X main.Version=8.0.32-se-affinity.10-rc1 -X main.Commit=0611ffeb' \
+  -o cli-proxy-affinity-v10-rc1.exe ./cmd/server
+sha256sum cli-proxy-affinity-v10-rc1.exe
 ```
 
 Expected tested artifact SHA256 is in CURRENT.md. Different compiler/toolchain
@@ -80,7 +78,7 @@ bytes require qualification; a successful rebuild alone is not deployment proof.
    and retention after a service restart with alternative accounts available.
 6. Promote only after those checks pass. If they fail, restore the last accepted
    executable and its reviewed compatible service configuration, preserving current
-   auth and conversation state. The current v8/v6 pair uses the same schema1; preserve live OAuth and state.
+   auth and conversation state. The current v10/v8 pair uses the same schema1; preserve live OAuth and state.
    Older incompatible releases require their own reviewed recovery procedure.
    Back up routing state before any schema change.
 

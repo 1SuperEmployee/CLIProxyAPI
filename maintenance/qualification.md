@@ -27,10 +27,22 @@ Exact server8.0.32-se-affinity.10-rc1 SHA256:
 Same-PC serial durable-selection medians at2/32/256sessions were3.091/2.037/2.273ms,
 versus3.157/2.082/2.280ms on v28. One v32 sample at256sessions took4.644ms.
 This small synthetic check finds no median regression; it is not an end-to-end
-latency or load guarantee. Fresh cutover gates and real worker acceptance remain
-pending.
+latency or load guarantee. Fresh cutover gates and bounded real worker acceptance subsequently passed as recorded below.
+
+18 October deployment acceptance: exact artifact started with active persistence and
+21 restored groups; all original checkpoint group objects survived. The six active
+workers kept their PIDs through the switch. Subsequent caller-helper reloads retained
+174 saved records/configurations/generations and all harness/settings. Four existing
+native conversations passed tools/follow-ups. Their expired gateway aliases were
+new assignments; they are not active-binding-retention proof. A separate recent
+bound conversation kept the same account across restart. The final bounded ledger
+sample has 41 attempts, zero failures and 2,829,131 cache-read tokens; real WhatsApp
+sends also completed. This accepts normal HTTP/SSE completed-turn operation, not
+natural compaction, downstream WebSockets, general outage recovery or load behavior.
+A helper-client restart sequencing deviation is preserved in private fleet records.
+
 Do not treat source qualification as live deployment. Private receipts stay outside
-this repository. The live personal fleet still runs v28 until the guarded cutover.
+this repository. The personal fleet now runs the qualified v32 artifact.
 
 # Current update qualification
 
