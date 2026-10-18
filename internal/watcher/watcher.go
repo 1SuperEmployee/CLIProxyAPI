@@ -37,8 +37,8 @@ type Watcher struct {
 	clientsMutex      sync.RWMutex
 	authRescanMu      sync.Mutex
 	configReloadMu    sync.Mutex
-	configReloadRunMu sync.Mutex // Serializes reloadConfigIfChanged so config applies land in file order.
 	configReloadTimer *time.Timer
+	configApplyMu     sync.Mutex // Serializes config file reloads so they apply in file order.
 	serverUpdateMu    sync.Mutex
 	serverUpdateTimer *time.Timer
 	serverUpdateLast  time.Time
