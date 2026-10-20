@@ -1,3 +1,38 @@
+# Qualified v35 candidate, 20 October 2026
+
+Stable officialv8.0.35 (`ae3ee3be`) is merged at production-source commit
+`b49ded518f63d029fd60c249bffbab8cdcd3c480`. Independent source review found no
+blocking conflict in the native Claude Code/Codex HTTP/SSE fleet paths. Three
+newer unreleased main commits are deliberately excluded. This is a source/artifact-qualified
+candidate, not a claim that the running gateway has been upgraded.
+
+`8.0.35-se-affinity.12-rc1` WindowsCGO artifact SHA256:
+`21a47f41fb11623e70573ff2e3a15a341f34140a9d126a334a37e6ebc1d04227`.
+Go1.27.1 / MinGW12-posix; exact code commit above,72,058,368bytes. Linux full suite
+passes102 packages,29 packages have no tests; all10 targeted race packages pass.
+Actual Windows qualification passed2,410 top-level tests in15 groups with no
+failures/skips; all16 server/test executable hashes match. Separate empty-auth
+startup and synthetic TLS0/10/0 pass, with live gateway PID unchanged. Independent
+review of the three-line operator mapping change,101 offline tests and actual
+Windows parse pass; no production transition or ValidateOnly was invoked.
+The synthetic candidate exited and its test listener is closed. A bounded same-PC
+serial durable-selector comparison at2/32/256 bindings had v33 medians
+3.162/2.157/2.341ms and v35 medians3.124/2.083/2.270ms, with zero routing errors.
+These short samples show no regression, not an end-to-end speed improvement. Read
+`maintenance/reviews/2026-10-20-v8.0.35.md` and `maintenance/qualification.md`.
+
+Keep both snapshot fences, config ordering/SourceHash, durable schema1 affinity,
+bounded nearest-reset selection, ledger bridge, setup-token synchronization and
+strict native SSE/compaction corrections. Upstream watcher/incomplete-JSON and
+latest-record Modify protections complement those fixes; they do not replace them.
+New optional search/SIWC/provider features are not enabled by this update.
+
+Live remains the acceptedv33 artifact below. Do not run a v12 transition using a
+historical v11/v10 map. Candidate recovery must point to exact acceptedv33
+SHA256b7c5b100dcb849dfadd081c5820afa0a71335b3cb15c3edc2af594baa615df36
+and preserve current credentials, checkpoint, environment, console and worker
+settings. No gateway or worker has been restarted for this candidate.
+
 # Maintained fork
 
 `se/main` is the maintained branch; inherited `main` is upstream history.

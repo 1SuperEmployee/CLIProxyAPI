@@ -10,6 +10,14 @@ and attribution.
 
 ## Source and releases
 
+- 20 October candidate `v8.0.35-se-affinity.12-rc1` identifies code `b49ded51`,
+  merged from stable officialv8.0.35. Independent review, Linux full/race checks
+  and actual Windows qualification pass. It is not live. Keep both snapshot
+  guards, config SourceHash/order, durable affinity/nearest-reset, ledger bridge
+  and scoped strict SSE/native compaction fixes. New optional providers/search
+  restoration are not activated. Exact artifact/recovery facts are in CURRENT.md.
+
+
 - `v8.0.33-se-affinity.11-rc1` identifies production `1289d6bd`. Actual Windows
   artifact and exact v32 rollback are pinned in CURRENT.md. Independent review,
   completed-turn cutover and bound native continuations are accepted. Upstream's
@@ -53,7 +61,22 @@ Only source, synthetic tests, build instructions and release artifacts belong
 here. Live configuration, OAuth files, routing checkpoints, session transcripts
 and operational logs stay outside the repository and release assets.
 
-## Build the Windows gateway
+## Build the v35 candidate
+
+Use code `b49ded51` with Go1.27.1 and MinGW12-posix. CGO remains enabled.
+
+```sh
+CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc-posix GOOS=windows GOARCH=amd64 \
+  go build -p 2 \
+  -ldflags '-s -w -X main.Version=8.0.35-se-affinity.12-rc1 -X main.Commit=b49ded51' \
+  -o cli-proxy-affinity-v12-rc1.exe ./cmd/server
+sha256sum cli-proxy-affinity-v12-rc1.exe
+```
+
+Expected tested bytes are in CURRENT.md. Build/qualification is separate from live
+acceptance. The candidate does not replace credentials, checkpoint or console.
+
+## Reproduce the accepted v33 Windows gateway
 
 The current artifact was built on Linux using Go1.27.1 and MinGW-posix GCC12.
 CGO stays enabled for plugin support. Use a clean checkout of production 1289d6bd:

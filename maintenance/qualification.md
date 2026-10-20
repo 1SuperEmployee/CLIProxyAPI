@@ -1,3 +1,55 @@
+## v35 candidate qualification, 20 October 2026
+
+Code `b49ded51` merges stable officialv8.0.35 (`ae3ee3be`) into the acceptedv33
+fork. The maintained source is being updated; the running personal gateway remains
+`8.0.33-se-affinity.11-rc1`. Three newer unreleased main commits are reviewed and
+excluded. Independent review is in `reviews/2026-10-20-v8.0.35.md`.
+
+No blocking conflict was found in the native Claude Code/Codex HTTP/SSE paths.
+Keep both bound-digest and observation-time fences, SourceHash/config ordering,
+durable schema1 affinity, bounded nearest-reset, optional ledger bridge, setup-token
+metadata synchronization, strict buffered message_stop and native compaction fixes.
+The new incomplete-file watcher and latest-record Modify paths complement those
+protections. Codex proactive/rejected-token refresh retains version fences. New
+optional SIWC/search/provider paths are not enabled by this update.
+
+Linux full suite passes102 packages;29 packages have no tests. All10 targeted race
+packages pass. The isolated builder used Go1.27.1, MinGW12-posix, CGO enabled and
+2CPU/4GiB limits. Its2062 source files matched the archived source tree with no
+extra/missing/changed source files. Actual Windows passes2,410 top-level tests in
+15 groups, zero failures/skips:13 complete packages plus recorded relevant executor
+and helps selections. All16 transferred server/test hashes match. A
+separate candidate process with an empty synthetic auth directory starts on a
+private test loopback port and passes TLS0/10/0. No provider requests or real
+configuration/credential files were used; the live gateway identity stayed intact.
+
+Exact72,058,368-byte Windows artifact `8.0.35-se-affinity.12-rc1` SHA256:
+`21a47f41fb11623e70573ff2e3a15a341f34140a9d126a334a37e6ebc1d04227`.
+The matched operator candidate changes only the three-line executable/hash
+transition map, recovering to acceptedv33 SHA256
+`b7c5b100dcb849dfadd081c5820afa0a71335b3cb15c3edc2af594baa615df36`.
+Independent review,101 offline tests and actual Windows parse pass. No production
+transition or ValidateOnly was invoked. Actual pre-stop guards, a fresh quiet window
+and real retained native conversation acceptance remain deployment work. Preserve
+current OAuth, checkpoint, console, environment and saved worker settings.
+
+A same-PC serial durable-selector/checkpoint benchmark used three samples of100
+selections per2/32/256-binding case, GOMAXPROCS2. Acceptedv33 medians were
+3.162/2.157/2.341ms; candidatev35 medians3.124/2.083/2.270ms, zero routing errors.
+No regression appeared in the bounded samples. Small differences do not establish
+end-to-end speed or throughput gains. The fake-auth candidate exited and its
+listener is closed. No additional stress test is needed for this candidate.
+
+One source-level SIWC hardening opportunity is documented in the review: its
+explicit binding write bypasses our lastSavedAt marker for an unbound snapshot.
+The normal active watcher is bound-digest protected and no reachable concurrent
+unbound live snapshot path was found. It does not justify a new fleet patch now.
+If that inactive combination is introduced later, add one marker/regression repair.
+
+Qualification is not live deployment, real OAuth rotation, natural compaction,
+all-seat delivery, general in-flight recovery or end-to-end latency proof. Private
+operational receipts do not belong in this public repository.
+
 ## Accepted v33 qualification, 18 October 2026
 
 Production source 1289d6bd integrates official v8.0.33 at 2422c6b0, published during
