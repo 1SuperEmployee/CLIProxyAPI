@@ -1,43 +1,53 @@
-# Qualified v35 candidate, 20 October 2026
+# Accepted v35 release, 21 October 2026
 
-Stable officialv8.0.35 (`ae3ee3be`) is merged at production-source commit
-`b49ded518f63d029fd60c249bffbab8cdcd3c480`. Independent source review found no
-blocking conflict in the native Claude Code/Codex HTTP/SSE fleet paths. Three
-newer unreleased main commits are deliberately excluded. This is a source/artifact-qualified
-candidate, not a claim that the running gateway has been upgraded.
+The personal gateway now runs `8.0.35-se-affinity.12-rc1`, production code
+`b49ded518f63d029fd60c249bffbab8cdcd3c480`, merging official v8.0.35
+`ae3ee3be303fb07fb8173279923413005bf32177`. `se/main` is the maintained branch.
+Later documentation commits do not change the deployed executable.
 
-`8.0.35-se-affinity.12-rc1` WindowsCGO artifact SHA256:
+Exact Windows amd64 CGO artifact, 72,058,368 bytes, SHA256:
 `21a47f41fb11623e70573ff2e3a15a341f34140a9d126a334a37e6ebc1d04227`.
-Go1.27.1 / MinGW12-posix; exact code commit above,72,058,368bytes. Linux full suite
-passes102 packages,29 packages have no tests; all10 targeted race packages pass.
-Actual Windows qualification passed2,410 top-level tests in15 groups with no
-failures/skips; all16 server/test executable hashes match. Separate empty-auth
-startup and synthetic TLS0/10/0 pass, with live gateway PID unchanged. Independent
-review of the three-line operator mapping change,101 offline tests and actual
-Windows parse pass; no production transition or ValidateOnly was invoked.
-The synthetic candidate exited and its test listener is closed. A bounded same-PC
-serial durable-selector comparison at2/32/256 bindings had v33 medians
-3.162/2.157/2.341ms and v35 medians3.124/2.083/2.270ms, with zero routing errors.
-These short samples show no regression, not an end-to-end speed improvement. Read
-`maintenance/reviews/2026-10-20-v8.0.35.md` and `maintenance/qualification.md`.
+Built with Go 1.27.1 and MinGW 12-posix. Independent review, Linux 102 full
+packages and 10 race packages, actual Windows 2,410 top-level tests in 15 groups
+with no failures/skips, and all 16 executable hashes passed. Synthetic empty-auth
+startup and TLS 0/10/0 passed. Three newer unreleased commits and new optional
+provider/search/SIWC features were excluded.
 
-Keep both snapshot fences, config ordering/SourceHash, durable schema1 affinity,
+At 07:36 UTC the guarded executable-only switch restored all 48 valid account-
+binding groups, preserved the console/environment and restored the recorder.
+All six worker PIDs, harness hashes/settings and 241 prior saved conversation
+identities/configurations/generations matched. Four existing native conversations
+passed actual tools and same-thread follow-ups. Two bound Claude/Codex conversations
+retained accounts across the switch, with cache reads. A real owner-only message
+has sent-log confirmation. The initial post-upgrade sample had 37 attempts and zero
+failures; this is a bounded sample, not a future availability guarantee.
+
+The matched operator passes 104 tests and actual Windows pre-stop guards. It also
+accepts verified removed retired containers while preserving archive scope, refuses
+reactivation and requires optional job runners idle. Earlier live background child
+work correctly blocked cutover. No worker/helper restart, login/model/permission
+or persistent VPS setting changed. Native child scanner coverage remains separate.
+
+Immediate software rollback is exact accepted v33, production `1289d6bd`:
+`b7c5b100dcb849dfadd081c5820afa0a71335b3cb15c3edc2af594baa615df36`.
+Use the matched v12/v11 operator and preserve current OAuth, checkpoint, console
+and environment. Read-only rollback ValidateOnly passes against the current running
+gateway; no rollback was executed. Historical transition pairs do not apply.
+
+Keep both snapshot fences, config ordering/SourceHash, durable schema-1 affinity,
 bounded nearest-reset selection, ledger bridge, setup-token synchronization and
-strict native SSE/compaction corrections. Upstream watcher/incomplete-JSON and
-latest-record Modify protections complement those fixes; they do not replace them.
-New optional search/SIWC/provider features are not enabled by this update.
+strict native SSE/compaction corrections. Read FORK.md, AFFINITY-PERSISTENCE.md,
+maintenance/qualification.md and maintenance/reviews/2026-10-20-v8.0.35.md.
+Natural compaction, native-child account attribution, downstream WebSockets,
+in-flight recovery and client-timed latency retain their separate proof limits.
+Same-PC bounded selector samples showed no regression, not an end-to-end speedup.
+Private operational receipts, identities and messages stay outside this repository.
 
-Live remains the acceptedv33 artifact below. Do not run a v12 transition using a
-historical v11/v10 map. Candidate recovery must point to exact acceptedv33
-SHA256b7c5b100dcb849dfadd081c5820afa0a71335b3cb15c3edc2af594baa615df36
-and preserve current credentials, checkpoint, environment, console and worker
-settings. No gateway or worker has been restarted for this candidate.
-
-# Maintained fork
+# Accepted v33 history
 
 `se/main` is the maintained branch; inherited `main` is upstream history.
 
-18 October: personal-fleet release `8.0.33-se-affinity.11-rc1` is live and accepted
+18 October: personal-fleet release `8.0.33-se-affinity.11-rc1` was live and accepted
 for native Claude Code and Codex HTTP/SSE operation. Production source `1289d6bd`
 merges official v8.0.33 at `2422c6b0`. Later commits record tests/docs only.
 Exact Windows amd64 CGO executable SHA256:

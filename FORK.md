@@ -1,18 +1,19 @@
 # Super Employee maintenance
 
-The accepted personal-fleet release is `8.0.33-se-affinity.11-rc1`, production
-`1289d6bd`, on official v8.0.33 at `2422c6b0`. CURRENT.md and
+The accepted personal-fleet release is `8.0.35-se-affinity.12-rc1`, production
+`b49ded51`, on official v8.0.35 at `ae3ee3be`. CURRENT.md and
 maintenance/qualification.md state exact tests and limits. Immediate software
-rollback is retained v32 through the matched v11/v10 operator. Preserve current
+rollback is retained v33 through the matched v12/v11 operator. Preserve current
 OAuth, checkpoint, environment and console. Older procedures below are historical;
 never rebuild or replace accepted bytes in place. Retain the upstream MIT license
 and attribution.
 
 ## Source and releases
 
-- 20 October candidate `v8.0.35-se-affinity.12-rc1` identifies code `b49ded51`,
+- Accepted 21 October: `v8.0.35-se-affinity.12-rc1` identifies code `b49ded51`,
   merged from stable officialv8.0.35. Independent review, Linux full/race checks
-  and actual Windows qualification pass. It is not live. Keep both snapshot
+  and actual Windows qualification pass. Completed-turn cutover and retained native
+  tools/follow-ups are accepted. Keep both snapshot
   guards, config SourceHash/order, durable affinity/nearest-reset, ledger bridge
   and scoped strict SSE/native compaction fixes. New optional providers/search
   restoration are not activated. Exact artifact/recovery facts are in CURRENT.md.
@@ -108,7 +109,7 @@ bytes require qualification; a successful rebuild alone is not deployment proof.
    and retention after a service restart with alternative accounts available.
 6. Promote only after those checks pass. If they fail, restore the last accepted
    executable and its reviewed compatible service configuration, preserving current
-   auth and conversation state. The current v11/v10 pair uses the same schema1; preserve live OAuth and state.
+   auth and conversation state. The current v12/v11 pair uses the same schema1; preserve live OAuth and state.
    Older incompatible releases require their own reviewed recovery procedure.
    Back up routing state before any schema change.
 

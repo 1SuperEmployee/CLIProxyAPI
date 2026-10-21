@@ -1,8 +1,8 @@
-## v35 candidate qualification, 20 October 2026
+## Accepted v35 qualification, 20–21 October 2026
 
 Code `b49ded51` merges stable officialv8.0.35 (`ae3ee3be`) into the acceptedv33
-fork. The maintained source is being updated; the running personal gateway remains
-`8.0.33-se-affinity.11-rc1`. Three newer unreleased main commits are reviewed and
+fork. Source/artifact qualification completed on 20 October; the personal gateway
+has run `8.0.35-se-affinity.12-rc1` since 21 October, 07:36 UTC. Three newer unreleased main commits are reviewed and
 excluded. Independent review is in `reviews/2026-10-20-v8.0.35.md`.
 
 No blocking conflict was found in the native Claude Code/Codex HTTP/SSE paths.
@@ -28,10 +28,17 @@ Exact72,058,368-byte Windows artifact `8.0.35-se-affinity.12-rc1` SHA256:
 The matched operator candidate changes only the three-line executable/hash
 transition map, recovering to acceptedv33 SHA256
 `b7c5b100dcb849dfadd081c5820afa0a71335b3cb15c3edc2af594baa615df36`.
-Independent review,101 offline tests and actual Windows parse pass. No production
-transition or ValidateOnly was invoked. Actual pre-stop guards, a fresh quiet window
-and real retained native conversation acceptance remain deployment work. Preserve
-current OAuth, checkpoint, console, environment and saved worker settings.
+Independent executable-map review, 104 operator tests and actual Windows
+pre-stop guards pass. The roster also recognises removed retired containers after
+complete enumeration, preserves archive scope and refuses busy optional job runners.
+The quiet-window gates passed before and during holds. The executable-only cutover
+restored all 48 valid binding groups, console/environment and recorder. All six
+worker PIDs/harness settings and 241 saved native identities/configs/generations
+matched. Four existing conversations passed tools and follow-ups; two bound native
+Claude/Codex conversations retained accounts with cache reads. A real owner-only
+message has sent-log confirmation. The first 37 post-upgrade attempts had zero
+failures. Read-only rollback ValidateOnly passes with the gateway unchanged; no
+rollback was executed. No worker/helper restart or login/model/permission change.
 
 A same-PC serial durable-selector/checkpoint benchmark used three samples of100
 selections per2/32/256-binding case, GOMAXPROCS2. Acceptedv33 medians were
@@ -46,9 +53,11 @@ The normal active watcher is bound-digest protected and no reachable concurrent
 unbound live snapshot path was found. It does not justify a new fleet patch now.
 If that inactive combination is introduced later, add one marker/regression repair.
 
-Qualification is not live deployment, real OAuth rotation, natural compaction,
-all-seat delivery, general in-flight recovery or end-to-end latency proof. Private
-operational receipts do not belong in this public repository.
+The live checks establish bounded completed-turn maintenance and native
+continuation. They do not prove real OAuth rotation, natural compaction, all-seat
+business delivery, native-child account attribution, general in-flight recovery or
+end-to-end latency. Private operational receipts do not belong in this public
+repository.
 
 ## Accepted v33 qualification, 18 October 2026
 
