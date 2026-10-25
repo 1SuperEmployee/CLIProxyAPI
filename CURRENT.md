@@ -1,4 +1,4 @@
-# Candidate v42 security update, 25 October 2026
+# Live v42 security update, 25 October 2026
 
 Source `db965301` integrates official stablev8.0.42 at `bc064340` with preserved
 fork routing/snapshot protections and a patched compression dependency. Go1.27.3
@@ -11,11 +11,19 @@ Windows rc1 exposed absent IANA timezone data. The rc2 rebuild uses standard
 `-tags timetzdata`; the initial rc1 artifact is not deployment-qualified.
 Exact Windows73,390,592-byte SHA256:
 04e19e9828879227fe51edb436638291c366f87b39c52cdc1a706ba932fb6dd4.
-Immediate recovery is retained acceptedv12. Refreshed fleet maintenance inventory,
-independent deployment review and coordinated live acceptance remain required.
-No live executable or client change. Read
-`maintenance/reviews/2026-10-25-v8.0.42.md` for the actual evidence and limitations.
-The accepted release below remains the production/recovery authority.
+Live activation at13:24 UTC restored169 nonexpired schema-1 routing groups,
+kept OAuth and the console, and reconnected the recorder. Independent Astra
+review found no source/artifact blocker and repeated relevant regressions and
+104 operator tests. Actual official Claude and Codex file tools and exact-native-ID
+continuations passed after a separate client-host reboot: eight successful
+attempts, one unchanged account per conversation and cache reads. This is bounded
+acceptance, not proof of every business delivery or natural compaction path.
+Immediate recovery is exact retained acceptedv12, using the v13/v12 Windows
+transition. The old fixed SE Buzz fleet roster is stale for the new T3 runtime;
+independently establish current consumers/idleness before any later stop, and
+never reuse a gateway hold controller for host reboots. Read
+`maintenance/reviews/2026-10-25-v8.0.42.md` for evidence and limits.
+Earlier accepted releases below are history and retained recovery artifacts.
 
 # Accepted v35 release, 21 October 2026
 

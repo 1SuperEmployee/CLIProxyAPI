@@ -1,21 +1,29 @@
 # Super Employee maintenance
 
-The v8.0.42 security candidate is source/artifact-qualified on `se/main` and
-`se/review-v8.0.42`, with deployment still pending.
-Read its dated review before promotion. Build with a security-patched Go compiler;
-the candidate uses Go1.27.3 and `-tags timetzdata` for Windows. An application-source merge does not replace the Go
-standard library compiled into an older deployed executable. No candidate is live
-until the operating acceptance and checksum-pinned transition are complete.
+The personal gateway runs `8.0.42-se-affinity.13-rc2`, production `db965301`,
+on official stablev8.0.42 at `bc064340`. Build with Go1.27.3, Windows CGO and
+`-tags timetzdata`; an application-source merge does not replace the Go standard
+library compiled into an older executable. CURRENT.md and the dated review record
+qualification, exact artifact checksum and bounded live acceptance.
 
-The accepted personal-fleet release is `8.0.35-se-affinity.12-rc1`, production
-`b49ded51`, on official v8.0.35 at `ae3ee3be`. CURRENT.md and
-maintenance/qualification.md state exact tests and limits. Immediate software
-rollback is retained v33 through the matched v12/v11 operator. Preserve current
-OAuth, checkpoint, environment and console. Older procedures below are historical;
-never rebuild or replace accepted bytes in place. Retain the upstream MIT license
-and attribution.
+Immediate software recovery is retained v12 on upstreamv8.0.35 through the matched
+v13/v12 Windows transition. Preserve current OAuth, schema-1 checkpoint, environment
+and console. The fixed SE Buzz fleet roster is stale for the newer T3 runtime;
+use current client lifecycle evidence before a stop, never reactivate retired
+seats and never use the short gateway hold controller for a host reboot. Ordinary
+rollback requires the service Running; an incomplete stopped transition needs
+explicit inspection/recovery, not automatic restoration of stale state. Older
+procedures below are historical. Retain the upstream MIT license and attribution.
 
 ## Source and releases
+
+- Live25 October: `v8.0.42-se-affinity.13-rc2` identifies `db965301`.
+  Independent review, full Mac/Linux suites and relevant races,4,141 Windows
+  tests and exact-artifact startup passed. The live switch restored169 binding
+  groups. Both official harnesses passed actual tools and same-native-ID follow-ups,
+  with unchanged account attribution/cache reads. Source and binary scan limits,
+  including the OpenPGP module-level false-positive distinction, stay explicit.
+
 
 - Accepted 21 October: `v8.0.35-se-affinity.12-rc1` identifies code `b49ded51`,
   merged from stable officialv8.0.35. Independent review, Linux full/race checks
@@ -116,7 +124,7 @@ bytes require qualification; a successful rebuild alone is not deployment proof.
    and retention after a service restart with alternative accounts available.
 6. Promote only after those checks pass. If they fail, restore the last accepted
    executable and its reviewed compatible service configuration, preserving current
-   auth and conversation state. The current v12/v11 pair uses the same schema1; preserve live OAuth and state.
+   auth and conversation state. The current v13/v12 pair uses the same schema1; preserve live OAuth and state.
    Older incompatible releases require their own reviewed recovery procedure.
    Back up routing state before any schema change.
 
