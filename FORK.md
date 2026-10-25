@@ -22,7 +22,7 @@ procedures below are historical. Retain the upstream MIT license and attribution
   tests and exact-artifact startup passed. The live switch restored169 binding
   groups. Both official harnesses passed actual tools and same-native-ID follow-ups,
   with unchanged account attribution/cache reads. Source and binary scan limits,
-  including the OpenPGP module-level false-positive distinction, stay explicit.
+  including the module-level OpenPGP finding and unused flagged package, stay explicit.
 
 
 - Accepted 21 October: `v8.0.35-se-affinity.12-rc1` identifies code `b49ded51`,
