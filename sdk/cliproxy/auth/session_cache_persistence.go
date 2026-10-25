@@ -165,7 +165,7 @@ func (c *SessionCache) restoreLocked() (err error) {
 			return errors.New("affinity checkpoint exceeds cache capacity")
 		}
 		if now.Before(group.ExpiresAt) {
-			c.replaceAliasGroupsLocked(group.AuthID, group.ExpiresAt, group.Aliases)
+			c.replaceAliasGroupsLocked(group.AuthID, group.ExpiresAt, group.Aliases, sessionBinding{})
 		}
 	}
 	return nil

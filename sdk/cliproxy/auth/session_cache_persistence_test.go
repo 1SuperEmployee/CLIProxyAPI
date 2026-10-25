@@ -54,6 +54,22 @@ func TestDurableAffinityRestartFailoverAndRecovery(t *testing.T) {
 	}
 }
 
+// The existing schema deliberately stores account bindings only. A resumed parent
+// restores its own account, then repopulates upstream's volatile guardian index.
+func TestDurableAffinityResumedParentRebuildsGuardianIndex(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "state.json")
+	a := &Auth{ID: "auth-a", Provider: "codex", Status: StatusActive}
+	b := &Auth{ID: "auth-b", Provider: "codex", Status: StatusActive}
+	s := durableTestSelector(t, path)
+	parent := guardianTestOptions("main-thread", "")
+	parent.Headers.Del("X-OpenAI-Subagent")
+	guardianTestPick(t, s, "codex", "parent-model", parent, []*Auth{b}, "auth-b")
+	s.Stop()
+	s = durableTestSelector(t, path)
+	guardianTestPick(t, s, "codex", "parent-model", parent, []*Auth{a, b}, "auth-b")
+	guardianTestPick(t, s, "codex", "review-model", guardianTestOptions("review-thread", "main-thread"), []*Auth{a, b}, "auth-b")
+}
+
 func TestDurableAffinityAliasesExpiryAndInvalidation(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "state.json")
 	s := durableTestSelector(t, path)
@@ -61,7 +77,7 @@ func TestDurableAffinityAliasesExpiryAndInvalidation(t *testing.T) {
 	s.cache.Set("expired", "a")
 	s.cache.mu.Lock()
 	old := s.cache.entries["expired"]
-	s.cache.replaceAliasGroupsLocked("a", time.Now().Add(-time.Hour), []string{"expired"}, old)
+	s.cache.replaceAliasGroupsLocked("a", time.Now().Add(-time.Hour), []string{"expired"}, old.binding, old)
 	s.cache.persistLocked()
 	s.cache.mu.Unlock()
 	s.Stop()
