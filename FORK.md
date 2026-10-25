@@ -1,5 +1,11 @@
 # Super Employee maintenance
 
+The v8.0.42 security candidate is being qualified on `se/review-v8.0.42`.
+Read its dated review before promotion. Build with a security-patched Go compiler;
+the candidate uses Go1.27.3. An application-source merge does not replace the Go
+standard library compiled into an older deployed executable. No candidate is live
+until the operating acceptance and checksum-pinned transition are complete.
+
 The accepted personal-fleet release is `8.0.35-se-affinity.12-rc1`, production
 `b49ded51`, on official v8.0.35 at `ae3ee3be`. CURRENT.md and
 maintenance/qualification.md state exact tests and limits. Immediate software

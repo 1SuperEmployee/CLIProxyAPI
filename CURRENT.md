@@ -1,3 +1,14 @@
+# Candidate v42 security update, 25 October 2026
+
+Source `db965301` integrates official stablev8.0.42 at `bc064340` with preserved
+fork routing/snapshot protections and a patched compression dependency. Go1.27.3
+is the qualification compiler. Full macOS suite, relevant race checks, repeated
+merge-boundary regressions and compilation pass; source vulnerability analysis
+finds no vulnerable called symbols. Linux/Windows artifact qualification continues.
+No live executable or client change. Read
+`maintenance/reviews/2026-10-25-v8.0.42.md` for the actual evidence and limitations.
+The accepted release below remains the production/recovery authority.
+
 # Accepted v35 release, 21 October 2026
 
 The personal gateway now runs `8.0.35-se-affinity.12-rc1`, production code
