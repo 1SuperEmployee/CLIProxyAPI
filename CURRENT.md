@@ -4,7 +4,15 @@ Source `db965301` integrates official stablev8.0.42 at `bc064340` with preserved
 fork routing/snapshot protections and a patched compression dependency. Go1.27.3
 is the qualification compiler. Full macOS suite, relevant race checks, repeated
 merge-boundary regressions and compilation pass; source vulnerability analysis
-finds no vulnerable called symbols. Linux/Windows artifact qualification continues.
+finds no vulnerable called symbols. Linux102-package full suite and five relevant race packages pass. The exact Windows
+CGO rc2 artifact passed4,141 top-level tests, with zero failures and four explicit
+platform/helper skips; isolated empty-auth startup also passed.
+Windows rc1 exposed absent IANA timezone data. The rc2 rebuild uses standard
+`-tags timetzdata`; the initial rc1 artifact is not deployment-qualified.
+Exact Windows73,390,592-byte SHA256:
+04e19e9828879227fe51edb436638291c366f87b39c52cdc1a706ba932fb6dd4.
+Immediate recovery is retained acceptedv12. Refreshed fleet maintenance inventory,
+independent deployment review and coordinated live acceptance remain required.
 No live executable or client change. Read
 `maintenance/reviews/2026-10-25-v8.0.42.md` for the actual evidence and limitations.
 The accepted release below remains the production/recovery authority.

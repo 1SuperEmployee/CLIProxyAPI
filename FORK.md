@@ -1,8 +1,9 @@
 # Super Employee maintenance
 
-The v8.0.42 security candidate is being qualified on `se/review-v8.0.42`.
+The v8.0.42 security candidate is source/artifact-qualified on `se/main` and
+`se/review-v8.0.42`, with deployment still pending.
 Read its dated review before promotion. Build with a security-patched Go compiler;
-the candidate uses Go1.27.3. An application-source merge does not replace the Go
+the candidate uses Go1.27.3 and `-tags timetzdata` for Windows. An application-source merge does not replace the Go
 standard library compiled into an older deployed executable. No candidate is live
 until the operating acceptance and checksum-pinned transition are complete.
 
