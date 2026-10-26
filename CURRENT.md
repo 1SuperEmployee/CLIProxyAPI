@@ -1,3 +1,28 @@
+# Qualified WebSocket candidate, 26 October 2026
+
+Candidate `8.0.42-se-affinity.14-rc1`, code `8db9efad6636`, ports upstream PR6515
+at `5d8de6f6e9c218d178fb42efce55732c61e88a7a`. PR6515 is open, not merged.
+It repairs local HTTP-fallback interrupt identity, queued-frame claims and terminal
+publication, including synthetic prewarm history bounded to256 IDs per connection.
+No dependencies, OAuth handling, routing policy, checkpoint schema or console change.
+
+macOS and Linux full suites pass102 packages each; focused handler interrupt race
+checks pass50 repeats on each. Windows exact-artifact tests pass331 handler,
+1,744 executor and1,088 auth top-level tests. The initial Windows executor run had
+one Antigravity credit-hint failure;30 isolated repeats pass on both unchanged v13
+and candidate, and full baseline/candidate reruns pass. Its cause remains unproven,
+not fixed or silently omitted. Empty-auth Windows startup passes401 on an assigned
+loopback port with no provider request. Six bounded pre-stop guards and104 offline
+operator tests pass without changing the live service.
+
+Windows Go1.27.3 CGO/MinGW12, `-tags timetzdata`, exact executable SHA256:
+`4d5e5e24723c8d9a33514aead01e9aac55d0e07c459f8198860a4e7612cdc8b6`.
+The candidate is staged, not active. Live remains accepted v13 below. The matched
+v14/v13 transition is staged and read-only validated; no restart is authorised
+until a quiet window is coordinated. Client WebSocket flags and Codex account
+WebSocket metadata remain unchanged. Native tools, follow-up, cancellation/resume,
+account/cache attribution and actual transport/latency acceptance are pending.
+
 # Live v42 security update, 25 October 2026
 
 Source `db965301` integrates official stablev8.0.42 at `bc064340` with preserved

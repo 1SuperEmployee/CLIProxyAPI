@@ -1,5 +1,13 @@
 # Super Employee maintenance
 
+26 October WebSocket candidate: PR6515 at
+`5d8de6f6e9c218d178fb42efce55732c61e88a7a` is ported in `8db9efad6636`.
+https://github.com/router-for-me/CLIProxyAPI/pull/6515 remains open. Retire the
+equivalent fork delta after upstream incorporates it and preserves the regressions;
+do not duplicate its connection-local identity/terminal handling. Related narrower
+proposals PR6621/6676 were reviewed. CURRENT.md separates candidate qualification
+from the still-live accepted v13 release. No native transport adoption yet.
+
 The personal gateway runs `8.0.42-se-affinity.13-rc2`, production `db965301`,
 on official stablev8.0.42 at `bc064340`. Build with Go1.27.3, Windows CGO and
 `-tags timetzdata`; an application-source merge does not replace the Go standard
