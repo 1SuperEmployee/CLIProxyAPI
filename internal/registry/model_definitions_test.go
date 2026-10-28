@@ -65,6 +65,9 @@ func TestCodexConfigurationUpdateCapability(t *testing.T) {
 			if info.SupportConfigurationUpdate != tt.want {
 				t.Errorf("capability = %v, want %v", info.SupportConfigurationUpdate, tt.want)
 			}
+			if cloneModelInfo(&info).SupportConfigurationUpdate != tt.want {
+				t.Errorf("clone did not preserve capability %v", tt.want)
+			}
 		})
 	}
 }
