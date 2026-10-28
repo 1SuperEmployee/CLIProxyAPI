@@ -1,29 +1,25 @@
 # v45 security and WebSocket candidate, qualification in progress
 
-Candidate `8.0.45-se-affinity.15-rc1`, code `7c34312419c8`, merges official
-`v8.0.45` at `ad8bdd3f20be` with the PR6515 repair retained from v14. Live remains
-accepted v13/v42. Do not treat the earlier v14 qualification as proof for v15.
-Retain compress1.18.7, Go1.27.3, Windows CGO/MinGW12 and `-tags timetzdata`.
-Both snapshot fences, SourceHash/order, durable schema1 bindings, nearest-reset
-selection and the optional ledger bridge remain. No account flags, client
-transport settings, credentials, console or persistence schema are changed.
+Current candidate `8.0.45-se-affinity.15-rc2`, code `320482eb5b59`, merges official
+v8.0.45 at ad8bdd3f20be with PR6515's interrupt repair and PR6755's streaming-log
+close/join/clear repair and regression. RC2 also patches newly announced HTML-library
+issues with x/net0.62 and its required crypto/sync/sys/text upgrades. Live remains
+accepted v13/v42. Earlier v14 and RC1 results do not qualify RC2.
 
-Integration checks corrected inherited model-catalog test assumptions, made the
-single-segment zstd security fixture independent of encoder-version heuristics,
-and reviewed the new private AST `[]string` shift against our no-copy tripwire.
-The queued-input loss regression uses an unknown response ID as its read barrier;
-late interrupts for a terminal response are intentionally silent in PR6515.
-The test still requires that stale queued input is not sent and fresh input works.
-One narrow diagnostic correction accepts both Go JSON error wordings while
-continuing to render only fixed safe codes. The streaming-log close/join/clear
-race fix matches open upstream PR6755 at e1fee291d5e5; its buffered-chunk
-regression is retained. Untouched v45 reproduced the relevant
-catalog/diagnostic/review-tripwire failures; those were not waived as green.
+Superseded RC1 at7c343124 passed102 full Linux packages, nine race packages,
+30 interrupt repeats and50 logging repeats. Both target-source scans reported no
+vulnerable called symbols; its exact Windows binary scan still flagged two new
+x/net HTML advisories and the existing module-wide OpenPGP advisory. RC1 was never
+deployed. RC2 is undergoing fresh tests/scans; do not claim a clean scan from RC1.
 
-Final full/race/security checks and actual Windows qualification are underway.
-Source and operator promotion, exact artifact checksum, current-topology quiet
-gate, bounded v15/v13 transition and post-cutover native acceptance are pending.
-The fixed legacy Buzz roster remains stale and must not authorize maintenance.
+Retain compress1.18.7, Go1.27.3, Windows CGO/MinGW12 and timetzdata. Both snapshot
+fences, SourceHash/order, durable schema1 bindings, nearest-reset selection and the
+optional ledger bridge remain. No account flags, client transports, credentials,
+console or persistence schema are changed. Late terminal interrupts are silent;
+queued-input loss checks still refuse unsent stale work. The old fixed Buzz roster
+is stale and must not authorize maintenance. Exact artifact, recovery guard and
+post-cutover native acceptance remain pending. Current qualification evidence stays
+outside the public source repository.
 
 # Qualified WebSocket candidate, 26 October 2026
 
