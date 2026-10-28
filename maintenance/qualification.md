@@ -1,3 +1,62 @@
+## Qualified v45 candidate, 27 October2026, not live
+
+Server `8.0.45-se-affinity.15-rc2`, source 171759b6977f, combines official v8.0.45
+at ad8bdd3f with the retained routing/snapshot/compaction protections, upstream
+PR6515's interrupt repair and PR6755's close/join/clear streaming-log repair.
+The latter reproduced under the race detector. Keep both regressions and retire
+equivalent fork deltas after upstream incorporates them.
+
+Build: Go 1.27.3, Windows amd64 CGO, MinGW 12-posix and timetzdata. Exact 74,332,672-byte
+executable SHA256:
+`b3abcba0b493fb641b8cfd2cc58b67f5d1d8ac5159aa5053ec69fdd30d2c995c`.
+
+RC2 production code passes the 102-package ordinary Linux suite. The nine relevant
+race-package rerun passes, as do 30 keepalive-upload repetitions, 30 interrupt
+repetitions and 50 logging repetitions. Initial failures remain recorded: inherited
+catalog assumptions, changed zstd encoder framing, JSON diagnostic wording, and
+fake upload completion before receipt. The corrections preserve the assertions.
+The Windows-only SIWC tilde fixture additionally needs USERPROFILE as well as HOME;
+test-only 78a3f805 makes that one-line correction, and its Linux fixture passes ten
+race repetitions. The unchanged server remains built at 171759b6. Frozen fixture
+source 78a3f805 differs from that server source in this one test line only.
+
+Actual Windows passes 4,923 top-level tests in 14 complete packages, with zero
+failures. Four explicit skips cover two unreadable-file/dir fixtures and two
+helper-process entry points. All 15 transferred executable hashes and 2,189 source
+fixture hashes match. A separate empty-auth, local-model candidate starts on an
+assigned loopback port, enforces 401 authentication and exits afterward, with zero
+provider requests. No live config or provider credential is mounted into the test.
+
+After two newly published HTML advisories, RC2 updates x/net 0.62 and its required
+crypto/sync/sys/text versions. compress 1.18.7 remains. Linux and Windows server-
+source scans report zero called/imported vulnerabilities and one required-module
+warning. Exact Windows PE scanning removes both HTML warnings but still reports
+GO-2026-5932, legacy golang.org/x/crypto/openpgp. The actual Windows import graph
+excludes every flagged package and uses the maintained ProtonMail fork recommended
+by the advisory. Preserve this source/binary distinction; the binary scan is not
+empty. Initial RC1 source results alone were not used to accept the dependency
+inventory. Interrupted/OOM/noexec scans are not accepted evidence.
+
+Independent Astra review found and corrected an inherited maintenance acceptance
+gap. Retained checkpoint JSON and401 do not prove that durable routing loaded.
+The matched operator distinguishes checkpoint retention from runtime acceptance;
+the separate read-only startup gate requires a new process and fresh version/active-
+persistence log bytes with the retained unexpired-group count. It records Running
+dependent services before a possible stop failure. Explicit stopped-service recovery
+preserves current OAuth/checkpoint/console and does not queue unattended rollback.
+112 offline operator tests pass; the eight new startup-proof tests also pass on
+Windows. Real-PC unchanged-PID and old-log rejection checks pass without a restart.
+
+Live remains accepted v13/v42. Current T3 roles replace the old fixed Buzz roster as
+the maintenance inventory. Coordinate a quiet window, warn Su for Usman and recheck
+current consumers immediately before any stop. Preserve healthy account bindings,
+console, credentials and client settings. v45 changes negotiated downstream response
+compression, including SSE, and upstream response decoding even while request
+compression stays off. Post-cutover acceptance must therefore observe actual native
+incremental text, tools, normal Stop/same-ID resume, account/cache continuity and a
+fresh recorder feed. Pre-upgrade native results are a baseline, not acceptance of
+this candidate. No WebSocket account/client flag is enabled by this qualification.
+
 ## Accepted v35 qualification, 20–21 October 2026
 
 Code `b49ded51` merges stable officialv8.0.35 (`ae3ee3be`) into the acceptedv33

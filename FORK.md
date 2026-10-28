@@ -1,14 +1,19 @@
 # Super Employee maintenance
 
-27 October v45 candidate: RC2 at320482eb5b59 combines official v8.0.45 with
+27 October v45 candidate: RC2 at 171759b6977f combines official v8.0.45 with
 PR6515 and the streaming-log channel close/join/clear repair from open PR6755
 at e1fee291d5e5. Its buffered-chunk regression is retained. Retire the equivalent
 fork deltas once upstream incorporates the fixes and the regressions still pass.
-The candidate also pins x/net0.62 and required crypto/sync/sys/text versions for
-GO-2026-6860 and GO-2026-6866, announced after v45's release. Preserve compress1.18.7
-and the Go1.27.3 build toolchain. RC1's source scans missed the exact-binary warning
-for those HTML functions; RC2 needs its own qualification. CURRENT.md owns current
-candidate/accepted status. No new version has been selected in the live service.
+The candidate also pins x/net 0.62 and required crypto/sync/sys/text versions for
+GO-2026-6860 and GO-2026-6866, announced after v45's release. Preserve compress 1.18.7
+and the Go 1.27.3 build toolchain. RC1's source scans missed the exact-binary warning
+for those HTML functions; RC2's scans remove those warnings. The remaining legacy
+OpenPGP binary warning is distinguished from the unimported flagged packages and
+maintained ProtonMail replacement. CURRENT.md owns qualification and current
+candidate/accepted status. Test-only 78a3f805 isolates Windows USERPROFILE in the
+upstream tilde-home fixture; it changes no production code. Windows qualification
+passes 4,923 tests, with four explicit skips; the exact server stays 171759b6.
+No new version has been selected in the live service.
 
 26 October WebSocket candidate: PR6515 at
 `5d8de6f6e9c218d178fb42efce55732c61e88a7a` is ported in `8db9efad6636`.

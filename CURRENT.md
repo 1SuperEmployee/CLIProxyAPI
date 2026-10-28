@@ -1,25 +1,47 @@
-# v45 security and WebSocket candidate, qualification in progress
+# Qualified v45 security and WebSocket candidate, not live
 
-Current candidate `8.0.45-se-affinity.15-rc2`, code `320482eb5b59`, merges official
-v8.0.45 at ad8bdd3f20be with PR6515's interrupt repair and PR6755's streaming-log
-close/join/clear repair and regression. RC2 also patches newly announced HTML-library
-issues with x/net0.62 and its required crypto/sync/sys/text upgrades. Live remains
-accepted v13/v42. Earlier v14 and RC1 results do not qualify RC2.
+Candidate `8.0.45-se-affinity.15-rc2`, server source `171759b6977f`, integrates
+exact official v8.0.45 at `ad8bdd3f20be`. Live remains accepted v13/v42. The
+candidate executable is staged without selecting it in the service.
 
-Superseded RC1 at7c343124 passed102 full Linux packages, nine race packages,
-30 interrupt repeats and50 logging repeats. Both target-source scans reported no
-vulnerable called symbols; its exact Windows binary scan still flagged two new
-x/net HTML advisories and the existing module-wide OpenPGP advisory. RC1 was never
-deployed. RC2 is undergoing fresh tests/scans; do not claim a clean scan from RC1.
+It includes PR6515's interrupt repair, PR6755's streaming-log close/join/clear
+repair and regression, x/net 0.62 security fixes and required crypto/sync/sys/text
+updates. Retain compress 1.18.7, Go 1.27.3, Windows CGO/MinGW 12 and timetzdata.
+Both snapshot fences, SourceHash/order, durable schema-1 bindings, nearest-reset
+selection and the optional ledger bridge remain. Account/client flags, credentials,
+console and persistence schema are unchanged.
 
-Retain compress1.18.7, Go1.27.3, Windows CGO/MinGW12 and timetzdata. Both snapshot
-fences, SourceHash/order, durable schema1 bindings, nearest-reset selection and the
-optional ledger bridge remain. No account flags, client transports, credentials,
-console or persistence schema are changed. Late terminal interrupts are silent;
-queued-input loss checks still refuse unsent stale work. The old fixed Buzz roster
-is stale and must not authorize maintenance. Exact artifact, recovery guard and
-post-cutover native acceptance remain pending. Current qualification evidence stays
-outside the public source repository.
+RC2 production code passes 102 ordinary Linux packages. Nine relevant race packages,
+30 keepalive-upload repetitions, 30 interrupt repetitions and 50 logging repetitions
+pass. Test source `78a3f805` adds a Windows home-variable fixture correction to
+server source `171759b6`, with no production change. Actual Windows passes 4,923
+top-level tests across 14 complete packages, zero failures and four explicit
+platform/helper skips. All 15 executable and 2,189 frozen fixture hashes match.
+Isolated empty-auth startup returns 401 with no provider requests. Initial failures
+and their diagnoses remain in the qualification evidence, not silently discarded.
+
+Exact 74,332,672-byte Windows executable SHA256:
+`b3abcba0b493fb641b8cfd2cc58b67f5d1d8ac5159aa5053ec69fdd30d2c995c`.
+Linux/Windows server-source scans report zero called/imported vulnerabilities.
+Exact PE scanning removes both new HTML warnings but still reports GO-2026-5932.
+The actual Windows import graph excludes every flagged legacy OpenPGP package and
+uses the maintained ProtonMail fork recommended by the advisory. Keep that
+source/binary distinction; the binary scan is not empty. Superseded RC1 was not
+deployed and its results do not qualify RC2.
+
+Independent review corrected the inherited checkpoint-only restart acceptance gap.
+The matched v15/v13 operator passes 112 offline checks and six actual Windows
+pre-stop guards without a restart. Its separate read-only gate requires a new
+process and fresh active-persistence startup evidence, then native continuity
+checks. Explicit stopped-service recovery preserves current credentials and state.
+
+A coordinated quiet window and post-cutover acceptance remain pending. The old
+fixed Buzz roster is stale and cannot authorize maintenance. v45 changes negotiated
+response compression, including SSE, so observe native incremental text, tools,
+normal Stop/same-ID resume, account/cache continuity and a fresh recorder feed.
+No WebSocket account/client flag has been enabled, and actual transport adoption
+and client-timed latency remain separate work. Read maintenance/qualification.md
+and FORK.md. Private operational receipts stay outside this public repository.
 
 # Qualified WebSocket candidate, 26 October 2026
 
