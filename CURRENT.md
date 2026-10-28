@@ -1,3 +1,30 @@
+# v45 security and WebSocket candidate, qualification in progress
+
+Candidate `8.0.45-se-affinity.15-rc1`, code `7c34312419c8`, merges official
+`v8.0.45` at `ad8bdd3f20be` with the PR6515 repair retained from v14. Live remains
+accepted v13/v42. Do not treat the earlier v14 qualification as proof for v15.
+Retain compress1.18.7, Go1.27.3, Windows CGO/MinGW12 and `-tags timetzdata`.
+Both snapshot fences, SourceHash/order, durable schema1 bindings, nearest-reset
+selection and the optional ledger bridge remain. No account flags, client
+transport settings, credentials, console or persistence schema are changed.
+
+Integration checks corrected inherited model-catalog test assumptions, made the
+single-segment zstd security fixture independent of encoder-version heuristics,
+and reviewed the new private AST `[]string` shift against our no-copy tripwire.
+The queued-input loss regression uses an unknown response ID as its read barrier;
+late interrupts for a terminal response are intentionally silent in PR6515.
+The test still requires that stale queued input is not sent and fresh input works.
+One narrow diagnostic correction accepts both Go JSON error wordings while
+continuing to render only fixed safe codes. The streaming-log close/join/clear
+race fix matches open upstream PR6755 at e1fee291d5e5; its buffered-chunk
+regression is retained. Untouched v45 reproduced the relevant
+catalog/diagnostic/review-tripwire failures; those were not waived as green.
+
+Final full/race/security checks and actual Windows qualification are underway.
+Source and operator promotion, exact artifact checksum, current-topology quiet
+gate, bounded v15/v13 transition and post-cutover native acceptance are pending.
+The fixed legacy Buzz roster remains stale and must not authorize maintenance.
+
 # Qualified WebSocket candidate, 26 October 2026
 
 Candidate `8.0.42-se-affinity.14-rc1`, code `8db9efad6636`, ports upstream PR6515
