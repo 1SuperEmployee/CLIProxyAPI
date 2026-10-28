@@ -7,12 +7,17 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	codexmodels "github.com/router-for-me/CLIProxyAPI/v8/internal/client/codex/models"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/config"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/home"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/registry"
 )
 
 func TestModelsMultiAgentClientConfigAndReload(t *testing.T) {
+	// Disabled optimization preserves the catalog's inherited version, which may
+	// already be v2. It does not erase native model capabilities.
+	baseline := codexmodels.BuildResponse([]map[string]any{{"id": "config-multi-agent-synthetic"}}, nil, false)
+	inheritedVersion := baseline["models"].([]map[string]any)[0]["multi_agent_version"]
 	for _, source := range []string{"local", "home"} {
 		t.Run(source, func(t *testing.T) {
 			const modelID = "config-multi-agent-synthetic"
@@ -72,7 +77,7 @@ func TestModelsMultiAgentClientConfigAndReload(t *testing.T) {
 						if entry["slug"] != modelID {
 							continue
 						}
-						var want any
+						want := inheritedVersion
 						if tc.want {
 							want = "v2"
 						}
