@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -67,7 +68,7 @@ func TestResponsesTerminalClosesLocalInterruptBeforePublication(t *testing.T) {
 				writer := newResponsesWebsocketWriter(conn)
 				_, readerDone := readResponsesWebsocketInput(ctx, cancel, conn, func([]byte) error {
 					return cliproxyexecutor.ErrNoActiveUpstreamWebsocket
-				}, local, writer, nil)
+				}, local, writer, nil, new(atomic.Uint64))
 				_, _, _, errMsg, errForward := (*OpenAIResponsesAPIHandler)(nil).forwardResponsesWebsocket(
 					c, writer, func(...interface{}) { cancel(nil) }, data, nil, timeline, "terminal-regression",
 					responsesWebsocketForwardOptions{localInterrupt: local, duplexStream: func() bool { return true }},
