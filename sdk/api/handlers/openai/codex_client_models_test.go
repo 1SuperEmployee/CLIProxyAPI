@@ -3,6 +3,7 @@ package openai
 import (
 	"testing"
 
+	codexmodels "github.com/router-for-me/CLIProxyAPI/v8/internal/client/codex/models"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/config"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/registry"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/runtime/executor"
@@ -12,6 +13,8 @@ import (
 
 func TestCodexClientModelsResponseMultiAgentV2FollowsConfig(t *testing.T) {
 	modelID := "codex-client-multi-agent-v2-test"
+	baseline := codexmodels.BuildResponse([]map[string]any{{"id": modelID}}, nil, false)
+	inheritedVersion := baseline["models"].([]map[string]any)[0]["multi_agent_version"]
 	clientID := "codex-client-multi-agent-v2-test-client"
 	modelRegistry := registry.GetGlobalRegistry()
 	modelRegistry.RegisterClient(clientID, "openai-compatibility", []*registry.ModelInfo{{ID: modelID}})
@@ -53,8 +56,8 @@ func TestCodexClientModelsResponseMultiAgentV2FollowsConfig(t *testing.T) {
 				}
 				return
 			}
-			if !exists || value != nil {
-				t.Fatalf("multi_agent_version = %#v, want preserved null", value)
+			if !exists || value != inheritedVersion {
+				t.Fatalf("multi_agent_version = %#v, want preserved %#v", value, inheritedVersion)
 			}
 		})
 	}

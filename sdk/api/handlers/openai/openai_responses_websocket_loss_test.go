@@ -489,9 +489,10 @@ func TestResponsesWebsocketQueuedInputBeforeIdleEOFIsNotSent(t *testing.T) {
 	<-eofProcessed
 
 	// Queue c3 after the EOF (epoch 1) while c2 is still blocked in RouteModel; the rejected
-	// interrupt proves readResponsesWebsocketInput has already stamped and queued c3.
+	// unknown-ID interrupt proves the reader has already stamped and queued c3.
+	// An interrupt for terminal r1 is now an intentional silent no-op.
 	f.create(`,"event_id":"c3"`)
-	f.send(`{"type":"response.interrupt","response_id":"r1"}`)
+	f.send(`{"type":"response.interrupt","response_id":"unknown"}`)
 	if interruptErr := f.nextError(); gjson.GetBytes(interruptErr, "status").Int() != http.StatusBadRequest {
 		t.Fatalf("post-EOF interrupt error = %s, want 400", interruptErr)
 	}
