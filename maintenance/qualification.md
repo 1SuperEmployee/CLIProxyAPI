@@ -1,3 +1,35 @@
+## Accepted RC3 ranking correction, 29 October 2026
+
+RC3 layers a small remaining-weekly-allowance/time-to-reset ranking change onto
+qualified v45 RC2. Source `bc8e05ae808b`; exact 74,332,672-byte executable SHA256
+`78dd53fa199997b95cf6e0e724d11702d3bbca1027de5787083c99329ba9c201`.
+Go 1.27.3, Windows amd64 CGO, MinGW 12-posix and timetzdata are unchanged.
+
+Full auth/SDK Linux race packages pass; focused quota ranking/concurrent fleet
+checks pass twenty repetitions. The twenty-account/six-conversation fixture now
+prefers 97% remaining over 73h to 9% over 48-67h and verifies unchanged bindings,
+shared lookup coalescing and passive updates. A repeat exposed the inherited
+fixture's mixed real/fake clock near a second boundary. The test-only controlled
+clock correction passed review; preserve the initial failure log. Actual Windows
+full auth/SDK packages pass 1,389 top-level tests, no failures/skips. Three binaries
+and 2,189 source fixture hashes match; empty-auth startup passes 401 with zero
+provider requests. Prior RC2 4,923-test/full integration results below remain
+identified as RC2 results. No broad unchanged integration campaign was repeated.
+
+No dependencies/imports changed. Exact RC3 binary scanning reports only the prior
+GO-2026-5932 legacy OpenPGP finding, qualified by the reviewed unimported legacy
+packages and maintained replacement. 112 offline operator tests and six actual
+Windows pre-stop guards pass. Independent Astra review found no blocker.
+
+The approved 08:24 UTC gateway-only switch retained 458 nonexpired checkpoint groups
+and fresh runtime logs proved active persistence. Console bytes stayed identical,
+the recorder reconnected, and existing official Claude/Codex native IDs passed
+incremental streaming, file tools and same-account follow-ups with cache reads.
+Codex normal Stop/same-ID resume passed. No worker, credentials or transport flags
+changed. Immediate recovery is exact accepted v13; current data stays in place.
+Long-term distribution, all business delivery and actual WebSocket adoption remain
+outside this bounded acceptance.
+
 ## Qualified v45 candidate, 27 October2026, not live
 
 Server `8.0.45-se-affinity.15-rc2`, source 171759b6977f, combines official v8.0.45

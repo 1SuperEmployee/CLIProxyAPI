@@ -1,44 +1,41 @@
 # Super Employee maintenance
 
-27 October v45 candidate: RC2 at 171759b6977f combines official v8.0.45 with
-PR6515 and the streaming-log channel close/join/clear repair from open PR6755
-at e1fee291d5e5. Its buffered-chunk regression is retained. Retire the equivalent
-fork deltas once upstream incorporates the fixes and the regressions still pass.
-The candidate also pins x/net 0.62 and required crypto/sync/sys/text versions for
-GO-2026-6860 and GO-2026-6866, announced after v45's release. Preserve compress 1.18.7
-and the Go 1.27.3 build toolchain. RC1's source scans missed the exact-binary warning
-for those HTML functions; RC2's scans remove those warnings. The remaining legacy
-OpenPGP binary warning is distinguished from the unimported flagged packages and
-maintained ProtonMail replacement. CURRENT.md owns qualification and current
-candidate/accepted status. Test-only 78a3f805 isolates Windows USERPROFILE in the
-upstream tilde-home fixture; it changes no production code. Windows qualification
-passes 4,923 tests, with four explicit skips; the exact server stays 171759b6.
-No new version has been selected in the live service.
+29 October: accepted live release `8.0.45-se-affinity.15-rc3`, source
+`bc8e05ae808b`, integrates official v8.0.45 with retained fork protections.
+CURRENT.md records exact build, artifact and bounded native acceptance.
 
-26 October WebSocket candidate: PR6515 at
-`5d8de6f6e9c218d178fb42efce55732c61e88a7a` is ported in `8db9efad6636`.
-https://github.com/router-for-me/CLIProxyAPI/pull/6515 remains open. Retire the
-equivalent fork delta after upstream incorporates it and preserves the regressions;
-do not duplicate its connection-local identity/terminal handling. Related narrower
-proposals PR6621/6676 were reviewed. CURRENT.md separates candidate qualification
-from the still-live accepted v13 release. No native transport adoption yet.
+Fresh quota-aware assignments now maximize unused weekly fraction per time until
+reset. The `routing.nearest-reset` boolean is retained for compatibility. Healthy
+bindings and parent/child inheritance retain priority. Existing short-window gates,
+cache freshness, bounded/coalesced refresh and fallback remain; no new service or
+forecast/reservation machinery was added. The arithmetic and concurrent twenty-
+account regressions preserve the observed imbalance as a test case.
 
-The personal gateway runs `8.0.42-se-affinity.13-rc2`, production `db965301`,
-on official stablev8.0.42 at `bc064340`. Build with Go1.27.3, Windows CGO and
-`-tags timetzdata`; an application-source merge does not replace the Go standard
-library compiled into an older executable. CURRENT.md and the dated review record
-qualification, exact artifact checksum and bounded live acceptance.
+Keep PR6515's interrupt handling and PR6755's logging close/join/clear regression.
+Retire equivalent fork patches after upstream incorporates them and tests remain
+green. x/net 0.62, required crypto/sync/sys/text versions, compress 1.18.7 and
+Go 1.27.3 remain. The legacy OpenPGP binary warning is qualified by the unchanged
+import graph and maintained ProtonMail fork, not silently suppressed.
 
-Immediate software recovery is retained v12 on upstreamv8.0.35 through the matched
-v13/v12 Windows transition. Preserve current OAuth, schema-1 checkpoint, environment
-and console. The fixed SE Buzz fleet roster is stale for the newer T3 runtime;
-use current client lifecycle evidence before a stop, never reactivate retired
-seats and never use the short gateway hold controller for a host reboot. Ordinary
-rollback requires the service Running; an incomplete stopped transition needs
-explicit inspection/recovery, not automatic restoration of stale state. Older
-procedures below are historical. Retain the upstream MIT license and attribution.
+Both snapshot fences, SourceHash/order, schema-1 affinity, strict compaction/SSE
+checks and ledger bridge remain. Windows uses CGO/MinGW 12 and timetzdata. No
+credential, console, client transport or account WebSocket flag changed.
+
+Immediate recovery is exact retained v13 on v8.0.42 through the matched v15/v13
+operator. Preserve current OAuth, checkpoint, environment and console. Startup
+acceptance requires fresh active-persistence evidence as well as checkpoint
+retention. Normal rollback requires a Running service; inspect an incomplete
+Stopped transition before explicit recovery. Never queue an unattended rollback.
+The fixed Buzz roster is stale; use current consumers and a coordinated quiet
+window. Retain upstream MIT attribution. Older procedures below are historical.
 
 ## Source and releases
+
+- Live 29 October: `v8.0.45-se-affinity.15-rc3`, source `bc8e05ae808b`.
+  Auth/SDK race suites, twenty concurrent/ranking repetitions, 1,389 actual Windows
+  tests, isolated startup and exact transition guards pass. The switch restored
+  458 nonexpired groups with active durable persistence and native continuation.
+
 
 - Live25 October: `v8.0.42-se-affinity.13-rc2` identifies `db965301`.
   Independent review, full Mac/Linux suites and relevant races,4,141 Windows
@@ -147,7 +144,7 @@ bytes require qualification; a successful rebuild alone is not deployment proof.
    and retention after a service restart with alternative accounts available.
 6. Promote only after those checks pass. If they fail, restore the last accepted
    executable and its reviewed compatible service configuration, preserving current
-   auth and conversation state. The current v13/v12 pair uses the same schema1; preserve live OAuth and state.
+   auth and conversation state. The current v15/v13 pair uses the same schema1; preserve live OAuth and state.
    Older incompatible releases require their own reviewed recovery procedure.
    Back up routing state before any schema change.
 
