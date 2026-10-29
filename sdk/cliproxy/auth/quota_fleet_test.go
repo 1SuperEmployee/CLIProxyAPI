@@ -15,6 +15,8 @@ func TestQuotaFleetTwentyAccountsConcurrentConversations(t *testing.T) {
 		t.Run(provider, func(t *testing.T) {
 			const accounts, conversations = 20, 6
 			now := time.Now().Truncate(time.Second)
+			var clock atomic.Int64
+			clock.Store(now.UnixNano())
 			started, release := make(chan string, accounts), make(chan struct{})
 			var releaseOnce sync.Once
 			t.Cleanup(func() { releaseOnce.Do(func() { close(release) }) })
@@ -34,6 +36,7 @@ func TestQuotaFleetTwentyAccountsConcurrentConversations(t *testing.T) {
 					return nil, ctx.Err()
 				}
 			})
+			s.quota.now = func() time.Time { return time.Unix(0, clock.Load()) }
 			for i, a := range auths {
 				resets[a.ID] = time.Duration(48+i) * time.Hour
 				used[a.ID] = 91
@@ -76,7 +79,7 @@ func TestQuotaFleetTwentyAccountsConcurrentConversations(t *testing.T) {
 			mu.Unlock()
 			// Reverse reset preference. Existing conversations must retain the
 			// account; a new one sees the updated passive reading without a GET.
-			s.quota.now = func() time.Time { return now.Add(time.Second) }
+			clock.Store(now.Add(time.Second).UnixNano())
 			setQuotaTestPassive(m, auths[0], quotaTestSignals(provider, now.Add(time.Second), 30*time.Minute, 20))
 			for i := range conversations {
 				a, err := m.SelectAuth(t.Context(), provider, "quota-test-model", quotaTestOptions(fmt.Sprintf("fleet-conversation-%d", i)))
