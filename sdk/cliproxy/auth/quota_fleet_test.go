@@ -21,6 +21,7 @@ func TestQuotaFleetTwentyAccountsConcurrentConversations(t *testing.T) {
 			var mu sync.Mutex
 			calls := map[string]int{}
 			resets := map[string]time.Duration{}
+			used := map[string]float64{}
 			m, s, auths := quotaTestManagerAccounts(t, provider, accounts, func(ctx context.Context, a *Auth) ([]byte, error) {
 				mu.Lock()
 				calls[a.ID]++
@@ -28,16 +29,18 @@ func TestQuotaFleetTwentyAccountsConcurrentConversations(t *testing.T) {
 				started <- a.ID
 				select {
 				case <-release:
-					return quotaTestBody(provider, now, resets[a.ID], 20), nil
+					return quotaTestBody(provider, now, resets[a.ID], used[a.ID]), nil
 				case <-ctx.Done():
 					return nil, ctx.Err()
 				}
 			})
 			for i, a := range auths {
 				resets[a.ID] = time.Duration(48+i) * time.Hour
+				used[a.ID] = 91
 			}
 			preferred := auths[7].ID
-			resets[preferred] = time.Hour
+			resets[preferred] = 73 * time.Hour
+			used[preferred] = 3
 			type result struct {
 				a   *Auth
 				err error
@@ -61,7 +64,7 @@ func TestQuotaFleetTwentyAccountsConcurrentConversations(t *testing.T) {
 			for range conversations {
 				r := <-results
 				if r.err != nil || r.a == nil || r.a.ID != preferred {
-					t.Fatalf("new conversation did not use nearest reset: auth=%v err=%v", r.a, r.err)
+					t.Fatalf("new conversation did not use unused allowance per time: auth=%v err=%v", r.a, r.err)
 				}
 			}
 			mu.Lock()

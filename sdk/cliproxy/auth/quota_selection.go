@@ -33,7 +33,8 @@ type quotaSelectionDecision struct {
 	reason     string
 }
 
-// nearestResetCandidates narrows an already eligible, ID-sorted candidate pool.
+// nearestResetCandidates ranks unused weekly allowance against time until reset
+// inside the legacy nearest-reset mode. It narrows an eligible, ID-sorted pool.
 // The caller owns provider/model eligibility, explicit pins, cooldowns, transport
 // preference and weight exclusions. A healthy binding must be checked across
 // priority tiers, before the cold-selection pool is narrowed to the highest tier.
@@ -64,7 +65,7 @@ func nearestResetCandidates(eligible []*Auth, healthyBoundID string, snapshots m
 		return fallback("invalid-policy")
 	}
 
-	var bestReset time.Time
+	var bestScore float64
 	var best []*Auth
 	for _, candidate := range pool {
 		snapshot, exists := snapshots[candidate.ID]
@@ -80,10 +81,13 @@ func nearestResetCandidates(eligible []*Auth, healthyBoundID string, snapshots m
 		if !hasHeadroom {
 			continue
 		}
-		if bestReset.IsZero() || reset.Before(bestReset) {
-			bestReset = reset
+		// Validation above guarantees a positive time and a finite fraction.
+		// Equal scores retain the existing selector's tie-breaking order.
+		score := snapshot.weekly.remainingFraction / reset.Sub(now).Seconds()
+		if len(best) == 0 || score > bestScore {
+			bestScore = score
 			best = []*Auth{candidate}
-		} else if reset.Equal(bestReset) {
+		} else if score == bestScore {
 			best = append(best, candidate)
 		}
 	}
@@ -92,7 +96,7 @@ func nearestResetCandidates(eligible []*Auth, healthyBoundID string, snapshots m
 		// rejection/cooldown enforcement to the authoritative eligibility path.
 		return fallback("insufficient-headroom")
 	}
-	return quotaSelectionDecision{best, "nearest-reset"}
+	return quotaSelectionDecision{best, "quota-pace"}
 }
 
 func assessSelectionQuota(snapshot selectionQuotaSnapshot, now time.Time, policy quotaSelectionPolicy) (time.Time, bool, string) {

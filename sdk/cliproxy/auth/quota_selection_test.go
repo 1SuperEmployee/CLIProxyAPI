@@ -45,7 +45,7 @@ func TestQuotaSelectionPreservesBindingAndPriority(t *testing.T) {
 	// An absent binding is not restored, and missing lower-priority data must
 	// not trigger a fallback or expand the cold-selection tier.
 	decision := nearestResetCandidates(pool, "no-longer-eligible", snapshots, now, policy)
-	if got := selectionTestIDs(decision); !reflect.DeepEqual(got, []string{"c"}) || decision.reason != "nearest-reset" {
+	if got := selectionTestIDs(decision); !reflect.DeepEqual(got, []string{"c"}) || decision.reason != "quota-pace" {
 		t.Fatalf("cold priority: ids=%v reason=%s", got, decision.reason)
 	}
 }
@@ -61,7 +61,7 @@ func TestQuotaSelectionSharedWindows(t *testing.T) {
 		}
 		decision := nearestResetCandidates(pool, "", snapshots, now, policy)
 		if got := selectionTestIDs(decision); !reflect.DeepEqual(got, []string{"a"}) {
-			t.Fatalf("nearer weekly reset should win, irrespective of plan fraction: %v (%s)", got, decision.reason)
+			t.Fatalf("remaining allowance per time should win: %v (%s)", got, decision.reason)
 		}
 	})
 	t.Run("short window constrains headroom but not ranking", func(t *testing.T) {
@@ -89,8 +89,8 @@ func TestQuotaSelectionSharedWindows(t *testing.T) {
 			remainingFraction: 0.5, resetAt: now.Add(time.Minute), observedAt: now,
 		}
 		decision := nearestResetCandidates(pool, "", map[string]selectionQuotaSnapshot{"a": a, "b": b}, now, policy)
-		if got := selectionTestIDs(decision); !reflect.DeepEqual(got, []string{"a"}) || decision.reason != "nearest-reset" {
-			t.Fatalf("weekly reset remains the ranking criterion: %v (%s)", got, decision.reason)
+		if got := selectionTestIDs(decision); !reflect.DeepEqual(got, []string{"a"}) || decision.reason != "quota-pace" {
+			t.Fatalf("short reset cannot replace weekly allowance pacing: %v (%s)", got, decision.reason)
 		}
 	})
 }
@@ -161,11 +161,11 @@ func TestQuotaSelectionTiesReservesAndInputs(t *testing.T) {
 	pool := []*Auth{{ID: "a"}, {ID: "b"}, {ID: "c"}}
 	snapshots := map[string]selectionQuotaSnapshot{
 		"a": selectionTestSnapshot(now, time.Hour, 0.05),
-		"b": selectionTestSnapshot(now, time.Hour, 0.9),
-		"c": selectionTestSnapshot(now, 2*time.Hour, 0.5),
+		"b": selectionTestSnapshot(now, time.Hour, 0.05),
+		"c": selectionTestSnapshot(now, 2*time.Hour, 0.05),
 	}
 	decision := nearestResetCandidates(pool, "", snapshots, now, policy)
-	if got := selectionTestIDs(decision); !reflect.DeepEqual(got, []string{"a", "b"}) || decision.reason != "nearest-reset" {
+	if got := selectionTestIDs(decision); !reflect.DeepEqual(got, []string{"a", "b"}) || decision.reason != "quota-pace" {
 		t.Fatalf("reserve boundary and tied resets should preserve baseline tie order: %v (%s)", got, decision.reason)
 	}
 	// A later decision uses the original observation time; an earlier read
@@ -181,6 +181,35 @@ func TestQuotaSelectionTiesReservesAndInputs(t *testing.T) {
 	low := nearestResetCandidates(pool, "", snapshots, now, policy)
 	if got := selectionTestIDs(low); !reflect.DeepEqual(got, []string{"a", "b", "c"}) || low.reason != "insufficient-headroom" {
 		t.Fatalf("reserve should not invent a provider denial: %v (%s)", got, low.reason)
+	}
+}
+
+func TestQuotaSelectionPacesRemainingWeeklyAllowance(t *testing.T) {
+	now := time.Unix(1_800_000_000, 0)
+	pool := []*Auth{{ID: "a"}, {ID: "b"}}
+	policy := quotaSelectionPolicy{15 * time.Minute, 0.05}
+	for _, tc := range []struct {
+		name   string
+		a, b   float64
+		ta, tb time.Duration
+		want   []string
+	}{
+		{"observed imbalance", .09, .97, 48 * time.Hour, 73 * time.Hour, []string{"b"}},
+		{"equal balances favour sooner reset", .8, .8, 24 * time.Hour, 72 * time.Hour, []string{"a"}},
+		{"expiring allowance can beat fuller account", .25, .95, 6 * time.Hour, 120 * time.Hour, []string{"a"}},
+		{"imminent reset remains useful", .06, .95, time.Nanosecond, 72 * time.Hour, []string{"a"}},
+		{"equal rates preserve fallback tie", .25, .5, 24 * time.Hour, 48 * time.Hour, []string{"a", "b"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			snapshots := map[string]selectionQuotaSnapshot{
+				"a": selectionTestSnapshot(now, tc.ta, tc.a),
+				"b": selectionTestSnapshot(now, tc.tb, tc.b),
+			}
+			got := nearestResetCandidates(pool, "", snapshots, now, policy)
+			if !reflect.DeepEqual(selectionTestIDs(got), tc.want) || got.reason != "quota-pace" {
+				t.Fatalf("got %v (%s), want %v", selectionTestIDs(got), got.reason, tc.want)
+			}
+		})
 	}
 }
 

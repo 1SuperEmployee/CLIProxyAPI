@@ -172,7 +172,8 @@ routing:
   # credential is kept even if a higher-priority credential recovers. Credential priority
   # still decides cold bindings, requests without a session, and post-failover rebinding.
   session-affinity: false # default: false
-  # Candidate opt-in: nearest shared weekly reset for new OAuth account assignments.
+  # Opt-in: rank unused shared weekly allowance per time until reset for new assignments.
+  # The nearest-reset key is retained for compatibility; equal scores use strategy.
   # Requires session-affinity. Existing bindings win; unknown quota keeps strategy.
   # Passive readings preferred; stale candidates share bounded read-only usage GETs.
   # Candidate defaults: 15m freshness, 5% reserve, 2s total wait, 30s failure backoff.
