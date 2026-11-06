@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/MoeForge/moego/ojson"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/config"
@@ -18,7 +19,6 @@ import (
 	"github.com/router-for-me/CLIProxyAPI/v8/sdk/api/handlers"
 	coreauth "github.com/router-for-me/CLIProxyAPI/v8/sdk/cliproxy/auth"
 	coreexecutor "github.com/router-for-me/CLIProxyAPI/v8/sdk/cliproxy/executor"
-	"github.com/tidwall/gjson"
 )
 
 // identityHTTPExecutor never creates an upstream websocket. Its second response
@@ -115,7 +115,7 @@ func TestResponsesHTTPInterruptResponseIdentity(t *testing.T) {
 				if errRead != nil {
 					t.Fatal(errRead)
 				}
-				if gjson.GetBytes(payload, "type").String() != eventType || gjson.GetBytes(payload, "response.id").String() != responseID {
+				if ojson.GetBytes(payload, "type").String() != eventType || ojson.GetBytes(payload, "response.id").String() != responseID {
 					t.Fatalf("want %s for %q, got %s", eventType, responseID, payload)
 				}
 				return payload
@@ -130,7 +130,7 @@ func TestResponsesHTTPInterruptResponseIdentity(t *testing.T) {
 				t.Helper()
 				interrupt("unknown-response")
 				payload := expect("error", "")
-				if gjson.GetBytes(payload, "status").Int() != http.StatusBadRequest {
+				if ojson.GetBytes(payload, "status").Int() != http.StatusBadRequest {
 					t.Fatalf("unknown interrupt must return 400, got %s", payload)
 				}
 			}
@@ -145,8 +145,8 @@ func TestResponsesHTTPInterruptResponseIdentity(t *testing.T) {
 				if errRead != nil {
 					t.Fatal(errRead)
 				}
-				staleResponseID = gjson.GetBytes(created, "response.id").String()
-				if gjson.GetBytes(created, "type").String() != "response.created" || !strings.HasPrefix(staleResponseID, "resp_prewarm_") {
+				staleResponseID = ojson.GetBytes(created, "response.id").String()
+				if ojson.GetBytes(created, "type").String() != "response.created" || !strings.HasPrefix(staleResponseID, "resp_prewarm_") {
 					t.Fatalf("expected synthetic prewarm response, got %s", created)
 				}
 				expect("response.completed", staleResponseID)
@@ -174,7 +174,7 @@ func TestResponsesHTTPInterruptResponseIdentity(t *testing.T) {
 			}
 			interrupt("http-response-2")
 			payload := expect("response.incomplete", "http-response-2")
-			if gjson.GetBytes(payload, "response.incomplete_details.reason").String() != "interrupted" {
+			if ojson.GetBytes(payload, "response.incomplete_details.reason").String() != "interrupted" {
 				t.Fatalf("unexpected interrupt reason: %s", payload)
 			}
 			select {

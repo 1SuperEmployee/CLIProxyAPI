@@ -8,7 +8,7 @@ import (
 
 func TestResponsesLocalInterruptQueuedFrameCannotCrossTurns(t *testing.T) {
 	local := newResponsesLocalInterrupt()
-	local.begin()
+	local.begin(false)
 	local.observeCreated("r1")
 	old := []byte(`{"type":"response.interrupt","response_id":"r1"}`)
 	if local.deliver(old) != responsesLocalInterruptQueued {
@@ -18,7 +18,7 @@ func TestResponsesLocalInterruptQueuedFrameCannotCrossTurns(t *testing.T) {
 	// Completion wins after the consumer receives the frame but before it claims it.
 	local.observeTerminal("r1")
 	local.end()
-	local.begin()
+	local.begin(false)
 	local.observeCreated("r2")
 	if got := local.claim(queued); got != "" {
 		t.Fatalf("stale queued frame claimed %q", got)
@@ -42,7 +42,7 @@ func TestResponsesLocalInterruptQueuedFrameCannotCrossTurns(t *testing.T) {
 func TestResponsesLocalInterruptCompletionRacesDelivery(t *testing.T) {
 	for attempt := 0; attempt < 100; attempt++ {
 		local := newResponsesLocalInterrupt()
-		local.begin()
+		local.begin(false)
 		local.observeCreated("r1")
 		payload := []byte(`{"type":"response.interrupt","response_id":"r1"}`)
 		start := make(chan struct{})
@@ -74,7 +74,7 @@ func TestResponsesLocalInterruptCompletionRacesDelivery(t *testing.T) {
 
 func TestResponsesLocalInterruptRejectsUnobservedResponses(t *testing.T) {
 	local := newResponsesLocalInterrupt()
-	local.begin()
+	local.begin(false)
 	payload := []byte(`{"type":"response.interrupt","response_id":"r1"}`)
 	if local.deliver(payload) != responsesLocalInterruptRejected {
 		t.Fatal("interrupt before response.created was accepted")
@@ -106,7 +106,7 @@ func TestResponsesLocalInterruptBoundsTerminalHistory(t *testing.T) {
 					// Synthetic prewarms finish without starting an upstream turn.
 					local.observeTerminal(id)
 				} else {
-					local.begin()
+					local.begin(false)
 					local.observeCreated(id)
 					switch path {
 					case "completion":
@@ -134,7 +134,7 @@ func TestResponsesLocalInterruptBoundsTerminalHistory(t *testing.T) {
 			for index := 0; index < 2*historyLimit; index++ {
 				local.observeTerminal(fmt.Sprintf("r%d", turns-historyLimit))
 			}
-			local.begin()
+			local.begin(false)
 			defer local.end()
 			local.observeCreated("current")
 			for index := 0; index < turns; index++ {

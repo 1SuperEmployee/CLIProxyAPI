@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/MoeForge/moego/ojson"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	cliproxyexecutor "github.com/router-for-me/CLIProxyAPI/v8/sdk/cliproxy/executor"
-	"github.com/tidwall/gjson"
 )
 
 type terminalInterruptTimeline func(string, []byte, time.Time)
@@ -44,13 +44,13 @@ func TestResponsesTerminalClosesLocalInterruptBeforePublication(t *testing.T) {
 			releaseLocal := func() { releaseLocalOnce.Do(func() { close(releaseLocalTerminal) }) }
 			finished := make(chan error, 1)
 			timeline := terminalInterruptTimeline(func(event string, payload []byte, _ time.Time) {
-				if event == "response" && gjson.GetBytes(payload, "type").String() == terminal &&
-					gjson.GetBytes(payload, "response.id").String() == "r1" {
+				if event == "response" && ojson.GetBytes(payload, "type").String() == terminal &&
+					ojson.GetBytes(payload, "response.id").String() == "r1" {
 					terminalOnce.Do(func() { close(atTerminal) })
 					<-releaseTerminal
 				}
-				if event == "response" && gjson.GetBytes(payload, "type").String() == "response.incomplete" &&
-					gjson.GetBytes(payload, "response.id").String() == "r2" {
+				if event == "response" && ojson.GetBytes(payload, "type").String() == "response.incomplete" &&
+					ojson.GetBytes(payload, "response.id").String() == "r2" {
 					localTerminalOnce.Do(func() { close(atLocalTerminal) })
 					<-releaseLocalTerminal
 				}
@@ -99,7 +99,7 @@ func TestResponsesTerminalClosesLocalInterruptBeforePublication(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				if gjson.GetBytes(payload, "type").String() != event || gjson.GetBytes(payload, "response.id").String() != id {
+				if ojson.GetBytes(payload, "type").String() != event || ojson.GetBytes(payload, "response.id").String() != id {
 					t.Fatalf("expected %s for %s, got %s", event, id, payload)
 				}
 			}

@@ -6,12 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/MoeForge/moego/ojson"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/config"
 	codexresponses "github.com/router-for-me/CLIProxyAPI/v8/internal/translator/codex/openai/responses"
 	cliproxyauth "github.com/router-for-me/CLIProxyAPI/v8/sdk/cliproxy/auth"
 	cliproxyexecutor "github.com/router-for-me/CLIProxyAPI/v8/sdk/cliproxy/executor"
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
-	"github.com/tidwall/gjson"
 )
 
 // Local fixtures only. A clean transport EOF is not a complete model response.
@@ -57,7 +57,7 @@ func TestClaudeOnDemandCompactionRegression(t *testing.T) {
 	payload := []byte(`{"model":"claude-opus-5","max_tokens":4096,"thinking":{"type":"adaptive"},"messages":[{"role":"user","content":"test"}],"compaction":{"type":"summarize"}}`)
 	for _, stream := range []bool{false, true} {
 		body := executeClaudeContextManagementRequest(t, &config.Config{}, payload, stream)
-		if gjson.GetBytes(body, "context_management").Exists() {
+		if ojson.GetBytes(body, "context_management").Exists() {
 			t.Errorf("stream=%v: proxy injected context_management alongside on-demand compaction", stream)
 		}
 	}
@@ -69,7 +69,7 @@ func TestCodexAutomaticCompactionRuleRegression(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !gjson.GetBytes(body, "context_management").Exists() {
+	if !ojson.GetBytes(body, "context_management").Exists() {
 		t.Fatal("proxy stripped the requested server-side automatic compaction rule")
 	}
 }

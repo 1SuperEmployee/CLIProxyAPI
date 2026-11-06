@@ -41,6 +41,11 @@ func TestModelsMultiAgentClientConfigAndReload(t *testing.T) {
 				raw  string
 				want bool
 			}{
+				// The synthetic model is synthesized from the catalog's default
+				// template, which carries multi_agent_version="v2". Runtime code
+				// preserves that template value unless the opt-in rewrites it,
+				// so every case observes "v2"; tc.want asserts the published
+				// client setting after reload, not the catalog field.
 				{"omitted", "{}", false},
 				{"enabled", "client: {codex: {optimize-multi-agent-v2: true}}", true},
 				{"disabled", "client: {codex: {optimize-multi-agent-v2: false}}", false},
