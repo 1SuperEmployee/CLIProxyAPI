@@ -1,3 +1,38 @@
+# v57 candidate, 6 November 2026
+
+Candidate only; the serving gateway remains v45 RC3. Maintained review branch
+`se/review-v8.0.57-20261106` merges official v8.0.57 and retains our durable
+schema-1 bindings, quota ranking, snapshot fences and response-ID-aware interrupts.
+The merge combines upstream socket-ownership safeguards with those interrupt IDs.
+The compaction and dynamic-template protections survived the ojson migration.
+
+Candidate Windows `8.0.57-se-affinity.16-rc2`, runtime source496d4026:
+76,340,736 bytes, SHA256
+`7f8d3d933efda8711a23e8039e6dbb19d474b57cedcf61ce00c519e820fbcf19`.
+Go1.27.3, MinGW GCC16.2.0, CGO and timetzdata; only kernel32.dll is imported.
+Later changes repair test cleanup only, not the production artifact.
+
+Upstream fixes e458999b and d1e5cc60 preserve Claude cooldown reset text and
+reject unsupported forced hosted-image requests without model cooldown. The
+Codex uncertain-refresh correction reuses existing renewal state to avoid replay,
+retain unexpired access and require independent sign-in before renewing the same
+grant. No auth file format, new scheduler or polling service is introduced.
+
+Security dependencies are Brotli1.2.7 and compress1.20.2 for GO-2026-6888 and
+GO-2026-6865, plus retained x/crypto0.58.0 and x/net0.62.0. Fresh source scan finds
+zero vulnerable called code. Binary scanning retains GO-2026-5932: source import
+inspection has no legacy golang.org/x/crypto/openpgp packages and uses the maintained
+ProtonMail replacement. Do not describe the binary scan as empty.
+
+The full ordinary Mac suite passes103 packages. Focused race checks pass;
+`TestClaudeCacheControlDocChecksDoNotMaterializeLargeMessagesArray` exceeds its
+20ms wall-clock budget under instrumentation, with no reported data race. It
+passes in the ordinary suite and is explicitly excluded from the functional
+executor race rerun. Test lifecycle fixes join HTTP-upgraded handlers before log
+cleanup and close the synthetic bbolt store before Windows removes its directory.
+Windows qualification and guarded transition status are still being finalized.
+No live gateway v16 update or new transport/pooling flag is implied by this file.
+
 # Live v45 release and quota ranking, 29 October 2026
 
 The personal gateway runs `8.0.45-se-affinity.15-rc3`, source `bc8e05ae808b`,

@@ -1,5 +1,14 @@
 # Super Employee maintenance
 
+6 November: v57 candidate is on `se/review-v8.0.57-20261106`, not live.
+CURRENT.md identifies exact bytes and qualification limits. The release retains
+our stronger network dependencies and patches the two fresh compression-library
+advisories, rather than replacing the fork with stock v57. Scoped upstream
+cooldown-text and hosted-image repairs are included. Uncertain Codex refreshes
+reuse the existing sign-in-required state while retaining valid access, rather
+than retrying a possibly rotated grant. No new refresh coordinator is introduced.
+
+
 29 October: accepted live release `8.0.45-se-affinity.15-rc3`, source
 `bc8e05ae808b`, integrates official v8.0.45 with retained fork protections.
 CURRENT.md records exact build, artifact and bounded native acceptance.

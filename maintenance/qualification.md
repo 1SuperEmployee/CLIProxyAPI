@@ -1,3 +1,30 @@
+## v57 candidate qualification, 6 November 2026
+
+Runtime source496d4026, test cleanup correction6d3be08f. CURRENT.md owns the
+exact v16 RC2 Windows hash. The base v57 merge and later security changes each
+passed the full ordinary macOS suite,103 packages at the final dependency pin.
+Scoped renewal, image capability, cooldown, durable selection, interrupted-turn
+and database persistence regressions are retained. Four focused race packages
+passed before the dependency change; API/service and the executor functional
+race rerun pass after it. The executor's existing strict20ms performance test
+fails only under race instrumentation and passes normally; it is explicitly
+excluded from that functional race rerun, not weakened or silently counted green.
+
+Current source govulncheck1.9.0 finds zero vulnerable called code. The binary scan
+still reports the known legacy OpenPGP namespace warning; import inspection proves
+no legacy OpenPGP dependency, and retains the maintained ProtonMail replacement.
+No suppression flag was introduced. Windows compilation uses Go1.27.3 CGO,
+MinGW GCC16.2.0 and timetzdata, and imports no non-system DLL. Actual Windows
+unit/startup qualification and exact pre-stop guards are recorded when complete;
+compilation or Mac tests alone are not Windows acceptance.
+
+The ordinary suite exposed an HTTP-test teardown/log-directory race. Its test
+now waits for hijacked handlers after closing the client;20 focused repeats pass.
+Windows exposed the new bbolt fixture's reversed cleanup order. TempDir cleanup
+was registered after DB-close cleanup, causing removal before the mapped file
+closed; registration order is corrected. Neither correction changes production
+behavior or skips its persistence assertion.
+
 ## Accepted RC3 ranking correction, 29 October 2026
 
 RC3 layers a small remaining-weekly-allowance/time-to-reset ranking change onto
