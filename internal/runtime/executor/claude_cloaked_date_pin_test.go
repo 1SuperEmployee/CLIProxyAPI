@@ -348,13 +348,14 @@ func TestClaudeCloakedDateReminderPersistsAcrossRestartWithLocalBBoltKV(t *testi
 	homekv.ClearCurrent()
 	_ = kvstore.ShutdownLocal()
 	helps.ResetClaudeDiagnosticsForTest()
+	// Register TempDir removal first so LIFO cleanup closes the mapped Windows DB before deletion.
+	dbPath := filepath.Join(t.TempDir(), "kv.db")
 	t.Cleanup(func() {
 		homekv.ClearCurrent()
 		_ = kvstore.ShutdownLocal()
 		helps.ResetClaudeDiagnosticsForTest()
 	})
 
-	dbPath := filepath.Join(t.TempDir(), "kv.db")
 	if errCfg := kvstore.ConfigureLocal(true, dbPath); errCfg != nil {
 		t.Fatalf("kvstore.ConfigureLocal(true, %q) error = %v", dbPath, errCfg)
 	}
