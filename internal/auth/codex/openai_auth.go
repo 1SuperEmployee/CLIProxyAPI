@@ -235,7 +235,7 @@ func (o *CodexAuth) refreshTokensSingleFlight(ctx context.Context, refreshToken 
 
 	resp, errDo := o.httpClient.Do(req)
 	if errDo != nil {
-		return nil, fmt.Errorf("token refresh request failed: %w", errDo)
+		return nil, fmt.Errorf("refresh_outcome_unknown: token refresh transport outcome is uncertain; sign in again before another renewal")
 	}
 	defer func() {
 		if errClose := resp.Body.Close(); errClose != nil {
@@ -245,7 +245,7 @@ func (o *CodexAuth) refreshTokensSingleFlight(ctx context.Context, refreshToken 
 
 	body, errRead := io.ReadAll(resp.Body)
 	if errRead != nil {
-		return nil, fmt.Errorf("failed to read refresh response: %w", errRead)
+		return nil, fmt.Errorf("refresh_outcome_unknown: token refresh response could not be read; sign in again before another renewal")
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -261,7 +261,13 @@ func (o *CodexAuth) refreshTokensSingleFlight(ctx context.Context, refreshToken 
 	}
 
 	if errUnmarshal := json.Unmarshal(body, &tokenResp); errUnmarshal != nil {
-		return nil, fmt.Errorf("failed to parse refresh response: %w", errUnmarshal)
+		return nil, fmt.Errorf("refresh_outcome_unknown: token refresh response was malformed; sign in again before another renewal")
+	}
+
+	// A successful exchange may already have rotated the grant. Do not replay
+	// missing or malformed credentials, or publish an empty access token.
+	if strings.TrimSpace(tokenResp.AccessToken) == "" {
+		return nil, fmt.Errorf("refresh_outcome_unknown: token refresh response omitted its access token; sign in again before another renewal")
 	}
 
 	// Extract account ID from ID token
@@ -349,6 +355,7 @@ func isNonRetryableRefreshErr(err error) bool {
 	}
 	raw := strings.ToLower(err.Error())
 	for _, token := range []string{
+		"refresh_outcome_unknown",
 		"refresh_token_reused",
 		"refresh_token_expired",
 		"refresh_token_invalidated",
