@@ -8,14 +8,16 @@ import (
 	"time"
 )
 
-func resetControllerForTest(t *testing.T) {
+func resetControllerForTest(t *testing.T) string {
 	t.Helper()
+	dir := t.TempDir()
 	_ = ShutdownLocal()
 	RegisterHomeProvider(nil)
 	t.Cleanup(func() {
 		_ = ShutdownLocal()
 		RegisterHomeProvider(nil)
 	})
+	return dir
 }
 
 func TestControllerDefaultDisabledReturnsNilClient(t *testing.T) {
@@ -34,9 +36,7 @@ func TestControllerDefaultDisabledReturnsNilClient(t *testing.T) {
 }
 
 func TestControllerConfigureLocalLifecycleAndReuse(t *testing.T) {
-	resetControllerForTest(t)
-
-	dir := t.TempDir()
+	dir := resetControllerForTest(t)
 	dbPath1 := filepath.Join(dir, "kv1.db")
 	dbPath2 := filepath.Join(dir, "kv2.db")
 
@@ -99,10 +99,10 @@ func TestControllerConfigureLocalLifecycleAndReuse(t *testing.T) {
 }
 
 func TestControllerConfigureLocalInvalidPathReportsUnavailableError(t *testing.T) {
-	resetControllerForTest(t)
+	dir := resetControllerForTest(t)
 
 	// Passing an existing directory as the database file path causes bbolt.Open to fail.
-	invalidPath := t.TempDir()
+	invalidPath := dir
 	errCfg := ConfigureLocal(true, invalidPath)
 	if errCfg == nil {
 		t.Fatalf("ConfigureLocal(true, directory) error = nil, want error")
@@ -121,14 +121,14 @@ func TestControllerConfigureLocalInvalidPathReportsUnavailableError(t *testing.T
 }
 
 func TestControllerPrioritizesHomeProviderOverLocalBoltStore(t *testing.T) {
-	resetControllerForTest(t)
+	dir := resetControllerForTest(t)
 
-	localPath := filepath.Join(t.TempDir(), "local.db")
+	localPath := filepath.Join(dir, "local.db")
 	if errCfg := ConfigureLocal(true, localPath); errCfg != nil {
 		t.Fatalf("ConfigureLocal(true, localPath) error = %v", errCfg)
 	}
 
-	homeStorePath := filepath.Join(t.TempDir(), "home-mock.db")
+	homeStorePath := filepath.Join(dir, "home-mock.db")
 	homeStore, errOpen := OpenBoltStore(homeStorePath, WithSweepInterval(0))
 	if errOpen != nil {
 		t.Fatalf("OpenBoltStore(homeStorePath) error = %v", errOpen)
@@ -173,9 +173,9 @@ func TestControllerPrioritizesHomeProviderOverLocalBoltStore(t *testing.T) {
 }
 
 func TestControllerHelpersWithLocalBoltStore(t *testing.T) {
-	resetControllerForTest(t)
+	dir := resetControllerForTest(t)
 
-	dbPath := filepath.Join(t.TempDir(), "helpers.db")
+	dbPath := filepath.Join(dir, "helpers.db")
 	if errCfg := ConfigureLocal(true, dbPath); errCfg != nil {
 		t.Fatalf("ConfigureLocal(true, dbPath) error = %v", errCfg)
 	}

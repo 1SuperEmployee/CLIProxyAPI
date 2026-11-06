@@ -12,12 +12,12 @@ import (
 )
 
 func TestServiceApplyKVStoreConfig_LifecycleAndHotReload(t *testing.T) {
+	dir := t.TempDir()
 	t.Cleanup(func() {
 		home.ClearCurrent()
 		_ = kvstore.ShutdownLocal()
 	})
 
-	dir := t.TempDir()
 	authDir := filepath.Join(dir, "auths")
 	defaultAuthDBPath := filepath.Join(authDir, config.DefaultKVStorePath)
 	dbPath1 := filepath.Join(dir, "kv1.db")
@@ -118,12 +118,12 @@ func TestServiceApplyKVStoreConfig_LifecycleAndHotReload(t *testing.T) {
 }
 
 func TestServiceApplyKVStoreConfig_HomeModeNeverOpensBBolt(t *testing.T) {
+	dir := t.TempDir()
 	t.Cleanup(func() {
 		home.ClearCurrent()
 		_ = kvstore.ShutdownLocal()
 	})
 
-	dir := t.TempDir()
 	dbPath := filepath.Join(dir, "home-should-not-create.db")
 	cfg := &config.Config{
 		Home:    config.HomeConfig{Enabled: true},
