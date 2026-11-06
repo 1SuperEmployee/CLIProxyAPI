@@ -1,6 +1,6 @@
-# v57 candidate, 6 November 2026
+# Live v57 security release, 6 November 2026
 
-Candidate only; the serving gateway remains v45 RC3. Maintained review branch
+Accepted live at 23:00 UTC on 6 November. Maintained review branch
 `se/review-v8.0.57-20261106` merges official v8.0.57 and retains our durable
 schema-1 bindings, quota ranking, snapshot fences and response-ID-aware interrupts.
 The merge combines upstream socket-ownership safeguards with those interrupt IDs.
@@ -30,8 +30,21 @@ The full ordinary Mac suite passes103 packages. Focused race checks pass;
 passes in the ordinary suite and is explicitly excluded from the functional
 executor race rerun. Test lifecycle fixes join HTTP-upgraded handlers before log
 cleanup and close the synthetic bbolt store before Windows removes its directory.
-Windows qualification and guarded transition status are still being finalized.
-No live gateway v16 update or new transport/pooling flag is implied by this file.
+Actual Windows qualification passes 4,095 top-level tests across ten packages,
+with zero failures or skips. Empty-auth startup creates the default KV store and
+returns 401 without provider calls. Six actual Windows pre-stop guards pass.
+
+The guarded executable-only transition selected exact RC2 bytes at 23:00 UTC.
+Fresh startup logs prove active durable persistence with all 36 unexpired groups.
+Console bytes and OAuth are retained; recorder reconnected. The existing official
+Claude/Codex synthetic conversation IDs resumed with tools, their pre-transition
+accounts and cache reads. No VPS agent/configuration or transport flag changed.
+This is bounded continuation proof, not every business delivery or in-flight
+interruption recovery. Immediate software recovery is exact retained v15 RC3 below.
+
+Official v8.0.58 was released at 13:16 UTC while this candidate was awaiting its
+window. Its cooldown and hosted-image fixes are already included here. Remaining
+v58 changes require separate qualification; do not describe this release as v58.
 
 # Live v45 release and quota ranking, 29 October 2026
 

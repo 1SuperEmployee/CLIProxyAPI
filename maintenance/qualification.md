@@ -1,6 +1,6 @@
-## v57 candidate qualification, 6 November 2026
+## Accepted v57 qualification, 6 November 2026
 
-Runtime source496d4026, test cleanup correction6d3be08f. CURRENT.md owns the
+Runtime source496d4026, test cleanup corrections through4df3d3fd. CURRENT.md owns the
 exact v16 RC2 Windows hash. The base v57 merge and later security changes each
 passed the full ordinary macOS suite,103 packages at the final dependency pin.
 Scoped renewal, image capability, cooldown, durable selection, interrupted-turn
@@ -15,8 +15,15 @@ still reports the known legacy OpenPGP namespace warning; import inspection prov
 no legacy OpenPGP dependency, and retains the maintained ProtonMail replacement.
 No suppression flag was introduced. Windows compilation uses Go1.27.3 CGO,
 MinGW GCC16.2.0 and timetzdata, and imports no non-system DLL. Actual Windows
-unit/startup qualification and exact pre-stop guards are recorded when complete;
-compilation or Mac tests alone are not Windows acceptance.
+qualification passes4,095 top-level tests across ten packages, zero failures/skips.
+Empty-auth startup returns401 and creates the default KV store without provider
+requests. Six Windows pre-stop guards pass and retain the old live process.
+
+At23:00UTC the authorized executable-only cutover retained all36 unexpired
+binding groups. Fresh process and log intervals prove mode=active, beyond saved
+file equality. Console unchanged, recorder reconnected, OAuth retained. Both
+existing official-harness synthetic IDs resumed tools, preserved their accounts
+and produced cache reads. No business send or in-flight recovery test occurred.
 
 The ordinary suite exposed an HTTP-test teardown/log-directory race. Its test
 now waits for hijacked handlers after closing the client;20 focused repeats pass.

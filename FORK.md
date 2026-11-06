@@ -1,6 +1,9 @@
 # Super Employee maintenance
 
-6 November: v57 candidate is on `se/review-v8.0.57-20261106`, not live.
+6 November: v57 security release is accepted live as
+`8.0.57-se-affinity.16-rc2`, runtime496d4026. CURRENT.md records the exact
+artifact, Windows4,095-test qualification and same-account native continuity.
+The review branch is `se/review-v8.0.57-20261106`.
 CURRENT.md identifies exact bytes and qualification limits. The release retains
 our stronger network dependencies and patches the two fresh compression-library
 advisories, rather than replacing the fork with stock v57. Scoped upstream
