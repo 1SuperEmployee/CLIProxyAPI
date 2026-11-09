@@ -1,5 +1,10 @@
 # Super Employee maintenance
 
+9 November: candidate `8.0.57-se-affinity.17-rc1`, runtime f10a5b86, on branch
+`se/review-v8.0.57-claude321-20261109`, presents Claude Code 2.1.321 instead of
+2.1.280 so Anthropic accepts `claude-fable-5-2`. It is qualified and staged, not
+live. CURRENT.md records the bytes, qualification and what was not established.
+
 6 November: v57 security release is accepted live as
 `8.0.57-se-affinity.16-rc2`, runtime496d4026. CURRENT.md records the exact
 artifact, Windows4,095-test qualification and same-account native continuity.

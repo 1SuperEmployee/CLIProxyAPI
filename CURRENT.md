@@ -1,3 +1,36 @@
+# Claude Code 2.1.321 candidate, 9 November 2026 (not live)
+
+Candidate Windows `8.0.57-se-affinity.17-rc1`, runtime source f10a5b86 on v57
+`65670a48`: 76,348,416 bytes, SHA256
+`9fe25607a1f0789e284eed188fcdd16d7392f95082fe21e29268bcb4400eaf73`.
+Go1.27.3, MinGW GCC16.2.0 (Homebrew mingw-w64 14.0.0_3), CGO and timetzdata, built
+from a clean tree with v16 RC2's recorded flags; only kernel32.dll is imported.
+Staged unreferenced as `bin\cli-proxy-affinity-v17-rc1.exe`; the service still
+selects v16 RC2. Matched operator: `release-operator-v17`, exact v16 RC2/v17 RC1.
+
+Anthropic refuses `claude-fable-5-2` from Claude Code 2.1.280 ("2.1.290 or newer
+is required"). The baseline is now `claude-cli/2.1.321 (external, cli)`, Stainless
+0.128.0, runtime v26.12.1, and cloaked billing `cc_version=2.1.321.<hash>` with
+the unchanged salt and algorithm. Synthesized betas drop the generally available
+mid-conversation-system header, move thinking-token-count after the per-model and
+advisor betas, and take per-turn-control/timing models from the 2.1.321 catalog,
+adding Fable 5.2, Sonnet 5.5, Haiku 5.5 and Mythos 5.2. Values were read statically
+from the 2.1.321 binary; flag-gated betas, clear-at, progress display and the Fable
+5.1 additions keep v16 behaviour. The measurement and its open items are in the
+operator tools at `research/claude-2.1.321-measurement-20261109.md`.
+
+The baseline is also the native-detection floor. Native clients older than
+2.1.321 are no longer confirmed, so their requests take the cloaked path instead
+of native passthrough. Update every native Claude Code consumer to 2.1.321 before
+the switch, or accept that change for the ones left behind.
+
+Full ordinary Mac suite: 103 packages, 9,568 top-level tests passing, 10 skipped,
+none failing. Actual Windows qualification: 4,095 top-level tests across the same
+ten packages as v57, zero failures or skips; empty-auth startup created the
+default KV store and returned 401 with no provider request. Six actual Windows
+pre-stop guards and nine bounded-process checks passed with the live gateway
+unchanged. No live native capture, race run or provider request was made.
+
 # Live v57 security release, 6 November 2026
 
 Accepted live at 23:00 UTC on 6 November. Maintained review branch
