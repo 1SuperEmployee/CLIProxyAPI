@@ -1,4 +1,31 @@
-# Claude Code 2.1.321 candidate, 9 November 2026 (not live)
+# Claude Code 2.1.321 candidate RC2, 9 November 2026 (not live)
+
+Candidate Windows `8.0.57-se-affinity.17-rc2`, runtime source f688ae73 on RC1's
+f10a5b86: 76,349,440 bytes, SHA256
+`73252246c8ab75f113ca83fddd5ec935ba119f5e44b72d34dfd3086033ed9881`.
+Built exactly as RC1: Go1.27.3, MinGW GCC16.2.0 (Homebrew mingw-w64 14.0.0_3),
+CGO and timetzdata, clean tree, `-X main.Version=8.0.57-se-affinity.17-rc2
+-X main.Commit=f688ae73`; only kernel32.dll is imported. The five test binaries
+whose packages f688ae73 does not reach are byte-identical to RC1's. Staged
+unreferenced as `bin\cli-proxy-affinity-v17-rc2.exe` at 00:32 UTC on 10 November,
+beside RC1's file, which stays but is superseded; the service still selects v16
+RC2. Matched operator: `release-operator-v17`, exact v16 RC2/v17 RC2.
+
+RC2 keeps the 2.1.321 presentation and fixes RC1's floor: the User-Agent native
+floor stays at 2.1.280 within the 2.1 line, so the fleet's 2.1.302 clients keep
+native passthrough and prompt caching. Not floored: Haiku 5.5 helper requests
+without the Claude Code beta still need Stainless package >= 0.128.0 and runtime
+>= v26.12.1, and 2.1.302's values are unmeasured. Main turns are unaffected.
+
+Full ordinary Mac suite: 103 packages, 9,569 top-level tests passing, 10 skipped,
+none failing. Actual Windows qualification: 4,095 top-level tests across the same
+ten packages, zero failures or skips; empty-auth startup created the default KV
+store and returned 401 with no provider request. Six actual Windows pre-stop
+guards and nine bounded-process checks passed with the live gateway unchanged.
+Receipts: `upstream-review/v17-rc2-*`. No live native capture, race run or
+provider request was made.
+
+# Claude Code 2.1.321 candidate RC1, 9 November 2026 (superseded by RC2, not live)
 
 Candidate Windows `8.0.57-se-affinity.17-rc1`, runtime source f10a5b86 on v57
 `65670a48`: 76,348,416 bytes, SHA256

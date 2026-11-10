@@ -1,9 +1,11 @@
 # Super Employee maintenance
 
-9 November: candidate `8.0.57-se-affinity.17-rc1`, runtime f10a5b86, on branch
+9 November: candidate `8.0.57-se-affinity.17-rc2`, runtime f688ae73, on branch
 `se/review-v8.0.57-claude321-20261109`, presents Claude Code 2.1.321 instead of
-2.1.280 so Anthropic accepts `claude-fable-5-2`. It is qualified and staged, not
-live. CURRENT.md records the bytes, qualification and what was not established.
+2.1.280 so Anthropic accepts `claude-fable-5-2`, and keeps native passthrough
+from 2.1.280. It is qualified and staged, not live, and supersedes RC1
+(f10a5b86), whose 2.1.321 native floor would have cloaked the fleet's 2.1.302
+clients. CURRENT.md records the bytes, qualification and what was not established.
 
 6 November: v57 security release is accepted live as
 `8.0.57-se-affinity.16-rc2`, runtime496d4026. CURRENT.md records the exact
