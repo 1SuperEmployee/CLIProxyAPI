@@ -696,8 +696,21 @@ func plausibleClaudeCodeUserAgent(userAgent string, cfg *config.Config) bool {
 	}
 	candidate, okCandidate := parseClaudeCLIVersion(userAgent)
 	baseline, okBaseline := parseClaudeCLIVersion(defaultClaudeDeviceProfile(cfg).UserAgent)
-	// Patch releases (>= baseline.patch) within the release line preserve native passthrough.
-	return okCandidate && okBaseline && plausibleClaudeCLIVersion(candidate, baseline)
+	// Patch releases (>= floor.patch) within the release line preserve native passthrough.
+	return okCandidate && okBaseline && plausibleClaudeCLIVersion(candidate, nativeClaudeCLIFloor(baseline))
+}
+
+// minimumNativeClaudeCLIVersion is the oldest measured 2.1 release. Raising the presented
+// baseline must not drop native passthrough for clients the fleet already runs between it and
+// the baseline.
+var minimumNativeClaudeCLIVersion = claudeCLIVersion{major: 2, minor: 1, patch: 280}
+
+func nativeClaudeCLIFloor(baseline claudeCLIVersion) claudeCLIVersion {
+	floor := minimumNativeClaudeCLIVersion
+	if baseline.major == floor.major && baseline.minor == floor.minor && floor.patch < baseline.patch {
+		return floor
+	}
+	return baseline
 }
 
 func parseClaudeCodeUserAgentDetails(userAgent string) (entrypoint, agentSDKVersion string) {
