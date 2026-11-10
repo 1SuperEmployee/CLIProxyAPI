@@ -1,4 +1,8 @@
-# Claude Code 2.1.321 candidate RC2, 9 November 2026 (not live)
+# Claude Code 2.1.321 RC2, accepted live 02:39:52 UTC on 10 November 2026
+
+Live on the home PC since the guarded v16→v17 switch. Startup, recorder,
+synthetic native continuity, and Opus 5.5 plus Fable 5.2 proof requests passed.
+Exact v16 RC2 is retained for recovery. Acceptance: `release-operator-v17/inference-gateway/CURRENT.md`.
 
 Candidate Windows `8.0.57-se-affinity.17-rc2`, runtime source f688ae73 on RC1's
 f10a5b86: 76,349,440 bytes, SHA256
