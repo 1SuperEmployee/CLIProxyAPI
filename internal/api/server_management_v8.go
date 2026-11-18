@@ -46,6 +46,7 @@ func (s *Server) registerManagementV8Routes() {
 	for _, route := range []string{"status", "summary", "events"} {
 		v8.GET("/observability/ledger/"+route, ledgerBridge)
 	}
+	v8.GET("/observability/requests/in-flight", s.mgmt.GetInFlightRequests)
 
 	v8.GET("/credentials", s.mgmt.ListAuthFiles)
 	v8.POST("/credentials", s.mgmt.UploadAuthFileV8)

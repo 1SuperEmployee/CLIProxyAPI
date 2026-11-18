@@ -1,3 +1,21 @@
+# v18 candidate, 18 November 2026
+
+Candidate only: merged upstream v8.0.77 into the accepted v17 fork. The live gateway
+remains v17 until Windows qualification and the coordinated quiet-window transition.
+
+Retained: schema-1 durable affinity, atomic cold binding, quota-ranked cold/failover
+selection, timestamped quota snapshots, bounded/coalesced refresh, native Claude
+2.1.280+ passthrough, response-aware interrupts, ledger bridge and dependency security
+floors. Upstream adds GPT-6.2 catalog entries including Sol Ultrafast, typed refresh
+journaling/recovery, weighted routing, request-scoped error policies and media fixes.
+The non-weighted branch of the new affinity reservation helper explicitly retains
+our quota-aware fallback. User payload rules remain the final semantic barrier.
+
+Qualification uses Go 1.27.4 and LLVM-MinGW 20261104 on actual Windows, isolated
+from live config/auth. Receipts: `upstream-review/v18-windows/` in the operator tools.
+Exact accepted v17 executable is the rollback; never restore old OAuth or checkpoint
+snapshots for a software rollback. Acceptance will be recorded after deployment.
+
 # Claude Code 2.1.321 RC2, accepted live 02:39:52 UTC on 10 November 2026
 
 Live on the home PC since the guarded v16→v17 switch. Startup, recorder,
