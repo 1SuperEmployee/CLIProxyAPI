@@ -2154,6 +2154,7 @@ func TestModelsWithClientVersionReturnsCodexCatalog(t *testing.T) {
 			ContextLength: 123456,
 			Thinking:      &registry.ThinkingSupport{Levels: []string{"none", "minimal", "low", "medium", "unsupported", "high", "xhigh"}},
 		},
+		{ID: "gpt-6.2-sol", Object: "model", OwnedBy: "openai", Type: "codex"},
 		{ID: "grok-imagine-image-quality", Object: "model", OwnedBy: "xai", Type: "openai"},
 		{ID: "gpt-image-2", Object: "model", OwnedBy: "openai", Type: "openai"},
 		{ID: "gpt-image-2.5-flare", Object: "model", OwnedBy: "openai", Type: "openai"},
@@ -2203,10 +2204,13 @@ func TestModelsWithClientVersionReturnsCodexCatalog(t *testing.T) {
 		t.Fatal("expected codex catalog models")
 	}
 
+	var sol62 map[string]any
 	var gpt55 map[string]any
 	var custom map[string]any
 	for _, model := range resp.Models {
 		switch slug, _ := model["slug"].(string); slug {
+		case "gpt-6.2-sol":
+			sol62 = model
 		case "gpt-5.5":
 			gpt55 = model
 		case "custom-codex-model-test":
@@ -2226,8 +2230,15 @@ func TestModelsWithClientVersionReturnsCodexCatalog(t *testing.T) {
 		t.Fatalf("gpt-5.5 max_tokens = %v, want 64000", gpt55["max_tokens"])
 	}
 	serviceTiers, ok := gpt55["service_tiers"].([]any)
-	if !ok || len(serviceTiers) != 1 {
-		t.Fatalf("expected gpt-5.5 priority service tier, got %#v", gpt55["service_tiers"])
+	if !ok || len(serviceTiers) != 0 {
+		t.Fatalf("expected current gpt-5.5 catalog without speed tiers, got %#v", gpt55["service_tiers"])
+	}
+	if sol62 == nil {
+		t.Fatal("expected gpt-6.2-sol catalog entry")
+	}
+	solTiers, ok := sol62["service_tiers"].([]any)
+	if !ok || len(solTiers) != 2 || solTiers[0].(map[string]any)["id"] != "priority" || solTiers[1].(map[string]any)["id"] != "ultrafast" {
+		t.Fatalf("expected Sol 6.2 priority and ultrafast tiers, got %#v", sol62["service_tiers"])
 	}
 	if custom == nil {
 		t.Fatal("expected custom model codex catalog entry")

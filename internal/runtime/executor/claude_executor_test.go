@@ -9259,19 +9259,19 @@ func TestClaudeCodeCLIBetas_MatchesObservedClientMatrix(t *testing.T) {
 				"mid-conversation-system-clear-at-2026-08-21,effort-2025-11-24",
 		},
 		{
-			name: "fable-5-2 carries per-turn-control from the 2.1.321 catalog",
+			name: "fable-5-2 carries per-turn-control in the current catalog",
 			body: `{"model":"claude-fable-5-2"}`,
-			want: constants + ",per-turn-control-2026-07-01,mid-conversation-tool-changes-2026-07-01,thinking-token-count-2026-05-13,effort-2025-11-24",
+			want: constants + ",per-turn-control-2026-07-01,mid-conversation-tool-changes-2026-07-01,thinking-token-count-2026-05-13,mid-conversation-system-clear-at-2026-08-21,effort-2025-11-24",
 		},
 		{
 			name: "fable-5-2 per-turn timing body adds timing",
 			body: `{"model":"claude-fable-5-2","output_config":{"timing":{"now":"2026-11-09T00:00:00Z"}}}`,
-			want: constants + ",per-turn-control-2026-07-01,timing-2026-09-09,mid-conversation-tool-changes-2026-07-01,thinking-token-count-2026-05-13,effort-2025-11-24",
+			want: constants + ",per-turn-control-2026-07-01,timing-2026-09-09,mid-conversation-tool-changes-2026-07-01,thinking-token-count-2026-05-13,mid-conversation-system-clear-at-2026-08-21,effort-2025-11-24",
 		},
 		{
 			name: "haiku-5-5 per-turn timing body does not add timing",
 			body: `{"model":"claude-haiku-5-5","output_config":{"timing":{"now":"2026-11-09T00:00:00Z"}}}`,
-			want: constants + ",per-turn-control-2026-07-01,mid-conversation-tool-changes-2026-07-01,thinking-token-count-2026-05-13",
+			want: "interleaved-thinking-2025-05-14,redact-thinking-2026-02-12,context-management-2025-06-27,prompt-caching-scope-2026-01-05,claude-code-20250219,per-turn-control-2026-07-01,mid-conversation-tool-changes-2026-07-01,thinking-token-count-2026-05-13,mid-conversation-system-clear-at-2026-08-21,effort-2025-11-24",
 		},
 		{
 			name: "opus-5-5 timing and the other gated betas keep 2.1.321 wire order",

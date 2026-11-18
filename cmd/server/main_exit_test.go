@@ -110,6 +110,9 @@ func TestMalformedConfigExitsWithFailure(t *testing.T) {
 }
 
 func TestTUIClientFailureExitsWithFailure(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows opens CONIN$ even with redirected input; missing Unix TTY failure is not applicable")
+	}
 	dir := t.TempDir()
 	configPath := writeTestServerConfig(t, dir, 18317)
 	command, stdout, stderr := newServerExitCommand(t, dir, "--config", configPath, "--tui")
@@ -155,6 +158,9 @@ func TestTUIStandaloneEmbeddedServerNotReadyExitsWithFailure(t *testing.T) {
 }
 
 func TestTUIStandaloneFailureExitsWithFailure(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows opens CONIN$ even with redirected input; missing Unix TTY failure is not applicable")
+	}
 	listener, errListen := net.Listen("tcp", "127.0.0.1:0")
 	if errListen != nil {
 		t.Fatal(errListen)
