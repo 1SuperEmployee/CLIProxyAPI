@@ -1,3 +1,76 @@
+# Live v18 transition, 18 November 2026
+
+## Accepted v18 update, 18 November 2026
+
+Su requested the CLIProxy gateway update and a Sol 6.2 Ultrafast check. The latest
+stable release was rechecked after deployment: **v8.0.77**, published 17 November.
+The maintained fork is live as **8.0.77-se-affinity.18-rc1**, accepted at
+08:15:20 UTC on 18 November (00:15 Vancouver).
+
+Runtime source `2e0acb34`, test-only qualification fixes `b4006f89`, branch
+`se/review-v8.0.77-20261118` in `1SuperEmployee/CLIProxyAPI`. Windows amd64,
+Go 1.27.4, CGO, LLVM-MinGW 20261104 UCRT, timetzdata, 79,290,880 bytes.
+SHA256 `6fde991637521d72ceec37eb603a3b620e673ec5a34d15ef0cc43470d51f8309`.
+Selected file: `C:/ProgramData/SuperEmployee/InferenceGateway/bin/cli-proxy-affinity-v18-rc1.exe`.
+Exact accepted v17 RC2 remains staged for immediate software rollback, SHA256
+`73252246c8ab75f113ca83fddd5ec935ba119f5e44b72d34dfd3086033ed9881`.
+
+The merge retains schema-1 durable affinity, atomic cold binding, quota-ranked
+fresh/failover selection, timestamped quota observations, bounded/coalesced refresh,
+native Claude passthrough from 2.1.280, response-aware interrupts and the ledger
+bridge. Upstream refresh journaling, weighted routing, request-scoped error rules,
+media fixes and the GPT-6.2 catalog are included. Security dependency floors were
+retained. User payload rules remain the final semantic barrier.
+
+Qualification: full actual Windows suite, 105 packages, 10,401 top-level passes and
+20 skips; full Linux suite, 105 packages, 10,414 passes and 13 skips. No failures.
+The Windows skips include two missing-Unix-TTY failure cases; Linux exercised them.
+Focused races passed on both systems. Windows isolated empty-auth startup returned
+401 and created its own default KV store while live PID 8340 stayed unchanged.
+112 maintenance, 12 observability and 12 enrollment tests passed. All six pre-stop
+guards and nine bounded-process checks passed. Same-machine selection benchmarks
+matched v17: about 16.5 ns for a healthy binding and 191 ns for four fresh accounts,
+with unchanged allocations. The isolated Linux plugin test left a helper orphan;
+only that verified owned test process was stopped after the successful suite.
+
+Before the switch, current SE, Woodhouse, Paan and PC T3 stores had no running
+turns or tasks due within five minutes. Both live lines had zero replies owed,
+no send or draft open and ATTENTION none. Mac had this operator running and a
+peer waiting on its local render, with no inference in progress. Su was warned
+several minutes before the restart. No client process or VPS service was restarted.
+
+The bounded executable-only transition succeeded without timeout: wrapper PID
+8340 -> 6656, child 20928. It retained all 129 unexpired checkpoint groups and the
+console hash; restored the running usage recorder; and left enrollment/Tailscale
+running. Fresh log bytes proved v18 startup with active persistence and 129 groups.
+The recorder reconnected as connection 17; SQLite quick_check was ok and its
+heartbeat advanced. No OAuth file was modified by the operator.
+
+The existing synthetic Claude and Codex conversation IDs resumed successfully,
+including tools and incremental streaming; Codex Stop and same-ID resume passed.
+Both retained their prior account and cache reads. There were no failed ledger
+events in the initial post-switch check. This does not certify every business
+message or in-flight interruption recovery.
+
+**Sol 6.2:** the live Codex-format gateway catalog now advertises `gpt-6.2-sol`
+with Fast and Ultrafast. A real synthetic `service_tier=ultrafast` request completed
+with the expected marker, but the provider returned `service_tier=default`, both
+before and after the update. The ledger records requested ultrafast / returned
+default. A fresh native Codex 0.170.0 app-server model/list through personal_gateway
+still exposes only Fast, including with experimental API enabled. Therefore
+Sol 6.2 works; **Ultrafast through the native gateway client is not yet verified or
+exposed in that picker**. Catalog presence is not proof that the provider used it.
+No selected model, reasoning effort or provider setting was changed.
+
+Matched operator: `/Users/jetblack/Documents/Super/tools/inference-gateway/release-operator-v18`,
+branch `ig/v18-20261118`, with upgrade v17 -> v18, restart v18, rollback v18 -> v17,
+and return-current v17 -> v18. PC scripts and receipts:
+`D:/Operator/se/ig-v18-qualification/`. Build tools, isolated tests and binary:
+`D:/Operator/tools/ig-build-20261118/`. Mac receipts and public metadata:
+`/Users/jetblack/Documents/Super/tools/inference-gateway/upstream-review/v18-windows/`.
+Rollback preserves current OAuth, KV state and schema-1 checkpoint; never restore
+old credential or checkpoint snapshots for a software rollback.
+
 # v18 candidate, 18 November 2026
 
 Candidate only: merged upstream v8.0.77 into the accepted v17 fork. The live gateway
